@@ -43,7 +43,7 @@ extern "C" {
 #define MODEL_FILE      "/home/yaoyao/Documents/myProjects/ROS2WithSPCK/Vehicle4WDB_RealtimeCRV.spck" // 模型文件
 #define SPCK_MODE       E_RT_MODE__KEEP_SLV  // 实时模式: 保持 solver 进程不退出
 #define SPCK_CPUS       ""                   // CPU 绑定字符串 (空表示不绑定)
-#define SPCK_RT_PRIO    80                   // 实时优先级, 需系统权限 (非0表示硬实时), 若无权限可改为0
+#define SPCK_RT_PRIO    40                   // 实时优先级, 需系统权限 (非0表示硬实时), 若无权限可改为0
 #define SPCK_VERBOSE    0                   // SIMPACK 日志输出详细度(0~5)
 #define SPCK_POSIX_TIMEOUT 5              // POSIX MQ 超时时间(秒), 一般略大于步长
 

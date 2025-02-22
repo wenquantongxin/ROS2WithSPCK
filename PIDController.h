@@ -1,6 +1,7 @@
 /*
 
-PIDController.h
+文件名: PIDController.h
+
 这是一个与 Python 逻辑对应的 并行型 PID + 一阶滤波微分 类，可以直接拷贝到工程中使用。
 
 */

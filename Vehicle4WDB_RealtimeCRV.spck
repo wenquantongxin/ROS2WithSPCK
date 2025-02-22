@@ -270,7 +270,7 @@ slv.meas.subvar (                   $SLV_SolverSettings           ) = 1         
 slv.assmbl.task (                   $SLV_SolverSettings           ) = 3                       ! ASSMBL_PAR_SOLVER_MODE
 slv.output.path.type (              $SLV_SolverSettings           ) = 1                       ! OUTPUT_PATH_PAR_TYPE
 slv.output.file.desc (              $SLV_SolverSettings           ) = ''                      ! Description written to the output file if supported
-slv.threads (                       $SLV_SolverSettings           ) = 8                       ! Solver Threads
+slv.threads (                       $SLV_SolverSettings           ) = 6                       ! Solver Threads
 slv.compat.solver (                 $SLV_SolverSettings           ) = 0                       ! 0 = no (new solver); 1 = yes (classic solver)
 slv.rt.enable (                     $SLV_SolverSettings           ) = 1                       ! Enable realtime simulation
 slv.rt.animation.enable (           $SLV_SolverSettings           ) = 1                       ! Enable realtime animation
