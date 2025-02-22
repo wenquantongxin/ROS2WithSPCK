@@ -1,3 +1,18 @@
+/*
+
+GenRefTrajectory.cpp
+
+    - 编译: 
+        g++ -std=c++17 GenRefTrajectory.cpp PiecewiseTrajectory.cpp -o test_traj
+
+    - 运行:
+        ./test_traj
+
+    - 可视化(Python):
+    读取 CPPRefTrajectory_Data.csv
+
+*/
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -41,15 +56,3 @@ int main()
     return 0;
 }
 
-/*
-
- - 编译: 
-    g++ -std=c++17 GenRefTrajectory.cpp PiecewiseTrajectory.cpp -o test_traj
-
- - 运行:
-    ./test_traj
-
- - 可视化(Python):
-    读取 CPPRefTrajectory_Data.csv
-
-*/

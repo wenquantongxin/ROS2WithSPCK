@@ -12,10 +12,10 @@
       -L /opt/Simpack-2021x/run/realtime/linux64 \
       -I /opt/Simpack-2021x/run/realtime \
       -lspck_rt -lrt -lm \
-      -o Test_SpckRT_demo
+      -o Test_SpckRT_demo                                 
    
    运行：
-   ./Test_SpckRT_demo
+   ./Test_SpckRT_demo                                           
 
  */
 
@@ -34,7 +34,7 @@
 
 // spck_rt_v1.h (或 spck_rt.h) 是纯 C 头文件, 在 C++ 中需要 extern "C"
 extern "C" {
-   #include "/home/yaoyao/Documents/myProjects/ROS2WithSPCK/realtime/spck_rt.h"
+   #include "/opt/Simpack-2021x/run/realtime/spck_rt.h"
 }
 
 // ----------------- 宏定义 -----------------------
@@ -46,16 +46,15 @@ extern "C" {
 #define SPCK_VERBOSE    0                   // SIMPACK 日志输出详细度(0~5)
 #define SPCK_POSIX_TIMEOUT 5              // POSIX MQ 超时时间(秒), 一般略大于步长
 
-// 你的仿真需求
+// 仿真时长、步长、输入输出
 static const double SIM_DURATION = 50.0;     // 仿真总时长(秒)
 static const double DT           = 0.001;    // 仿真步长(秒)
 static const int    NU_EXPECTED  = 8;        // 模型里定义的 u-inputs 数量
 static const int    NY_EXPECTED  = 28;       // 模型里定义的 y-outputs 数量
 
-// 半径相关, 在python中用 860/2000=0.43m, 这里分开写
-static const double WHEEL_RADIUS = 0.43; // 车轮半径 0.43m
+// 半径相关, 在python中用 860/2000=0.43m
 // SIMPACK 中读取到的车轮转速是负值 => 实际线速度 = -y[index]*R
-
+static const double WHEEL_RADIUS = 0.43; // 车轮半径 0.43 m
 
 // SIMPACK 输出 y[] 的索引，y[8..15]分别对应车轮转速 (WL01..WR04)
 // 具体请核实 SIMPACK Realtime Outputs 的顺序
@@ -78,7 +77,6 @@ static double v_right_end = (60.0/3.6)/300.0 * (300.0 - 1.5/2.0);  // 右侧车�
 static std::vector<double> times = {0.0, 3.0, 6.0, 100.0};
 static std::vector<double> vals_left  = {v_begin, v_begin, v_left_end,  v_left_end};
 static std::vector<double> vals_right = {v_begin, v_begin, v_right_end, v_right_end};
-
 
 int main()
 {
