@@ -1,5 +1,5 @@
 /*
- * Test_SpckRT.cpp
+ * 文件名: Test_SpckRT.cpp
  *
  * 说明：
  *  - 使用 SIMPACK Realtime (POSIX MQ 模式) + C++ PID 控制器 + PiecewiseTrajectory
@@ -27,6 +27,7 @@
 #include <vector>
 #include <cmath>
 #include <string>
+#include <sstream>    // std::ostringstream
 
 // 你的 PID 控制器与 分段曲线头文件
 #include "PIDController.h"
@@ -48,7 +49,7 @@ extern "C" {
 
 // 仿真时长、步长、输入输出
 static const double SIM_DURATION = 50.0;     // 仿真总时长(秒)
-static const double DT           = 0.001;    // 仿真步长(秒)
+static const double DT           = 0.002;    // 仿真步长(秒)
 static const int    NU_EXPECTED  = 8;        // 模型里定义的 u-inputs 数量
 static const int    NY_EXPECTED  = 28;       // 模型里定义的 y-outputs 数量
 
@@ -163,7 +164,7 @@ int main()
       return 1;
    }
 
-   // 写一个标题行，包含 Time 以及 28 个输出的名字
+   // 先写一个标题行，包含 Time 以及 28 个输出的名字
    // 不再使用 # time(s) y0 y1 ... y27, 而是改为以双引号+Tab 分隔
    for (int i = 0; i < ny + 1; ++i) {
       logFile << g_columnNames[i];
@@ -174,6 +175,9 @@ int main()
          logFile << "\n";  // 最后一列后换行
       }
    }
+
+   //不直接写文件, 改为写内存缓冲
+   std::ostringstream logBuffer;
 
    // 6) 构建左右车轮的目标速度曲线
    PiecewiseConstantSecondDeriv trajLeft(times,  vals_left);
@@ -237,12 +241,19 @@ int main()
       // 9.4 写u到 SIMPACK
       SpckRtSetU(u);
 
-      // 9.5 记录日志 (先写 time, 再写 y[0..ny-1])
-      logFile << time;
+      // // 9.5 记录日志 (先写 time, 再写 y[0..ny-1])
+      // logFile << time;
+      // for (int j=0; j<ny; ++j) {
+      //    logFile << "\t" << y[j];
+      // }
+      // logFile << "\n";
+      
+      // 9.5 记录到 logBuffer
+      logBuffer << time;
       for (int j=0; j<ny; ++j) {
-         logFile << "\t" << y[j];
+         logBuffer << "\t" << y[j];
       }
-      logFile << "\n";
+      logBuffer << "\n";
 
       // 9.6 推进到下一时刻
       if (iStep < steps) {
@@ -257,9 +268,17 @@ int main()
          }
       }
    }
-
+   
    // 10) 收尾
-   logFile.close();
+   // 仿真结束后，统一打开文件，一次性写入记录的数据
+   if(!logFile.is_open()){
+      std::cerr << "Failed to open SimResult.log\n";
+   } else {
+      logFile << logBuffer.str();
+      logFile.close();
+   }
+
+   // API 关闭 SPCK
    SpckRtFinish();
    delete[] u;
    delete[] y;
