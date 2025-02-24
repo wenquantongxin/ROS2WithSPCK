@@ -5,7 +5,6 @@
 !*/
 
 # 排除文件夹
-ref_files/
 BatchTmp/
 ChkPnt/
 __pycache__/
@@ -26,6 +25,9 @@ PostAnalysis/rosbag2_*/
 *.sir
 *.intinfo
 *.log
+
+# 几何模型文件
+*.STL
 
 # 文档和表格
 *.csv
