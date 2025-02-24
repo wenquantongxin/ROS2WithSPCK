@@ -49,7 +49,8 @@ private:
   int step_count_;      // 已执行步数
 
   // 读写文件
-  std::ostringstream logBuffer;
+  std::ostringstream logBuffer_U;
+  std::ostringstream logBuffer_Y;
 };
 
 #endif  // SIMPACK_CONTROL__SIMPACKNODE_HPP_

@@ -73,7 +73,7 @@ static const int INDEX_SPEEDDIFF_REAR_D  = 27;
 
 // 定义数组记录列名
 // 注意: 数组大小必须是 28+1=29, 第一个是 "Time"，后面是 28 个 y-output
-static const char* g_columnNames[29] = {
+static const char* Y_columnNames[29] = {
 "\"Time\"",
 "\"$Y_Yw01\"", "\"$Y_Yw02\"", "\"$Y_Yw03\"", "\"$Y_Yw04\"",
 "\"$Y_Yaw01\"", "\"$Y_Yaw02\"", "\"$Y_Yaw03\"", "\"$Y_Yaw04\"",
@@ -83,6 +83,11 @@ static const char* g_columnNames[29] = {
 "\"$Y_SpeedDiff_FrontA\"", "\"$Y_SpeedDiff_FrontB\"", "\"$Y_SpeedDiff_FrontC\"", "\"$Y_SpeedDiff_FrontD\"",
 "\"$Y_SpeedDiff_RearA\"",  "\"$Y_SpeedDiff_RearB\"",  "\"$Y_SpeedDiff_RearC\"",  "\"$Y_SpeedDiff_RearD\""
 };
+
+static const char* U_columnNames[9] = {
+  "\"Time\"",
+  "\"$UI_00\"", "\"$UI_01\"", "\"$UI_02\"", "\"$UI_03\"",
+  "\"$UI_04\"", "\"$UI_05\"", "\"$UI_06\"", "\"$UI_07\""};
 
 SimpackNode::SimpackNode(const rclcpp::NodeOptions & options)
 : Node("simpack_node", options),
@@ -117,39 +122,71 @@ SimpackNode::SimpackNode(const rclcpp::NodeOptions & options)
     return;
   }
 
-  // 5) 计算最大步数 + 创建日志文件
+  // 5.1) 计算最大步数
   max_steps_ = static_cast<int>(sim_duration_ / dt_ + 0.5);
-
-  // 打开日志文件
-  std::ifstream checkFile("./PostAnalysis/Result_ROSwithSPCKrt.log");
-  if (!checkFile.good()) {
+//----------------------------------------------------------------------------------------------------------------------//
+// 5.2) 创建日志文件 - Y 
+{
+  std::ifstream checkFile_Y("./PostAnalysis/Result_Y_RosRt.log");
+  if (!checkFile_Y.good()) {
     // 文件不存在,创建一个空文件
-    std::ofstream createFile("./PostAnalysis/Result_ROSwithSPCKrt.log");
+    std::ofstream createFile("./PostAnalysis/Result_Y_RosRt.log");
     createFile.close();
   }
-  checkFile.close();
-  std::ofstream logFile("./PostAnalysis/Result_ROSwithSPCKrt.log");
-  if (!logFile.is_open()) {
-    std::cerr << "[Error 错误] Failed to open ./PostAnalysis/Result_ROSwithSPCKrt.log for writing.\n";
-    // // 必要时先结束Simpack
-    // SpckRtFinish();
-    // delete[] u;
-    // delete[] y;
-    // return 1;
+  checkFile_Y.close();
+  
+  std::ofstream logFile_Y("./PostAnalysis/Result_Y_RosRt.log");
+  if (!logFile_Y.is_open()) {
+    std::cerr << "[Error 错误] Failed to open ./PostAnalysis/Result_Y_RosRt.log for writing.\n";
+    return; // 或其他适当的错误处理，如抛出异常
   }
-  // 先写一个标题行，包含 Time 以及 28 个输出的名字
+  
+  // 先写一个标题行，包含 Time 以及 28 个 y-output
   // 不再使用 # time(s) y0 y1 ... y27, 而是改为以双引号+Tab 分隔
   for (int i = 0; i < 29; ++i) {
-  logFile << g_columnNames[i];
-  if (i < 28) {
-      logFile << "\t";  // 列间用TAB分隔
+    logFile_Y << Y_columnNames[i];
+    if (i < 28) {
+      logFile_Y << "\t";  // 列间用TAB分隔
+    }
+    else {
+      logFile_Y << "\n";  // 最后一列后换行
+    }
   }
-  else {
-      logFile << "\n";  // 最后一列后换行
+  logFile_Y.close(); // 确保关闭文件
+  std::ostringstream logBuffer_Y; //后续不直接写文件, 改为写内存缓冲 - Y
+}
+
+//----------------------------------------------------------------------------------------------------------------------//
+// 5.3) 创建日志文件 - U 
+{
+  std::ifstream checkFile_U("./PostAnalysis/Result_U_RosRt.log");
+  if (!checkFile_U.good()) {
+    // 文件不存在,创建一个空文件
+    std::ofstream createFile("./PostAnalysis/Result_U_RosRt.log");
+    createFile.close();
   }
+  checkFile_U.close();
+  
+  std::ofstream logFile_U("./PostAnalysis/Result_U_RosRt.log");
+  if (!logFile_U.is_open()) {
+    std::cerr << "[Error 错误] Failed to open ./PostAnalysis/Result_U_RosRt.log for writing.\n";
+    return; // 或其他适当的错误处理，如抛出异常
   }
-  //后续不直接写文件, 改为写内存缓冲
-  std::ostringstream logBuffer;
+  
+  // 先写一个标题行，包含 Time 以及 8 个 u-input
+  for (int i = 0; i < 9; ++i) {
+    logFile_U << U_columnNames[i];
+    if (i < 8) {
+      logFile_U << "\t";  // 列间用TAB分隔
+    }
+    else {
+      logFile_U << "\n";  // 最后一列后换行
+    }
+  }
+  logFile_U.close(); // 确保关闭文件
+  std::ostringstream logBuffer_U; //后续不直接写文件, 改为写内存缓冲 - U
+}
+//----------------------------------------------------------------------------------------------------------------------//
 
    // 6) 创建发布者
    pub_sensors_ = this->create_publisher<simpack_interfaces::msg::SimpackY>(
@@ -246,14 +283,32 @@ void SimpackNode::timerCallback()
     RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 2000,
       "Reached max_steps(%d), no further sim steps!", max_steps_);
 
-  // 文件写入代码
-  std::ofstream logFile("./PostAnalysis/Result_ROSwithSPCKrt.log", std::ios::app);  // 以追加模式打开
-  if(!logFile.is_open()){
-    std::cerr << "无法打开 ./PostAnalysis/Result_ROSwithSPCKrt.log 文件\n";
-  } else {
-    logFile << logBuffer.str();
-    logFile.close();
-    RCLCPP_INFO(this->get_logger(), "仿真数据已写入 ./PostAnalysis/Result_ROSwithSPCKrt.log");
+  // 文件写入代码 - Y文件
+  {
+    std::ofstream logFile_Y("./PostAnalysis/Result_Y_RosRt.log", std::ios::app);  // 以追加模式打开
+    if(!logFile_Y.is_open()){
+      std::cerr << "无法打开 ./PostAnalysis/Result_Y_RosRt.log 文件\n";
+      RCLCPP_ERROR(this->get_logger(), "无法打开 ./PostAnalysis/Result_Y_RosRt.log 文件");
+      // 这里应考虑返回错误状态或抛出异常
+    } else {
+      logFile_Y << logBuffer_Y.str();
+      logFile_Y.close();
+      RCLCPP_INFO(this->get_logger(), "Y仿真数据已写入 ./PostAnalysis/Result_Y_RosRt.log");
+    }
+  }
+  
+  // 文件写入代码 - U文件
+  {
+    std::ofstream logFile_U("./PostAnalysis/Result_U_RosRt.log", std::ios::app);  // 以追加模式打开
+    if(!logFile_U.is_open()){
+      std::cerr << "无法打开 ./PostAnalysis/Result_U_RosRt.log 文件\n";
+      RCLCPP_ERROR(this->get_logger(), "无法打开 ./PostAnalysis/Result_U_RosRt.log 文件");
+      // 这里应考虑返回错误状态或抛出异常
+    } else {
+      logFile_U << logBuffer_U.str();
+      logFile_U.close();
+      RCLCPP_INFO(this->get_logger(), "U仿真数据已写入 ./PostAnalysis/Result_U_RosRt.log");
+    }
   }
 
 // 在仿真结束时主动退出整个 ROS 进程；但如果将来想让该节点与其他节点共存，而不想整体关闭 ROS
@@ -294,12 +349,18 @@ void SimpackNode::timerCallback()
   // 3) 写 u_ 到 SIMPACK
   SpckRtSetU(u_);
 
-  // 3.5) 记录到 logBuffer
-  logBuffer << simTime_;
+  // 3.5) 记录到 logBuffer_Y 和 logBuffer_U 
+  logBuffer_Y << simTime_;
   for (int j=0; j<ny_; ++j) {
-     logBuffer << "\t" << y_[j];
+    logBuffer_Y << "\t" << y_[j];
   }
-  logBuffer << "\n";
+  logBuffer_Y << "\n";
+
+  logBuffer_U << simTime_;
+  for (int j=0; j<nu_; ++j) {
+    logBuffer_U << "\t" << u_[j];
+  }
+  logBuffer_U << "\n";
 
   // 4) 前进仿真
   double nextTime = (step_count_ + 1) * dt_;

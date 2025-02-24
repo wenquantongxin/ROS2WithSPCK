@@ -1,5 +1,5 @@
 # ROS2WithSPCK
-实现ROS2与SIMPACK仿真软件的控制系统交互，进行实时车辆动力学联合仿真，同时记录仿真过程中的数据。
+ROS2与SIMPACK仿真软件的控制系统交互，进行车辆动力学**实时联合仿真**，同时记录仿真过程中的数据。
 
 ## ROS2项目结构与配置
 - launch启动：ros2 launch simpack_control start_simpack_control.launch.py
@@ -64,10 +64,14 @@
     ros2 run simpack_control controller_node
 
 ## rqt 监控
-    ros2 topic list                                           # 列出当前系统中所有活跃的 ROS 2 主题
-    ros2 run rqt_graph rqt_graph                              # 可视化 ROS 2 节点和主题之间的关系
+    source install/setup.bash 
     ros2 run rqt_topic rqt_topic                              # 监控 ROS 2 主题消息传递的详细数据
+    
+    source install/setup.bash 
+    ros2 topic list                                           # 列出当前系统中所有活跃的 ROS 2 主题
+
+    source install/setup.bash 
+    ros2 run rqt_graph rqt_graph                              # 可视化 ROS 2 节点和主题之间的关系
+
+    source install/setup.bash 
     ros2 bag play -r 0.5 ./PostAnalysis/rosbag2_2025_XXXX     # ROS Bag 回放
-
-
-

@@ -78,13 +78,13 @@ substr.attr.2d.height (             $S_IRWBogie_Rear              ) = 4.00000000
 ! Views
 !**********************************************************************
 view.type (                         $V_WorkingView                ) = 0                       ! Projection type
-view.pos (                1 ,       $V_WorkingView                ) = -7.31752220673742215E+00 ! Position
-view.pos (                2 ,       $V_WorkingView                ) = -1.63793108732770563E+01 ! Position
-view.pos (                3 ,       $V_WorkingView                ) = -2.10439594590630925E+01 ! Position
-view.orient (             1 ,       $V_WorkingView                ) = 2.24450503279906288E-01 ! Orientation
-view.orient (             2 ,       $V_WorkingView                ) = 9.01395636829820046E-01 ! Orientation
-view.orient (             3 ,       $V_WorkingView                ) = -3.54572750224302125E-01 ! Orientation
-view.orient (             4 ,       $V_WorkingView                ) = -1.06705399488191563E-01 ! Orientation
+view.pos (                1 ,       $V_WorkingView                ) = -7.31752220673708820E+00 ! Position
+view.pos (                2 ,       $V_WorkingView                ) = -1.63793108732774328E+01 ! Position
+view.pos (                3 ,       $V_WorkingView                ) = -2.10439594590629362E+01 ! Position
+view.orient (             1 ,       $V_WorkingView                ) = 2.24450503279896352E-01 ! Orientation
+view.orient (             2 ,       $V_WorkingView                ) = 9.01395636829817493E-01 ! Orientation
+view.orient (             3 ,       $V_WorkingView                ) = -3.54572750224313227E-01 ! Orientation
+view.orient (             4 ,       $V_WorkingView                ) = -1.06705399488197836E-01 ! Orientation
 view.angle (                        $V_WorkingView                ) = 7.85398185253143311E-01 ! Lens angle
 view.fclip.auto (                   $V_WorkingView                ) = 1                       ! Front clipping plane auto
 view.bclip.auto (                   $V_WorkingView                ) = 1                       ! Back clipping plane auto
@@ -101,13 +101,13 @@ view.motion.z (                     $V_WorkingView                ) = 1         
 view.motion.al (                    $V_WorkingView                ) = 1                       ! Moved camera direction alpha
 view.motion.be (                    $V_WorkingView                ) = 1                       ! Moved camera direction beta
 view.motion.ga (                    $V_WorkingView                ) = 1                       ! Moved camera direction gamma
-view.motion.pos (         1 ,       $V_WorkingView                ) = -1.60675222067374222E+01 ! Relative position
-view.motion.pos (         2 ,       $V_WorkingView                ) = -1.53793108732770563E+01 ! Relative position
-view.motion.pos (         3 ,       $V_WorkingView                ) = -1.98439594590630932E+01 ! Relative position
-view.motion.orient (      1 ,       $V_WorkingView                ) = 2.24450503279906288E-01 ! Relative orientation
-view.motion.orient (      2 ,       $V_WorkingView                ) = 9.01395636829820046E-01 ! Relative orientation
-view.motion.orient (      3 ,       $V_WorkingView                ) = -3.54572750224302125E-01 ! Relative orientation
-view.motion.orient (      4 ,       $V_WorkingView                ) = -1.06705399488191563E-01 ! Relative orientation
+view.motion.pos (         1 ,       $V_WorkingView                ) = -1.60675222067370882E+01 ! Relative position
+view.motion.pos (         2 ,       $V_WorkingView                ) = -1.53793108732774328E+01 ! Relative position
+view.motion.pos (         3 ,       $V_WorkingView                ) = -1.98439594590629369E+01 ! Relative position
+view.motion.orient (      1 ,       $V_WorkingView                ) = 2.24450503279896352E-01 ! Relative orientation
+view.motion.orient (      2 ,       $V_WorkingView                ) = 9.01395636829817493E-01 ! Relative orientation
+view.motion.orient (      3 ,       $V_WorkingView                ) = -3.54572750224313227E-01 ! Relative orientation
+view.motion.orient (      4 ,       $V_WorkingView                ) = -1.06705399488197836E-01 ! Relative orientation
 
 view.type (                         $V_Perspective_Moved          ) = 0                       ! Projection type
 view.pos (                1 ,       $V_Perspective_Moved          ) = -1.14629710518056527E+00 ! Position
@@ -1712,13 +1712,13 @@ force.par (               7 ,       $S_IRWBogie_Front.$F_AntiHuntingDmp_A) = $_C
 force.disabled (                    $S_IRWBogie_Front.$F_AntiHuntingDmp_B) = 0                ! Disabled
 force.par (               7 ,       $S_IRWBogie_Front.$F_AntiHuntingDmp_B) = $_Chx            ! [Ns/m] Damping in x
 
-force.disabled (                    $S_IRWBogie_Front.$F_Motor_A  ) = 1                       ! Disabled
+force.disabled (                    $S_IRWBogie_Front.$F_Motor_A  ) = 0                       ! Disabled
 
-force.disabled (                    $S_IRWBogie_Front.$F_Motor_B  ) = 1                       ! Disabled
+force.disabled (                    $S_IRWBogie_Front.$F_Motor_B  ) = 0                       ! Disabled
 
-force.disabled (                    $S_IRWBogie_Front.$F_Motor_C  ) = 1                       ! Disabled
+force.disabled (                    $S_IRWBogie_Front.$F_Motor_C  ) = 0                       ! Disabled
 
-force.disabled (                    $S_IRWBogie_Front.$F_Motor_D  ) = 1                       ! Disabled
+force.disabled (                    $S_IRWBogie_Front.$F_Motor_D  ) = 0                       ! Disabled
 
 force.disabled (                    $S_IRWBogie_Front.$F_Motor_A_Simat) = 0                   ! Disabled
 force.par (               2 ,       $S_IRWBogie_Front.$F_Motor_A_Simat) = null                ! [-] u-Vector Element force y
@@ -2103,13 +2103,13 @@ force.par (               7 ,       $S_IRWBogie_Rear.$F_AntiHuntingDmp_A) = $_Ch
 force.disabled (                    $S_IRWBogie_Rear.$F_AntiHuntingDmp_B) = 0                 ! Disabled
 force.par (               7 ,       $S_IRWBogie_Rear.$F_AntiHuntingDmp_B) = $_Chx             ! [Ns/m] Damping in x
 
-force.disabled (                    $S_IRWBogie_Rear.$F_Motor_A   ) = 1                       ! Disabled
+force.disabled (                    $S_IRWBogie_Rear.$F_Motor_A   ) = 0                       ! Disabled
 
-force.disabled (                    $S_IRWBogie_Rear.$F_Motor_B   ) = 1                       ! Disabled
+force.disabled (                    $S_IRWBogie_Rear.$F_Motor_B   ) = 0                       ! Disabled
 
-force.disabled (                    $S_IRWBogie_Rear.$F_Motor_C   ) = 1                       ! Disabled
+force.disabled (                    $S_IRWBogie_Rear.$F_Motor_C   ) = 0                       ! Disabled
 
-force.disabled (                    $S_IRWBogie_Rear.$F_Motor_D   ) = 1                       ! Disabled
+force.disabled (                    $S_IRWBogie_Rear.$F_Motor_D   ) = 0                       ! Disabled
 
 force.disabled (                    $S_IRWBogie_Rear.$F_Motor_A_Simat) = 0                    ! Disabled
 force.par (               2 ,       $S_IRWBogie_Rear.$F_Motor_A_Simat) = null                 ! [-] u-Vector Element force y
