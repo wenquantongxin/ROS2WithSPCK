@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>simpack_control</name>
+  <version>0.1.0</version>
+  <description>ROS2 nodes for SIMPACK Realtime + parallel PID control</description>
+  <maintainer email="your_email@domain.com">Your Name</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- 使用 depend 标签可以同时声明 build_depend 和 exec_depend -->
+  <depend>rclcpp</depend>
+  <depend>simpack_interfaces</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

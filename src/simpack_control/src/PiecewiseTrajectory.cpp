@@ -1,4 +1,4 @@
-#include "PiecewiseTrajectory.h"
+#include "simpack_control/PiecewiseTrajectory.hpp"
 
 // ========== TwoHalfParabolas ==========
 

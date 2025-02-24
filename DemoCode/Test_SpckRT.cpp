@@ -8,14 +8,15 @@
  *
  
    编译命令：
+   cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK/DemoCode
    g++ Test_SpckRT.cpp PIDController.cpp PiecewiseTrajectory.cpp -std=c++11 -O2 -Wall \
       -L /opt/Simpack-2021x/run/realtime/linux64 \
       -I /opt/Simpack-2021x/run/realtime \
       -lspck_rt -lrt -lm \
-      -o Test_SpckRT_demo                                 
+      -o CppWithSpckRT_demo                                 
    
    运行：
-   ./Test_SpckRT_demo                                           
+   ./CppWithSpckRT_demo                                           
 
  */
 
@@ -40,7 +41,7 @@ extern "C" {
 
 // ----------------- 宏定义 -----------------------
 #define SPCK_PATH       "/opt/Simpack-2021x" // SIMPACK 安装目录
-#define MODEL_FILE      "/home/yaoyao/Documents/myProjects/ROS2WithSPCK/Vehicle4WDB_RealtimeCRV.spck" // 模型文件
+#define MODEL_FILE      "/home/yaoyao/Documents/myProjects/ROS2WithSPCK/SPCK_Model/Vehicle4WDB_RealtimeCRV.spck" // 模型文件
 #define SPCK_MODE       E_RT_MODE__KEEP_SLV  // 实时模式: 保持 solver 进程不退出
 #define SPCK_CPUS       ""                   // CPU 绑定字符串 (空表示不绑定)
 #define SPCK_RT_PRIO    40                   // 实时优先级, 需系统权限 (非0表示硬实时), 若无权限可改为0
@@ -94,8 +95,8 @@ int main()
       "\"$Y_SpeedDiff_RearA\"",  "\"$Y_SpeedDiff_RearB\"",  "\"$Y_SpeedDiff_RearC\"",  "\"$Y_SpeedDiff_RearD\""
    };
 
-   std::cout << "=== Start POSIX MQ Realtime Simulation ===\n";
-   std::cout << "=== 开始基于 POSIX 消息队列的 SIMPACK 实时仿真 ===\n";
+   std::cout << "[INFO 信息] === Start POSIX MQ Realtime Simulation ===\n";
+   std::cout << "[INFO 信息] === 开始基于 POSIX 消息队列的 SIMPACK 实时仿真 ===\n";
 
    int ierr = 0;            // 用于检测返回错误码
    int nu = 0, ny = 0;      // 存储从 SIMPACK 获得的维度
@@ -116,20 +117,20 @@ int main()
 
    if (ierr != 0)
    {
-      std::cerr << "[Error] SpckRtInitPM failed, ierr=" << ierr << std::endl;
+      std::cerr << "[Error 错误] SpckRtInitPM failed, ierr=" << ierr << std::endl;
       return 1; 
    }
 
    // 2) 获取 u,y 维度
    SpckRtGetUYDim(&nu, &ny);
-   std::cout << "Dim of u: " << nu << ", Dim of y: " << ny << std::endl;
-   std::cout << "u-input 的维度: " << nu << ", y-output 的维度: " << ny << std::endl;
+   std::cout << "[INFO 信息] Dim of u: " << nu << ", Dim of y: " << ny << std::endl;
+   std::cout << "[INFO 信息] u-input 的维度: " << nu << ", y-output 的维度: " << ny << std::endl;
 
    // 检查是否与预期匹配
    if (nu != NU_EXPECTED || ny != NY_EXPECTED)
    {
-      std::cout << "ny 实际维度与预定义的"<< NY_EXPECTED <<"维度不匹配, 请检查参数定义! " << std::endl;
-      std::cerr << "[Warning] The model has nu=" << nu << ", ny=" << ny
+      std::cout << "[Warning 警告] ny 实际维度与预定义的"<< NY_EXPECTED <<"维度不匹配, 请检查参数定义! " << std::endl;
+      std::cerr << "[Warning 警告] The model has nu=" << nu << ", ny=" << ny
                << ", which differs from expected ("
                << NU_EXPECTED << ", " << NY_EXPECTED << ").\n";
       // ny 维度错误提示
@@ -145,7 +146,7 @@ int main()
    ierr = SpckRtStart();
    if (ierr != 0)
    {
-      std::cerr << "[Error] SpckRtStart failed, ierr=" << ierr << std::endl;
+      std::cerr << "[Error 错误] SpckRtStart failed, ierr=" << ierr << std::endl;
       // 调 Finish 收尾
       SpckRtFinish();
       delete[] u;
@@ -154,9 +155,18 @@ int main()
    }
 
    // 5) 打开日志文件
+   std::ifstream checkFile("SimResult.log");
+   if (!checkFile.good()) {
+      // 文件不存在,创建一个空文件
+      std::ofstream createFile("SimResult.log");
+      createFile.close();
+   }
+   checkFile.close();
+
+   // 打开日志文件进行写入
    std::ofstream logFile("SimResult.log");
    if (!logFile.is_open()) {
-      std::cerr << "[Error] Failed to open SimResult.log for writing.\n";
+      std::cerr << "[Error 错误] Failed to open SimResult.log for writing.\n";
       // 必要时先结束Simpack
       SpckRtFinish();
       delete[] u;
@@ -260,10 +270,10 @@ int main()
          double tNext = (iStep+1)*DT;
          ierr = SpckRtAdvance(tNext);
          if (ierr == 1) {
-            std::cerr << "[Error] SpckRtAdvance solver error.\n";
+            std::cerr << "[Error 错误] SpckRtAdvance solver error.\n";
             break;
          } else if (ierr == 2) {
-            std::cerr << "[Warning] SpckRtAdvance timeout.\n";
+            std::cerr << "[Warning 警告] SpckRtAdvance timeout.\n";
             break;
          }
       }
@@ -283,7 +293,7 @@ int main()
    delete[] u;
    delete[] y;
 
-   std::cout << "Simulation finished! Results in SimResult.log\n";
-   std::cout << "SIMPACK 实时联合仿真结束, 结果储存于文件: SimResult.log\n";
+   std::cout << "[INFO 信息] Simulation finished! Results in SimResult.log\n";
+   std::cout << "[INFO 信息] SIMPACK 实时联合仿真结束, 结果储存于文件: SimResult.log\n";
    return 0;
 }

@@ -1,3 +1,5 @@
+// PiecewiseTrajectory.cpp 目标速度曲线生成函数
+
 #include "PiecewiseTrajectory.h"
 
 // ========== TwoHalfParabolas ==========
