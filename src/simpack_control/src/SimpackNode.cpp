@@ -1,9 +1,9 @@
-// SimpackNode.cpp
-// 位置 /home/yaoyao/Documents/myProjects/ROS2WithSPCK/src/simpack_control/src/SimpackNode.cpp
+// 文件名: SimpackNode.cpp
+// 文件位置: /.../ROS2WithSPCK/src/simpack_control/src/SimpackNode.cpp
 
 #include "simpack_control/SimpackNode.hpp"
 
-// 这里改为包含自定义消息自“simpack_interfaces”包的头文件
+// 包含自定义消息自“simpack_interfaces”包的头文件
 #include "simpack_interfaces/msg/simpack_u.hpp"
 #include "simpack_interfaces/msg/simpack_y.hpp"
 
@@ -18,7 +18,7 @@
 #include <sstream>    // std::ostringstream
 #include <cstdlib>   // 常用工具函数
 
-// 一些宏定义, 可改为Node的参数
+// 宏定义, 主要是 SIMPACK 传参
 #define SPCK_PATH "/opt/Simpack-2021x"
 #define MODEL_FILE "/home/yaoyao/Documents/myProjects/ROS2WithSPCK/SPCK_Model/Vehicle4WDB_RealtimeCRV.spck"
 #define SPCK_MODE E_RT_MODE__KEEP_SLV
@@ -29,6 +29,7 @@
 
 // 默认仿真步长 = 2ms (500Hz)
 static const double DEFAULT_DT = 0.002;
+
 // 默认仿真总时长 = 50s
 static const double DEFAULT_SIM_DURATION = 50.0;
 
@@ -37,7 +38,8 @@ using namespace std::chrono_literals;
 
 // 注意：需要保证与 SIMPACK 模型 y-vector 顺序匹配！
 // 例如，如果 $Y_Yw01 处于 y_[0], $Y_WL01 处于 y_[8], ...
-// 可在此显式列出索引，便于后续赋值
+// 显式列出索引，便于后续赋值
+
 static const int INDEX_YW01 = 0;
 static const int INDEX_YW02 = 1;
 static const int INDEX_YW03 = 2;
@@ -71,8 +73,8 @@ static const int INDEX_SPEEDDIFF_REAR_B  = 25;
 static const int INDEX_SPEEDDIFF_REAR_C  = 26;
 static const int INDEX_SPEEDDIFF_REAR_D  = 27;
 
-// 定义数组记录列名
-// 注意: 数组大小必须是 28+1=29, 第一个是 "Time"，后面是 28 个 y-output
+// 日志记录 - Y 
+// 定义数组记录列名。注意: 数组大小必须是 28+1=29, 第一个是 "Time"，后面是 28 个 y-output。
 static const char* Y_columnNames[29] = {
 "\"Time\"",
 "\"$Y_Yw01\"", "\"$Y_Yw02\"", "\"$Y_Yw03\"", "\"$Y_Yw04\"",
@@ -83,7 +85,7 @@ static const char* Y_columnNames[29] = {
 "\"$Y_SpeedDiff_FrontA\"", "\"$Y_SpeedDiff_FrontB\"", "\"$Y_SpeedDiff_FrontC\"", "\"$Y_SpeedDiff_FrontD\"",
 "\"$Y_SpeedDiff_RearA\"",  "\"$Y_SpeedDiff_RearB\"",  "\"$Y_SpeedDiff_RearC\"",  "\"$Y_SpeedDiff_RearD\""
 };
-
+// 日志记录 - U 
 static const char* U_columnNames[9] = {
   "\"Time\"",
   "\"$UI_00\"", "\"$UI_01\"", "\"$UI_02\"", "\"$UI_03\"",
@@ -124,16 +126,15 @@ SimpackNode::SimpackNode(const rclcpp::NodeOptions & options)
 
   // 5.1) 计算最大步数
   max_steps_ = static_cast<int>(sim_duration_ / dt_ + 0.5);
-//----------------------------------------------------------------------------------------------------------------------//
-// 5.2) 创建日志文件 - Y 
-{
-  std::ifstream checkFile_Y("./PostAnalysis/Result_Y_RosRt.log");
-  if (!checkFile_Y.good()) {
-    // 文件不存在,创建一个空文件
-    std::ofstream createFile("./PostAnalysis/Result_Y_RosRt.log");
-    createFile.close();
-  }
-  checkFile_Y.close();
+  // 5.2) 创建日志文件 - Y 
+  {
+    std::ifstream checkFile_Y("./PostAnalysis/Result_Y_RosRt.log");
+    if (!checkFile_Y.good()) {
+      // 文件不存在,创建一个空文件
+      std::ofstream createFile("./PostAnalysis/Result_Y_RosRt.log");
+      createFile.close();
+    }
+    checkFile_Y.close();
   
   std::ofstream logFile_Y("./PostAnalysis/Result_Y_RosRt.log");
   if (!logFile_Y.is_open()) {
@@ -154,17 +155,15 @@ SimpackNode::SimpackNode(const rclcpp::NodeOptions & options)
   }
   logFile_Y.close(); // 确保关闭文件
   std::ostringstream logBuffer_Y; //后续不直接写文件, 改为写内存缓冲 - Y
-}
-
-//----------------------------------------------------------------------------------------------------------------------//
-// 5.3) 创建日志文件 - U 
-{
-  std::ifstream checkFile_U("./PostAnalysis/Result_U_RosRt.log");
-  if (!checkFile_U.good()) {
-    // 文件不存在,创建一个空文件
-    std::ofstream createFile("./PostAnalysis/Result_U_RosRt.log");
-    createFile.close();
   }
+  // 5.3) 创建日志文件 - U 
+  {
+    std::ifstream checkFile_U("./PostAnalysis/Result_U_RosRt.log");
+    if (!checkFile_U.good()) {
+      // 文件不存在,创建一个空文件
+      std::ofstream createFile("./PostAnalysis/Result_U_RosRt.log");
+      createFile.close();
+    }
   checkFile_U.close();
   
   std::ofstream logFile_U("./PostAnalysis/Result_U_RosRt.log");
@@ -185,29 +184,27 @@ SimpackNode::SimpackNode(const rclcpp::NodeOptions & options)
   }
   logFile_U.close(); // 确保关闭文件
   std::ostringstream logBuffer_U; //后续不直接写文件, 改为写内存缓冲 - U
-}
-//----------------------------------------------------------------------------------------------------------------------//
+  }
 
-   // 6) 创建发布者
-   pub_sensors_ = this->create_publisher<simpack_interfaces::msg::SimpackY>(
-       "/simpack/y", 10);
+  // 6) 创建发布者
+  pub_sensors_ = this->create_publisher<simpack_interfaces::msg::SimpackY>(
+      "/simpack/y", 10);
  
-   // 7) 创建定时器：保持 0.002s 间隔，用于推进仿真 & 发布 y
-   auto period = std::chrono::duration<double>(dt_); // 0.002s
-   timer_ = this->create_wall_timer(
-     std::chrono::duration_cast<std::chrono::nanoseconds>(period),
-     std::bind(&SimpackNode::timerCallback, this));
+  // 7) 创建定时器：保持 0.002s 间隔，用于推进仿真 & 发布 y
+  auto period = std::chrono::duration<double>(dt_); // 0.002s
+  timer_ = this->create_wall_timer(
+    std::chrono::duration_cast<std::chrono::nanoseconds>(period),
+    std::bind(&SimpackNode::timerCallback, this));
  
-   RCLCPP_INFO(this->get_logger(),
-       "SimpackNode constructed. dt=%.4f, max_steps=%d",
-       dt_, max_steps_);
+  RCLCPP_INFO(this->get_logger(),
+      "SimpackNode constructed. dt=%.4f, max_steps=%d",
+      dt_, max_steps_);
 }
 
 // 析构函数
 SimpackNode::~SimpackNode()
 {
-  // 避免野指针
-  closeSimpack();
+  DelUnY(); // 删除 u_ 和 y_ 指针, 避免野指针
   RCLCPP_INFO(this->get_logger(), "SimpackNode 节点关闭!");
 }
 
@@ -247,7 +244,7 @@ bool SimpackNode::initSimpack()
 }
 
 // 删除指针
-void SimpackNode::closeSimpack()
+void SimpackNode::DelUnY()
 {
   // SpckRtFinish();
   if (u_) { delete[] u_; u_ = nullptr; }
@@ -259,7 +256,7 @@ void SimpackNode::controlCallback(
   const simpack_interfaces::msg::SimpackU::SharedPtr msg)
 {
   // 将 msg->u0..u7 赋给内部 u_[0..7]
-  // 前提: 你的 SIMPACK 模型确实 8 个输入
+  // 请确认: SIMPACK 模型确实 8 个输入
   if (nu_ == 8) {
     u_[0] = msg->u0;
     u_[1] = msg->u1;
@@ -311,12 +308,12 @@ void SimpackNode::timerCallback()
     }
   }
 
-// 在仿真结束时主动退出整个 ROS 进程；但如果将来想让该节点与其他节点共存，而不想整体关闭 ROS
-// 可以考虑只 cancel()定时器并做一些收尾工作，不调用rclcpp::shutdown()
-    SpckRtFinish();
-    timer_->cancel();
-    rclcpp::shutdown();
-    return;
+  // 在仿真结束时主动退出整个 ROS 进程；但如果将来想让该节点与其他节点共存，而不想整体关闭 ROS
+  // 可以考虑只 cancel()定时器并做一些收尾工作，不调用rclcpp::shutdown()
+  SpckRtFinish();
+  timer_->cancel();
+  rclcpp::shutdown();
+  return;
   }
 
   // 1) 读取 y[]
@@ -327,7 +324,7 @@ void SimpackNode::timerCallback()
   sensor_msg.sim_time = simTime_; // 当前仿真时刻
 
   // 这里演示只给轮速赋值( WL01..WR04 )，其余请按需补充
-  // 需确保索引正确
+  // 请确认: 索引正确
   if (ny_ >= 16) {
     sensor_msg.y_wl01 = y_[INDEX_WL01];
     sensor_msg.y_wr01 = y_[INDEX_WR01];
@@ -339,7 +336,7 @@ void SimpackNode::timerCallback()
     sensor_msg.y_wr04 = y_[INDEX_WR04];
     // ...
     // 其余 20 个量: y_yw01..y_speed_diff_rear_d
-    // 按你的索引依次赋值即可
+    // 按索引依次赋值即可
   } else {
     RCLCPP_WARN_ONCE(this->get_logger(),
       "ny_=%d is smaller than expected for full assignment!", ny_);

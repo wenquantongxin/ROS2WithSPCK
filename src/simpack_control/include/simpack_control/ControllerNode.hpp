@@ -6,7 +6,7 @@
 
 #include "simpack_control/PiecewiseTrajectory.hpp" 
 
-#include "PIDController.hpp"  // 你的PID类
+#include "PIDController.hpp"  // PID类
 
 class ControllerNode : public rclcpp::Node
 {
@@ -24,7 +24,7 @@ private:
 
   // 8 个PID
   std::vector<PIDController> pids_;
-  // 哪些y-index对应车轮(跟你在Test_SpckRT.cpp相同)
+  // 哪些y-index对应车轮(与在 Test_SpckRT.cpp 相同)
   std::vector<int> wheelIndex_;
   // 左右轮标记
   std::vector<bool> isLeftWheel_;

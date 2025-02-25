@@ -17,7 +17,7 @@ public:
 
 private:
   bool initSimpack();
-  void closeSimpack();
+  void DelUnY();
 
   void controlCallback(const simpack_interfaces::msg::SimpackU::SharedPtr msg);
   void timerCallback();

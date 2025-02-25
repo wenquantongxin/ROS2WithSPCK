@@ -1,17 +1,17 @@
-  // ControllerNode.cpp
-  // 位置 /home/yaoyao/Documents/myProjects/ROS2WithSPCK/src/simpack_control/src/ControllerNode.cpp
+// 文件名称: ControllerNode.cpp
+// 位置 /home/yaoyao/Documents/myProjects/ROS2WithSPCK/src/simpack_control/src/ControllerNode.cpp
 
-#include "simpack_control/ControllerNode.hpp"
 #include <cmath>
 #include <algorithm>
+#include "simpack_control/ControllerNode.hpp"
 #include "simpack_control/PiecewiseTrajectory.hpp"  // 引入 PiecewiseTrajectory 头文件
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions & options)
 : Node("controller_node", options),
   dt_(0.002),
   wheelRadius_(0.43),
-  trajLeft_({0.0, 3.0, 6.0, 100.0}, {16.67, 16.67, 16.87, 16.87}),
-  trajRight_({0.0, 3.0, 6.0, 100.0}, {16.67, 16.67, 16.82, 16.82})
+  trajLeft_ ({0.0, 3.0, 6.0, 100.0}, {16.667, 16.667, 16.708, 16.708}), //16.708=(60.0/3.6)/300.0*(300.0+1.5/2.0)
+  trajRight_({0.0, 3.0, 6.0, 100.0}, {16.667, 16.667, 16.625, 16.625})  //16.625=(60.0/3.6)/300.0*(300.0-1.5/2.0)
 {
   // 初始化 8 个 PID
   double kp = 20000.0, ki = 4.0, kd = 0.0, n = 5000.0;
@@ -20,23 +20,21 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions & options)
     pids_.emplace_back(kp, ki, kd, n);
   }
 
-  // 订阅 传感器消息 (SimpackY)
-  // 话题名称可根据你的情况调整，如 "/simpack/y"
+  // 订阅 传感器消息 "/simpack/y"
   sub_sensors_ = create_subscription<simpack_interfaces::msg::SimpackY>(
       "/simpack/y",
-      10,
+      10, // 消息队列"深度"(depth)
       std::bind(&ControllerNode::sensorCallback, this, std::placeholders::_1));
 
-  // 发布 控制消息 (SimpackU)
-  // 话题名称可根据你的情况调整，如 "/simpack/u"
+  // 发布 控制消息 "/simpack/u"
   pub_controls_ = create_publisher<simpack_interfaces::msg::SimpackU>(
       "/simpack/u",
       10);
 
   // 初始化 PiecewiseTrajectory：设置目标速度曲线
   std::vector<double> times = {0.0, 3.0, 6.0, 100.0};
-  std::vector<double> vals_left = {16.67, 16.67, 16.87, 16.87};  // 左侧车轮速度曲线
-  std::vector<double> vals_right = {16.67, 16.67, 16.82, 16.82};  // 右侧车轮速度曲线
+  std::vector<double> vals_left =  {16.667, 16.667, 16.708, 16.708};  // 左侧车轮速度曲线 
+  std::vector<double> vals_right = {16.667, 16.667, 16.625, 16.625};  // 右侧车轮速度曲线 
 
   trajLeft_ = PiecewiseConstantSecondDeriv(times, vals_left);
   trajRight_ = PiecewiseConstantSecondDeriv(times, vals_right);
@@ -61,7 +59,7 @@ void ControllerNode::sensorCallback(const simpack_interfaces::msg::SimpackY::Sha
   // 以第1组轮对 WL01 / WR01 为例:
   {
     // 左车轮(索引0) => y_wl01
-    double rawSpeed = msg->y_wl01;    // simpack中可能是负值, 下面要乘 -1
+    double rawSpeed = msg->y_wl01;    // SPCK 直接读出的是负值, 需要乘-1
     double actualSpeed = -rawSpeed * wheelRadius_;
     double error = targetLeft - actualSpeed;
     double torque = pids_[0].update(error, dt_);
@@ -75,7 +73,6 @@ void ControllerNode::sensorCallback(const simpack_interfaces::msg::SimpackY::Sha
     double torque = pids_[1].update(error, dt_);
     control_msg.u1 = torque;
   }
-
   // 第2组轮对 WL02 / WR02
   {
     double rawSpeed = msg->y_wl02;
@@ -91,7 +88,6 @@ void ControllerNode::sensorCallback(const simpack_interfaces::msg::SimpackY::Sha
     double torque = pids_[3].update(error, dt_);
     control_msg.u3 = torque;
   }
-
   // 第3组轮对 WL03 / WR03
   {
     double rawSpeed = msg->y_wl03;
@@ -123,11 +119,10 @@ void ControllerNode::sensorCallback(const simpack_interfaces::msg::SimpackY::Sha
     double torque = pids_[7].update(error, dt_);
     control_msg.u7 = torque;
   }
-
   // (可选) 对扭矩做限幅
-  // e.g.: if (control_msg.u0 > 30000.0) control_msg.u0 = 30000.0;
-  //       if (control_msg.u0 < -30000.0) control_msg.u0 = -30000.0;
-  //       ... repeat for all
+  // if (control_msg.u0 > 30000.0) control_msg.u0 = 30000.0;
+  // if (control_msg.u0 < -30000.0) control_msg.u0 = -30000.0;
+  // ......
 
   // 发布控制消息
   pub_controls_->publish(control_msg);

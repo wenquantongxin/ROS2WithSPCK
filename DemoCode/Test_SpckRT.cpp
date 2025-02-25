@@ -30,7 +30,7 @@
 #include <string>
 #include <sstream>    // std::ostringstream
 
-// 你的 PID 控制器与 分段曲线头文件
+// PID 控制器与 分段曲线头文件
 #include "PIDController.h"
 #include "PiecewiseTrajectory.h"
 
