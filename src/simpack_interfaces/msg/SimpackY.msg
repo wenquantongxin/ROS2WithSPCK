@@ -3,36 +3,96 @@
 # 当前仿真时间戳(秒)
 float64 sim_time
 
-# 直接写28个字段
-float64 y_yw01
-float64 y_yw02
-float64 y_yw03
-float64 y_yw04
+# 76 个DoFs 字段 (原28个)
+float64 y_spcktime
 
-float64 y_yaw01
-float64 y_yaw02
-float64 y_yaw03
-float64 y_yaw04
+float64 y_cb_vx
 
-float64 y_wl01
-float64 y_wr01
-float64 y_wl02
-float64 y_wr02
-float64 y_wl03
-float64 y_wr03
-float64 y_wl04
-float64 y_wr04
+float64 y_cb_x
+float64 y_cb_y
+float64 y_cb_z
+float64 y_cb_roll
+float64 y_cb_yaw
+float64 y_cb_pitch
 
-float64 y_yt01
-float64 y_yt02
-float64 y_yawt01
-float64 y_yawt02
+float64 y_w01_rotw
+float64 y_w02_rotw
+float64 y_w03_rotw
+float64 y_w04_rotw
+float64 y_w05_rotw
+float64 y_w06_rotw
+float64 y_w07_rotw
+float64 y_w08_rotw
 
-float64 y_speeddiff_front_a
-float64 y_speeddiff_front_b
-float64 y_speeddiff_front_c
-float64 y_speeddiff_front_d
-float64 y_speeddiff_rear_a
-float64 y_speeddiff_rear_b
-float64 y_speeddiff_rear_c
-float64 y_speeddiff_rear_d
+float64 y_f01_x
+float64 y_f01_y
+float64 y_f01_z
+float64 y_f01_roll
+float64 y_f01_yaw
+float64 y_f01_pitch
+
+float64 y_f02_x
+float64 y_f02_y
+float64 y_f02_z
+float64 y_f02_roll
+float64 y_f02_yaw
+float64 y_f02_pitch
+
+float64 y_ws01_x
+float64 y_ws01_y
+float64 y_ws01_z
+float64 y_ws01_roll
+float64 y_ws01_yaw
+float64 y_ws01_pitch
+
+float64 y_ws02_x
+float64 y_ws02_y
+float64 y_ws02_z
+float64 y_ws02_roll
+float64 y_ws02_yaw
+float64 y_ws02_pitch
+
+float64 y_ws03_x
+float64 y_ws03_y
+float64 y_ws03_z
+float64 y_ws03_roll
+float64 y_ws03_yaw
+float64 y_ws03_pitch
+
+float64 y_ws04_x
+float64 y_ws04_y
+float64 y_ws04_z
+float64 y_ws04_roll
+float64 y_ws04_yaw
+float64 y_ws04_pitch
+
+float64 y_w01_rota
+float64 y_w02_rota
+float64 y_w03_rota
+float64 y_w04_rota
+float64 y_w05_rota
+float64 y_w06_rota
+float64 y_w07_rota
+float64 y_w08_rota
+
+float64 y_bar01_pitch
+float64 y_bar02_pitch
+float64 y_bar03_pitch
+float64 y_bar04_pitch
+float64 y_bar05_pitch
+float64 y_bar06_pitch
+float64 y_bar07_pitch
+float64 y_bar08_pitch
+
+float64 y_ws01_vy
+float64 y_ws02_vy
+float64 y_ws03_vy
+float64 y_ws04_vy
+
+float64 y_ws01_vyaw
+float64 y_ws02_vyaw
+float64 y_ws03_vyaw
+float64 y_ws04_vyaw
+
+
+

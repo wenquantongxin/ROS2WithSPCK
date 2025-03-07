@@ -1,0 +1,54 @@
+!file.version=3.6! Removing this line will make the file unreadable
+
+!**********************************************************************
+! State Sets
+!**********************************************************************
+stateset.begin (                    $ST___Dummy__ )
+   stset.force.st.desc (   1 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   1 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   2 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   2 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   3 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   3 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   4 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   4 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   5 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   5 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   6 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   6 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   7 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   7 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   8 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   8 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   9 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (   9 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (  10 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (  10 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (  11 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (  11 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (  12 ,      $F_RWContact_RWP_IRW_Left     ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (  12 ,      $F_RWContact_RWP_IRW_Right    ) = 0.00000000000000000E+00 ! Force descriptive states
+   stset.force.st.desc (  13 ,      $F_RWContact_RWP_IRW_Left     ) = 1.11134984296190797E+01 ! Force descriptive states
+   stset.force.st.desc (  13 ,      $F_RWContact_RWP_IRW_Right    ) = 1.11134984296482937E+01 ! Force descriptive states
+   stset.joint.st.pos (   1 ,       $J_DumAxle                    ) = 1.11134984009745974E+01 ! Joint position states
+   stset.joint.st.pos (   1 ,       $J_IRW_L                      ) = -2.58269499906964981E+01 ! Joint position states
+   stset.joint.st.pos (   1 ,       $J_IRW_R                      ) = -2.58269499773422346E+01 ! Joint position states
+   stset.joint.st.pos (   1 ,       $J_AxleBridge                 ) = -3.24289905714495981E-04 ! Joint position states
+   stset.joint.st.pos (   2 ,       $J_DumAxle                    ) = 1.84108702045848622E-09 ! Joint position states
+   stset.joint.st.pos (   3 ,       $J_DumAxle                    ) = -4.29745314546587653E-01 ! Joint position states
+   stset.joint.st.pos (   4 ,       $J_DumAxle                    ) = -2.05689137662905983E-10 ! Joint position states
+   stset.joint.st.pos (   5 ,       $J_DumAxle                    ) = -1.96060749858793548E-11 ! Joint position states
+   stset.joint.st.pos (   6 ,       $J_DumAxle                    ) = 2.31380258253221370E-14 ! Joint position states
+   stset.joint.st.vel (   1 ,       $J_DumAxle                    ) = 5.55672708980683350E+00 ! Joint velocity states
+   stset.joint.st.vel (   1 ,       $J_IRW_L                      ) = -1.29133848832049232E+01 ! Joint velocity states
+   stset.joint.st.vel (   1 ,       $J_IRW_R                      ) = -1.29133848730602807E+01 ! Joint velocity states
+   stset.joint.st.vel (   1 ,       $J_AxleBridge                 ) = 2.57015348650696702E-03 ! Joint velocity states
+   stset.joint.st.vel (   2 ,       $J_DumAxle                    ) = -3.29185216935155400E-10 ! Joint velocity states
+   stset.joint.st.vel (   3 ,       $J_DumAxle                    ) = 4.40382619033216549E-13 ! Joint velocity states
+   stset.joint.st.vel (   4 ,       $J_DumAxle                    ) = 3.76756791733889078E-11 ! Joint velocity states
+   stset.joint.st.vel (   5 ,       $J_DumAxle                    ) = -4.78305350664178409E-10 ! Joint velocity states
+   stset.joint.st.vel (   6 ,       $J_DumAxle                    ) = 2.17260330301728193E-14 ! Joint velocity states
+stateset.end (                      $ST___Dummy__ )
+stset.time (                        $ST___Dummy__                 ) = 2.00000000000000000E+00 ! Time
+
+                                                                                                                                                                         

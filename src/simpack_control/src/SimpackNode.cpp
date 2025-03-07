@@ -36,55 +36,119 @@ static const double DEFAULT_SIM_DURATION = 50.0;
 // 方便后续计时
 using namespace std::chrono_literals;
 
-// 注意：需要保证与 SIMPACK 模型 y-vector 顺序匹配！
-// 例如，如果 $Y_Yw01 处于 y_[0], $Y_WL01 处于 y_[8], ...
+// 注意：需要保证与 SIMPACK 模型 y-vector 顺序、ROS 2 msg 顺序匹配
 // 显式列出索引，便于后续赋值
 
-static const int INDEX_YW01 = 0;
-static const int INDEX_YW02 = 1;
-static const int INDEX_YW03 = 2;
-static const int INDEX_YW04 = 3;
+static const int INDEX_SPCKTIME = 0;
+static const int INDEX_CB_Vx = 1;
 
-static const int INDEX_YAW01 = 4;
-static const int INDEX_YAW02 = 5;
-static const int INDEX_YAW03 = 6;
-static const int INDEX_YAW04 = 7;
+static const int INDEX_CB_X = 2;
+static const int INDEX_CB_Y = 3;
+static const int INDEX_CB_Z = 4;
+static const int INDEX_CB_Roll= 5;
+static const int INDEX_CB_Yaw = 6;
+static const int INDEX_CB_Pit = 7;
 
-static const int INDEX_WL01 = 8;
-static const int INDEX_WR01 = 9;
-static const int INDEX_WL02 = 10;
-static const int INDEX_WR02 = 11;
-static const int INDEX_WL03 = 12;
-static const int INDEX_WR03 = 13;
-static const int INDEX_WL04 = 14;
-static const int INDEX_WR04 = 15;
+static const int INDEX_W01_RotW = 8;  // 车轮01 转速
+static const int INDEX_W02_RotW = 9;
+static const int INDEX_W03_RotW = 10;
+static const int INDEX_W04_RotW = 11;
+static const int INDEX_W05_RotW = 12;
+static const int INDEX_W06_RotW = 13;
+static const int INDEX_W07_RotW = 14;
+static const int INDEX_W08_RotW = 15;
 
-static const int INDEX_YT01 = 16;
-static const int INDEX_YT02 = 17;
-static const int INDEX_YAWT01 = 18;
-static const int INDEX_YAWT02 = 19;
+static const int INDEX_F01_X = 16;
+static const int INDEX_F01_Y = 17;
+static const int INDEX_F01_Z = 18;
+static const int INDEX_F01_Roll= 19;
+static const int INDEX_F01_Yaw = 20;
+static const int INDEX_F01_Pit = 21;
 
-static const int INDEX_SPEEDDIFF_FRONT_A = 20;
-static const int INDEX_SPEEDDIFF_FRONT_B = 21;
-static const int INDEX_SPEEDDIFF_FRONT_C = 22;
-static const int INDEX_SPEEDDIFF_FRONT_D = 23;
-static const int INDEX_SPEEDDIFF_REAR_A  = 24;
-static const int INDEX_SPEEDDIFF_REAR_B  = 25;
-static const int INDEX_SPEEDDIFF_REAR_C  = 26;
-static const int INDEX_SPEEDDIFF_REAR_D  = 27;
+static const int INDEX_F02_X = 22;
+static const int INDEX_F02_Y = 23;
+static const int INDEX_F02_Z = 24;
+static const int INDEX_F02_Roll= 25;
+static const int INDEX_F02_Yaw = 26;
+static const int INDEX_F02_Pit = 27;
+
+static const int INDEX_WS01_X = 28;
+static const int INDEX_WS01_Y = 29;
+static const int INDEX_WS01_Z = 30;
+static const int INDEX_WS01_Roll= 31;
+static const int INDEX_WS01_Yaw = 32;
+static const int INDEX_WS01_Pit = 33;
+
+static const int INDEX_WS02_X = 34;
+static const int INDEX_WS02_Y = 35;
+static const int INDEX_WS02_Z = 36;
+static const int INDEX_WS02_Roll= 37;
+static const int INDEX_WS02_Yaw = 38;
+static const int INDEX_WS02_Pit = 39;
+
+static const int INDEX_WS03_X = 40;
+static const int INDEX_WS03_Y = 41;
+static const int INDEX_WS03_Z = 42;
+static const int INDEX_WS03_Roll= 43;
+static const int INDEX_WS03_Yaw = 44;
+static const int INDEX_WS03_Pit = 45;
+
+static const int INDEX_WS04_X = 46;
+static const int INDEX_WS04_Y = 47;
+static const int INDEX_WS04_Z = 48;
+static const int INDEX_WS04_Roll= 49;
+static const int INDEX_WS04_Yaw = 50;
+static const int INDEX_WS04_Pit = 51;
+
+static const int INDEX_W01_RotA = 52;  // 车轮01 转动角度
+static const int INDEX_W02_RotA = 53;
+static const int INDEX_W03_RotA = 54;
+static const int INDEX_W04_RotA = 55;
+static const int INDEX_W05_RotA = 56;
+static const int INDEX_W06_RotA = 57;
+static const int INDEX_W07_RotA = 58;
+static const int INDEX_W08_RotA = 59;
+
+static const int INDEX_Bar01_Pit = 60;  // 杆件01 转动角度
+static const int INDEX_Bar02_Pit = 61;
+static const int INDEX_Bar03_Pit = 62;
+static const int INDEX_Bar04_Pit = 63;
+static const int INDEX_Bar05_Pit = 64;
+static const int INDEX_Bar06_Pit = 65;
+static const int INDEX_Bar07_Pit = 66;
+static const int INDEX_Bar08_Pit = 67;
+
+static const int INDEX_WS01_Vy = 68;
+static const int INDEX_WS02_Vy = 69;
+static const int INDEX_WS03_Vy = 70;
+static const int INDEX_WS04_Vy = 71;
+
+static const int INDEX_WS01_Vyaw = 72;
+static const int INDEX_WS02_Vyaw = 73;
+static const int INDEX_WS03_Vyaw = 74;
+static const int INDEX_WS04_Vyaw = 75;
 
 // 日志记录 - Y 
-// 定义数组记录列名。注意: 数组大小必须是 28+1=29, 第一个是 "Time"，后面是 28 个 y-output。
-static const char* Y_columnNames[29] = {
-"\"Time\"",
-"\"$Y_Yw01\"", "\"$Y_Yw02\"", "\"$Y_Yw03\"", "\"$Y_Yw04\"",
-"\"$Y_Yaw01\"", "\"$Y_Yaw02\"", "\"$Y_Yaw03\"", "\"$Y_Yaw04\"",
-"\"$Y_WL01\"", "\"$Y_WR01\"", "\"$Y_WL02\"", "\"$Y_WR02\"",
-"\"$Y_WL03\"", "\"$Y_WR03\"", "\"$Y_WL04\"", "\"$Y_WR04\"",
-"\"$Y_Yt01\"", "\"$Y_Yt02\"", "\"$Y_Yawt01\"", "\"$Y_Yawt02\"",
-"\"$Y_SpeedDiff_FrontA\"", "\"$Y_SpeedDiff_FrontB\"", "\"$Y_SpeedDiff_FrontC\"", "\"$Y_SpeedDiff_FrontD\"",
-"\"$Y_SpeedDiff_RearA\"",  "\"$Y_SpeedDiff_RearB\"",  "\"$Y_SpeedDiff_RearC\"",  "\"$Y_SpeedDiff_RearD\""
+// 定义数组记录列名。注意: 数组大小必须是 76+1=77, 第一个是 "Time"，后面是 76(原28)个 y-output。
+static const char* Y_columnNames[77] = {
+"\"Time\"", 
+"\"y_spcktime\"", 
+"\"y_cb_vx\"", "\"y_cb_x\"", "\"y_cb_y\"", "\"y_cb_z\"", "\"y_cb_roll\"", "\"y_cb_yaw\"", "\"y_cb_pitch\"", 
+"\"y_w01_rotw\"", "\"y_w02_rotw\"", "\"y_w03_rotw\"", "\"y_w04_rotw\"", "\"y_w05_rotw\"", "\"y_w06_rotw\"", "\"y_w07_rotw\"", "\"y_w08_rotw\"", 
+"\"y_f01_x\"", "\"y_f01_y\"", "\"y_f01_z\"", "\"y_f01_roll\"", "\"y_f01_yaw\"", "\"y_f01_pitch\"", 
+"\"y_f02_x\"", "\"y_f02_y\"", "\"y_f02_z\"", "\"y_f02_roll\"", "\"y_f02_yaw\"", "\"y_f02_pitch\"", 
+"\"y_ws01_x\"", "\"y_ws01_y\"", "\"y_ws01_z\"", "\"y_ws01_roll\"", "\"y_ws01_yaw\"", "\"y_ws01_pitch\"", 
+"\"y_ws02_x\"", "\"y_ws02_y\"", "\"y_ws02_z\"", "\"y_ws02_roll\"", "\"y_ws02_yaw\"", "\"y_ws02_pitch\"", 
+"\"y_ws03_x\"", "\"y_ws03_y\"", "\"y_ws03_z\"", "\"y_ws03_roll\"", "\"y_ws03_yaw\"", "\"y_ws03_pitch\"", 
+"\"y_ws04_x\"", "\"y_ws04_y\"", "\"y_ws04_z\"", "\"y_ws04_roll\"", "\"y_ws04_yaw\"", "\"y_ws04_pitch\"", 
+"\"y_w01_rota\"", "\"y_w02_rota\"", "\"y_w03_rota\"", "\"y_w04_rota\"", 
+"\"y_w05_rota\"", "\"y_w06_rota\"", "\"y_w07_rota\"", "\"y_w08_rota\"", 
+"\"y_bar01_pitch\"", "\"y_bar02_pitch\"", "\"y_bar03_pitch\"", "\"y_bar04_pitch\"", 
+"\"y_bar05_pitch\"", "\"y_bar06_pitch\"", "\"y_bar07_pitch\"", "\"y_bar08_pitch\"", 
+"\"y_ws01_vy\"", "\"y_ws02_vy\"", "\"y_ws03_vy\"", "\"y_ws04_vy\"", 
+"\"y_ws01_vyaw\"", "\"y_ws02_vyaw\"", "\"y_ws03_vyaw\"", "\"y_ws04_vyaw\""
 };
+
 // 日志记录 - U 
 static const char* U_columnNames[9] = {
   "\"Time\"",
@@ -142,11 +206,11 @@ SimpackNode::SimpackNode(const rclcpp::NodeOptions & options)
     return; // 或其他适当的错误处理，如抛出异常
   }
   
-  // 先写一个标题行，包含 Time 以及 28 个 y-output
+  // 先写一个标题行，包含 Time 以及 76(原28) 个 y-output
   // 不再使用 # time(s) y0 y1 ... y27, 而是改为以双引号+Tab 分隔
-  for (int i = 0; i < 29; ++i) {
+  for (int i = 0; i < 77; ++i) {
     logFile_Y << Y_columnNames[i];
-    if (i < 28) {
+    if (i < 76) {
       logFile_Y << "\t";  // 列间用TAB分隔
     }
     else {
@@ -319,28 +383,120 @@ void SimpackNode::timerCallback()
   // 1) 读取 y[]
   SpckRtGetY(y_);
 
-  // 2) 发布 y: 28个量
+  // 2) 发布 y: 76个量
   simpack_interfaces::msg::SimpackY sensor_msg;
   sensor_msg.sim_time = simTime_; // 当前仿真时刻
 
-  // 这里演示只给轮速赋值( WL01..WR04 )，其余请按需补充
-  // 请确认: 索引正确
-  if (ny_ >= 16) {
-    sensor_msg.y_wl01 = y_[INDEX_WL01];
-    sensor_msg.y_wr01 = y_[INDEX_WR01];
-    sensor_msg.y_wl02 = y_[INDEX_WL02];
-    sensor_msg.y_wr02 = y_[INDEX_WR02];
-    sensor_msg.y_wl03 = y_[INDEX_WL03];
-    sensor_msg.y_wr03 = y_[INDEX_WR03];
-    sensor_msg.y_wl04 = y_[INDEX_WL04];
-    sensor_msg.y_wr04 = y_[INDEX_WR04];
-    // ...
-    // 其余 20 个量: y_yw01..y_speed_diff_rear_d
-    // 按索引依次赋值即可
-  } else {
-    RCLCPP_WARN_ONCE(this->get_logger(),
-      "ny_=%d is smaller than expected for full assignment!", ny_);
+  // 建议: 如果要确保一次性完整赋值全部 76 个量，检查条件最好改为 (ny_ >= 76)
+  if (ny_ >= 76) 
+  {
+    // 0. SIMPACK 内部时间
+    sensor_msg.y_spcktime   = y_[INDEX_SPCKTIME];
+
+    // 1. 车体状态
+    sensor_msg.y_cb_vx      = y_[INDEX_CB_Vx];  // 整车纵向速度
+    sensor_msg.y_cb_x       = y_[INDEX_CB_X];
+    sensor_msg.y_cb_y       = y_[INDEX_CB_Y];
+    sensor_msg.y_cb_z       = y_[INDEX_CB_Z];
+    sensor_msg.y_cb_roll    = y_[INDEX_CB_Roll];
+    sensor_msg.y_cb_yaw     = y_[INDEX_CB_Yaw];
+    sensor_msg.y_cb_pitch   = y_[INDEX_CB_Pit];
+
+    // 2. 车轮转速 (RotW)
+    sensor_msg.y_w01_rotw   = y_[INDEX_W01_RotW];
+    sensor_msg.y_w02_rotw   = y_[INDEX_W02_RotW];
+    sensor_msg.y_w03_rotw   = y_[INDEX_W03_RotW];
+    sensor_msg.y_w04_rotw   = y_[INDEX_W04_RotW];
+    sensor_msg.y_w05_rotw   = y_[INDEX_W05_RotW];
+    sensor_msg.y_w06_rotw   = y_[INDEX_W06_RotW];
+    sensor_msg.y_w07_rotw   = y_[INDEX_W07_RotW];
+    sensor_msg.y_w08_rotw   = y_[INDEX_W08_RotW];
+
+    // 3. 前后2个构架 (x, y, z, roll, yaw, pitch)
+    sensor_msg.y_f01_x      = y_[INDEX_F01_X];
+    sensor_msg.y_f01_y      = y_[INDEX_F01_Y];
+    sensor_msg.y_f01_z      = y_[INDEX_F01_Z];
+    sensor_msg.y_f01_roll   = y_[INDEX_F01_Roll];
+    sensor_msg.y_f01_yaw    = y_[INDEX_F01_Yaw];
+    sensor_msg.y_f01_pitch  = y_[INDEX_F01_Pit];
+
+    sensor_msg.y_f02_x      = y_[INDEX_F02_X];
+    sensor_msg.y_f02_y      = y_[INDEX_F02_Y];
+    sensor_msg.y_f02_z      = y_[INDEX_F02_Z];
+    sensor_msg.y_f02_roll   = y_[INDEX_F02_Roll];
+    sensor_msg.y_f02_yaw    = y_[INDEX_F02_Yaw];
+    sensor_msg.y_f02_pitch  = y_[INDEX_F02_Pit];
+
+    // 4. 四个轮对 (WS01 ~ WS04)
+    sensor_msg.y_ws01_x     = y_[INDEX_WS01_X];
+    sensor_msg.y_ws01_y     = y_[INDEX_WS01_Y];
+    sensor_msg.y_ws01_z     = y_[INDEX_WS01_Z];
+    sensor_msg.y_ws01_roll  = y_[INDEX_WS01_Roll];
+    sensor_msg.y_ws01_yaw   = y_[INDEX_WS01_Yaw];
+    sensor_msg.y_ws01_pitch = y_[INDEX_WS01_Pit];
+
+    sensor_msg.y_ws02_x     = y_[INDEX_WS02_X];
+    sensor_msg.y_ws02_y     = y_[INDEX_WS02_Y];
+    sensor_msg.y_ws02_z     = y_[INDEX_WS02_Z];
+    sensor_msg.y_ws02_roll  = y_[INDEX_WS02_Roll];
+    sensor_msg.y_ws02_yaw   = y_[INDEX_WS02_Yaw];
+    sensor_msg.y_ws02_pitch = y_[INDEX_WS02_Pit];
+
+    sensor_msg.y_ws03_x     = y_[INDEX_WS03_X];
+    sensor_msg.y_ws03_y     = y_[INDEX_WS03_Y];
+    sensor_msg.y_ws03_z     = y_[INDEX_WS03_Z];
+    sensor_msg.y_ws03_roll  = y_[INDEX_WS03_Roll];
+    sensor_msg.y_ws03_yaw   = y_[INDEX_WS03_Yaw];
+    sensor_msg.y_ws03_pitch = y_[INDEX_WS03_Pit];
+
+    sensor_msg.y_ws04_x     = y_[INDEX_WS04_X];
+    sensor_msg.y_ws04_y     = y_[INDEX_WS04_Y];
+    sensor_msg.y_ws04_z     = y_[INDEX_WS04_Z];
+    sensor_msg.y_ws04_roll  = y_[INDEX_WS04_Roll];
+    sensor_msg.y_ws04_yaw   = y_[INDEX_WS04_Yaw];
+    sensor_msg.y_ws04_pitch = y_[INDEX_WS04_Pit];
+
+    // 5. 车轮转动角度 (RotA)
+    sensor_msg.y_w01_rota   = y_[INDEX_W01_RotA];
+    sensor_msg.y_w02_rota   = y_[INDEX_W02_RotA];
+    sensor_msg.y_w03_rota   = y_[INDEX_W03_RotA];
+    sensor_msg.y_w04_rota   = y_[INDEX_W04_RotA];
+    sensor_msg.y_w05_rota   = y_[INDEX_W05_RotA];
+    sensor_msg.y_w06_rota   = y_[INDEX_W06_RotA];
+    sensor_msg.y_w07_rota   = y_[INDEX_W07_RotA];
+    sensor_msg.y_w08_rota   = y_[INDEX_W08_RotA];
+
+    // 6. 八个杆件 (pitch)
+    sensor_msg.y_bar01_pitch = y_[INDEX_Bar01_Pit];
+    sensor_msg.y_bar02_pitch = y_[INDEX_Bar02_Pit];
+    sensor_msg.y_bar03_pitch = y_[INDEX_Bar03_Pit];
+    sensor_msg.y_bar04_pitch = y_[INDEX_Bar04_Pit];
+    sensor_msg.y_bar05_pitch = y_[INDEX_Bar05_Pit];
+    sensor_msg.y_bar06_pitch = y_[INDEX_Bar06_Pit];
+    sensor_msg.y_bar07_pitch = y_[INDEX_Bar07_Pit];
+    sensor_msg.y_bar08_pitch = y_[INDEX_Bar08_Pit];
+
+    // 7. 各个轮对的 横向位移速度 Vy, 摇头角速度 Vyaw
+    sensor_msg.y_ws01_vy   = y_[INDEX_WS01_Vy];
+    sensor_msg.y_ws02_vy   = y_[INDEX_WS02_Vy];
+    sensor_msg.y_ws03_vy   = y_[INDEX_WS03_Vy];
+    sensor_msg.y_ws04_vy   = y_[INDEX_WS04_Vy];
+
+    sensor_msg.y_ws01_vyaw = y_[INDEX_WS01_Vyaw];
+    sensor_msg.y_ws02_vyaw = y_[INDEX_WS02_Vyaw];
+    sensor_msg.y_ws03_vyaw = y_[INDEX_WS03_Vyaw];
+    sensor_msg.y_ws04_vyaw = y_[INDEX_WS04_Vyaw];
   }
+  
+  else {
+    // 如果 ny_ 不足 76，做相应提示或只赋值一部分
+    RCLCPP_WARN_ONCE(
+      this->get_logger(),
+      "ny_=%d < 76, 并非所有的 y[] 都被赋值, 请检查赋值维度",
+      ny_);
+  }
+  
+  // 发布
   pub_sensors_->publish(sensor_msg);
 
   // 3) 写 u_ 到 SIMPACK

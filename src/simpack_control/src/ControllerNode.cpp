@@ -56,18 +56,18 @@ void ControllerNode::sensorCallback(const simpack_interfaces::msg::SimpackY::Sha
   simpack_interfaces::msg::SimpackU control_msg;
   control_msg.sim_time = sim_time;  // 若需要带上同样的时间戳
 
-  // 以第1组轮对 WL01 / WR01 为例:
+  // 以第1组轮对 y_w01_rotw / y_w02_rotw 为例:
   {
-    // 左车轮(索引0) => y_wl01
-    double rawSpeed = msg->y_wl01;    // SPCK 直接读出的是负值, 需要乘-1
+    // 左车轮(索引0) => 原y_wl01
+    double rawSpeed = msg->y_w01_rotw;    // SPCK 直接读出的是负值, 需要乘-1
     double actualSpeed = -rawSpeed * wheelRadius_;
     double error = targetLeft - actualSpeed;
     double torque = pids_[0].update(error, dt_);
     control_msg.u0 = torque;
   }
   {
-    // 右车轮(索引1) => y_wr01
-    double rawSpeed = msg->y_wr01;
+    // 右车轮(索引1) => 原y_wr01
+    double rawSpeed = msg->y_w02_rotw;
     double actualSpeed = -rawSpeed * wheelRadius_;
     double error = targetRight - actualSpeed;
     double torque = pids_[1].update(error, dt_);
@@ -75,14 +75,14 @@ void ControllerNode::sensorCallback(const simpack_interfaces::msg::SimpackY::Sha
   }
   // 第2组轮对 WL02 / WR02
   {
-    double rawSpeed = msg->y_wl02;
+    double rawSpeed = msg->y_w03_rotw;
     double actualSpeed = -rawSpeed * wheelRadius_;
     double error = targetLeft - actualSpeed;
     double torque = pids_[2].update(error, dt_);
     control_msg.u2 = torque;
   }
   {
-    double rawSpeed = msg->y_wr02;
+    double rawSpeed = msg->y_w04_rotw;
     double actualSpeed = -rawSpeed * wheelRadius_;
     double error = targetRight - actualSpeed;
     double torque = pids_[3].update(error, dt_);
@@ -90,14 +90,14 @@ void ControllerNode::sensorCallback(const simpack_interfaces::msg::SimpackY::Sha
   }
   // 第3组轮对 WL03 / WR03
   {
-    double rawSpeed = msg->y_wl03;
+    double rawSpeed = msg->y_w05_rotw;
     double actualSpeed = -rawSpeed * wheelRadius_;
     double error = targetLeft - actualSpeed;
     double torque = pids_[4].update(error, dt_);
     control_msg.u4 = torque;
   }
   {
-    double rawSpeed = msg->y_wr03;
+    double rawSpeed = msg->y_w06_rotw;
     double actualSpeed = -rawSpeed * wheelRadius_;
     double error = targetRight - actualSpeed;
     double torque = pids_[5].update(error, dt_);
@@ -106,14 +106,14 @@ void ControllerNode::sensorCallback(const simpack_interfaces::msg::SimpackY::Sha
 
   // 第4组轮对 WL04 / WR04
   {
-    double rawSpeed = msg->y_wl04;
+    double rawSpeed = msg->y_w07_rotw;
     double actualSpeed = -rawSpeed * wheelRadius_;
     double error = targetLeft - actualSpeed;
     double torque = pids_[6].update(error, dt_);
     control_msg.u6 = torque;
   }
   {
-    double rawSpeed = msg->y_wr04;
+    double rawSpeed = msg->y_w08_rotw;
     double actualSpeed = -rawSpeed * wheelRadius_;
     double error = targetRight - actualSpeed;
     double torque = pids_[7].update(error, dt_);

@@ -31,8 +31,6 @@ PostAnalysis/rosbag2_*/
 
 # 文档和表格
 *.csv
-*.xls
-*.xlsx
 *.pdf
 
 # 配置和临时文件
