@@ -67,6 +67,7 @@ PostAnalysis/rosbag2_*/
 Thumbs.db
 
 # Office 临时文件
+.~Y_output.xlsx
 ~$*           # Word、Excel、PowerPoint 等的临时文件
 *.tmp         # 临时文件
 *.temp        # 临时文件

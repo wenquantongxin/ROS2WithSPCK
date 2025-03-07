@@ -471,7 +471,7 @@
       </Diagram>
     </Page>
     <Page id="page2" index="1" type="fixed">
-      <Title>Page 2</Title>
+      <Title>Yw and Yaw</Title>
       <Layout name="pagestandardlayout">
         <BackgroundColor index="47"/>
         <BorderColor index="0"/>
@@ -502,6 +502,548 @@
           <Size height="0.05"/>
         </Footer>
       </Layout>
+      <Diagram id="diag1" index="0" parent="cell1" type="2D">
+        <Title>Diagram</Title>
+        <Layout name="diagramstandardlayout">
+          <FrameColor index="-1"/>
+          <BackgroundColor index="47"/>
+          <BorderColor index="0"/>
+          <Margins bottom="2" distanceto="text" left="2" right="2" top="2"/>
+          <TitleFrame id="titl1">
+            <Font family="Arial" size="12" weight="normal"/>
+            <TextColor index="0"/>
+            <Alignment hor="center"/>
+          </TitleFrame>
+          <TopArea id="topa1" visible="false">
+            <Size height="0.0833333"/>
+          </TopArea>
+          <LeftArea id="lefa1" visible="false">
+            <Size width="0.0833333"/>
+          </LeftArea>
+          <RightArea id="riga1" visible="false">
+            <Size width="0.0833333"/>
+          </RightArea>
+          <BottomArea id="bota1" visible="false">
+            <Size height="0.0833333"/>
+          </BottomArea>
+        </Layout>
+        <Legend position="top">
+          <Font family="Arial" size="10" weight="normal"/>
+          <TextColor index="0"/>
+        </Legend>
+        <Axes>
+          <XAxis id="xaxi1" type="lin">
+            <Position>bottom</Position>
+            <Title>time [s]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </XAxis>
+          <YAxis id="yaxi1" type="lin">
+            <Position>left</Position>
+            <Title>y  : Lateral position [m]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </YAxis>
+        </Axes>
+        <Curve id="curv1" index="0" type="curve2d">
+          <Title>joint pos.$S_IRWBogie_Front.$S_IRW_Front.$J_DumAxle.y  : Lateral position</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Front__S_IRW_Front__J_DumAxle.st_002" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="0"/>
+          <LineStyle>solid</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <Curve id="curv2" index="1" type="curve2d">
+          <Title>joint pos.$S_IRWBogie_Front.$S_IRW_Rear.$J_DumAxle.y  : Lateral position</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Front__S_IRW_Rear__J_DumAxle.st_002" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="2"/>
+          <LineStyle>dash</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <Curve id="curv3" index="2" type="curve2d">
+          <Title>joint pos.$S_IRWBogie_Rear.$S_IRW_Front.$J_DumAxle.y  : Lateral position</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Front__J_DumAxle.st_002" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="21"/>
+          <LineStyle>dot</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <Curve id="curv4" index="3" type="curve2d">
+          <Title>joint pos.$S_IRWBogie_Rear.$S_IRW_Rear.$J_DumAxle.y  : Lateral position</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Rear__J_DumAxle.st_002" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="31"/>
+          <LineStyle>dash_dot</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <SimInfoOverlay>Hide</SimInfoOverlay>
+      </Diagram>
+      <Diagram id="diag2" index="1" parent="cell2" type="2D">
+        <Title>Diagram</Title>
+        <Layout name="diagramstandardlayout">
+          <FrameColor index="-1"/>
+          <BackgroundColor index="47"/>
+          <BorderColor index="0"/>
+          <Margins bottom="2" distanceto="text" left="2" right="2" top="2"/>
+          <TitleFrame id="titl1">
+            <Font family="Arial" size="12" weight="normal"/>
+            <TextColor index="0"/>
+            <Alignment hor="center"/>
+          </TitleFrame>
+          <TopArea id="topa1" visible="false">
+            <Size height="0.0833333"/>
+          </TopArea>
+          <LeftArea id="lefa1" visible="false">
+            <Size width="0.0833333"/>
+          </LeftArea>
+          <RightArea id="riga1" visible="false">
+            <Size width="0.0833333"/>
+          </RightArea>
+          <BottomArea id="bota1" visible="false">
+            <Size height="0.0833333"/>
+          </BottomArea>
+        </Layout>
+        <Legend position="top">
+          <Font family="Arial" size="10" weight="normal"/>
+          <TextColor index="0"/>
+        </Legend>
+        <Axes>
+          <XAxis id="xaxi1" type="lin">
+            <Position>bottom</Position>
+            <Title>time [s]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </XAxis>
+          <YAxis id="yaxi1" type="lin">
+            <Position>left</Position>
+            <Title>psi: Yaw angle [rad]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </YAxis>
+        </Axes>
+        <Curve id="curv1" index="0" type="curve2d">
+          <Title>joint pos.$S_IRWBogie_Front.$S_IRW_Front.$J_DumAxle.psi: Yaw angle</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Front__S_IRW_Front__J_DumAxle.st_005" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="0"/>
+          <LineStyle>solid</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <Curve id="curv2" index="1" type="curve2d">
+          <Title>joint pos.$S_IRWBogie_Front.$S_IRW_Rear.$J_DumAxle.psi: Yaw angle</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Front__S_IRW_Rear__J_DumAxle.st_005" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="2"/>
+          <LineStyle>dash</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <Curve id="curv3" index="2" type="curve2d">
+          <Title>joint pos.$S_IRWBogie_Rear.$S_IRW_Front.$J_DumAxle.psi: Yaw angle</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Front__J_DumAxle.st_005" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="21"/>
+          <LineStyle>dot</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <Curve id="curv4" index="3" type="curve2d">
+          <Title>joint pos.$S_IRWBogie_Rear.$S_IRW_Rear.$J_DumAxle.psi: Yaw angle</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Rear__J_DumAxle.st_005" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="31"/>
+          <LineStyle>dash_dot</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <SimInfoOverlay>Hide</SimInfoOverlay>
+      </Diagram>
+    </Page>
+    <Page id="page3" index="2" type="fixed">
+      <Title>Wheels Rot Speed</Title>
+      <Layout name="pagestandardlayout">
+        <BackgroundColor index="47"/>
+        <BorderColor index="0"/>
+        <PaperSize format="A4" orientation="landscape"/>
+        <Margins bottom="5" left="5" right="5" top="5"/>
+        <TitleFrame id="titl1">
+          <Size height="0.045146"/>
+          <Font family="Arial" size="20" weight="normal"/>
+          <TextColor index="0"/>
+          <Alignment hor="center" vert="center"/>
+        </TitleFrame>
+        <Header id="head1">
+          <Size height="0.05"/>
+        </Header>
+        <Table id="tabl1">
+          <TableCell id="cell1">
+            <BackgroundColor index="-1"/>
+            <Size height="1" width="1"/>
+            <Pos x="0" y="0"/>
+          </TableCell>
+        </Table>
+        <Footer id="foot1">
+          <Size height="0.05"/>
+        </Footer>
+      </Layout>
+      <Diagram id="diag1" index="0" parent="cell1" type="2D">
+        <Title>Diagram</Title>
+        <Layout name="diagramstandardlayout">
+          <FrameColor index="-1"/>
+          <BackgroundColor index="47"/>
+          <BorderColor index="0"/>
+          <Margins bottom="2" distanceto="text" left="2" right="2" top="2"/>
+          <TitleFrame id="titl1">
+            <Font family="Arial" size="12" weight="normal"/>
+            <TextColor index="0"/>
+            <Alignment hor="center"/>
+          </TitleFrame>
+          <TopArea id="topa1" visible="false">
+            <Size height="0.0833333"/>
+          </TopArea>
+          <LeftArea id="lefa1" visible="false">
+            <Size width="0.0833333"/>
+          </LeftArea>
+          <RightArea id="riga1" visible="false">
+            <Size width="0.0833333"/>
+          </RightArea>
+          <BottomArea id="bota1" visible="false">
+            <Size height="0.0833333"/>
+          </BottomArea>
+        </Layout>
+        <Legend position="top">
+          <Font family="Arial" size="10" weight="normal"/>
+          <TextColor index="0"/>
+        </Legend>
+        <Axes>
+          <XAxis id="xaxi1" type="lin">
+            <Position>bottom</Position>
+            <Title>time [s]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </XAxis>
+          <YAxis id="yaxi1" type="lin">
+            <Position>left</Position>
+            <Title>Rotation about be [rad/s]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </YAxis>
+        </Axes>
+        <Curve id="curv1" index="0" type="curve2d">
+          <Title>joint vel.$S_IRWBogie_Front.$S_IRW_Front.$J_IRW_L.Rotation about be</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.jointVel.S_IRWBogie_Front__S_IRW_Front__J_IRW_L.st_001" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="0"/>
+          <LineStyle>solid</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <SimInfoOverlay>Hide</SimInfoOverlay>
+      </Diagram>
+    </Page>
+    <Page id="page4" index="3" type="fixed">
+      <Title>Page 4</Title>
+      <Layout name="pagestandardlayout">
+        <BackgroundColor index="47"/>
+        <BorderColor index="0"/>
+        <PaperSize format="A4" orientation="landscape"/>
+        <Margins bottom="5" left="5" right="5" top="5"/>
+        <TitleFrame id="titl1">
+          <Size height="0.045146"/>
+          <Font family="Arial" size="20" weight="normal"/>
+          <TextColor index="0"/>
+          <Alignment hor="center" vert="center"/>
+        </TitleFrame>
+        <Header id="head1">
+          <Size height="0.05"/>
+        </Header>
+        <Table id="tabl1">
+          <TableCell id="cell1">
+            <BackgroundColor index="-1"/>
+            <Size height="1" width="1"/>
+            <Pos x="0" y="0"/>
+          </TableCell>
+        </Table>
+        <Footer id="foot1">
+          <Size height="0.05"/>
+        </Footer>
+      </Layout>
+      <Diagram id="diag1" index="0" parent="cell1" type="2D">
+        <Title>Diagram</Title>
+        <Layout name="diagramstandardlayout">
+          <FrameColor index="-1"/>
+          <BackgroundColor index="47"/>
+          <BorderColor index="0"/>
+          <Margins bottom="2" distanceto="text" left="2" right="2" top="2"/>
+          <TitleFrame id="titl1">
+            <Font family="Arial" size="12" weight="normal"/>
+            <TextColor index="0"/>
+            <Alignment hor="center"/>
+          </TitleFrame>
+          <TopArea id="topa1" visible="false">
+            <Size height="0.0833333"/>
+          </TopArea>
+          <LeftArea id="lefa1" visible="false">
+            <Size width="0.0833333"/>
+          </LeftArea>
+          <RightArea id="riga1" visible="false">
+            <Size width="0.0833333"/>
+          </RightArea>
+          <BottomArea id="bota1" visible="false">
+            <Size height="0.0833333"/>
+          </BottomArea>
+        </Layout>
+        <Legend position="top">
+          <Font family="Arial" size="10" weight="normal"/>
+          <TextColor index="0"/>
+        </Legend>
+        <Axes>
+          <XAxis id="xaxi1" type="lin">
+            <Position>bottom</Position>
+            <Title>time [s]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </XAxis>
+          <YAxis id="yaxi1" type="lin">
+            <Position>left</Position>
+            <Title>y [Nm]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </YAxis>
+        </Axes>
+        <Curve id="curv1" index="0" type="curve2d">
+          <Title>force torque.$S_IRWBogie_Front.$F_Motor_A.y</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.forceTorque.S_IRWBogie_Front__F_Motor_A.y" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="0"/>
+          <LineStyle>solid</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <Curve id="curv2" index="1" type="curve2d">
+          <Title>force torque.$S_IRWBogie_Front.$F_Motor_B.y</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.forceTorque.S_IRWBogie_Front__F_Motor_B.y" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="2"/>
+          <LineStyle>dash</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <Curve id="curv3" index="2" type="curve2d">
+          <Title>force torque.$S_IRWBogie_Front.$F_Motor_C.y</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.forceTorque.S_IRWBogie_Front__F_Motor_C.y" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="21"/>
+          <LineStyle>dot</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <Curve id="curv4" index="3" type="curve2d">
+          <Title>force torque.$S_IRWBogie_Front.$F_Motor_D.y</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.forceTorque.S_IRWBogie_Front__F_Motor_D.y" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="31"/>
+          <LineStyle>dash_dot</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <SimInfoOverlay>Hide</SimInfoOverlay>
+      </Diagram>
     </Page>
   </PageSet>
 
