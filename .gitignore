@@ -32,6 +32,11 @@ PostAnalysis/rosbag2_*/
 # 文档和表格
 *.csv
 *.pdf
+*.html
+*.png
+*.doc
+*.docx
+*.txt
 
 # 配置和临时文件
 *.vscode
@@ -68,6 +73,8 @@ Thumbs.db
 
 # Office 临时文件
 .~Y_output.xlsx
+.~mpackTracks.docx
+
 ~$*           # Word、Excel、PowerPoint 等的临时文件
 *.tmp         # 临时文件
 *.temp        # 临时文件

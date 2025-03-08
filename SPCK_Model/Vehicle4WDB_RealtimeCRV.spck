@@ -78,9 +78,9 @@ substr.attr.2d.height (             $S_IRWBogie_Rear              ) = 4.00000000
 ! Views
 !**********************************************************************
 view.type (                         $V_WorkingView                ) = 0                       ! Projection type
-view.pos (                1 ,       $V_WorkingView                ) = -1.05562642956361756E+01 ! Position
-view.pos (                2 ,       $V_WorkingView                ) = -1.52476343633033213E+01 ! Position
-view.pos (                3 ,       $V_WorkingView                ) = -2.03972800071411768E+01 ! Position
+view.pos (                1 ,       $V_WorkingView                ) = -1.28571989335328922E+01 ! Position
+view.pos (                2 ,       $V_WorkingView                ) = -1.59230232629351178E+01 ! Position
+view.pos (                3 ,       $V_WorkingView                ) = -1.87325541282249617E+01 ! Position
 view.orient (             1 ,       $V_WorkingView                ) = 2.24450503279893271E-01 ! Orientation
 view.orient (             2 ,       $V_WorkingView                ) = 9.01395636829817493E-01 ! Orientation
 view.orient (             3 ,       $V_WorkingView                ) = -3.54572750224314448E-01 ! Orientation
@@ -101,9 +101,9 @@ view.motion.z (                     $V_WorkingView                ) = 1         
 view.motion.al (                    $V_WorkingView                ) = 1                       ! Moved camera direction alpha
 view.motion.be (                    $V_WorkingView                ) = 1                       ! Moved camera direction beta
 view.motion.ga (                    $V_WorkingView                ) = 1                       ! Moved camera direction gamma
-view.motion.pos (         1 ,       $V_WorkingView                ) = -1.93062642956361756E+01 ! Relative position
-view.motion.pos (         2 ,       $V_WorkingView                ) = -1.42476343633033213E+01 ! Relative position
-view.motion.pos (         3 ,       $V_WorkingView                ) = -1.91972800071411775E+01 ! Relative position
+view.motion.pos (         1 ,       $V_WorkingView                ) = -2.16071989335328922E+01 ! Relative position
+view.motion.pos (         2 ,       $V_WorkingView                ) = -1.49230232629351178E+01 ! Relative position
+view.motion.pos (         3 ,       $V_WorkingView                ) = -1.75325541282249624E+01 ! Relative position
 view.motion.orient (      1 ,       $V_WorkingView                ) = 2.24450503279893271E-01 ! Relative orientation
 view.motion.orient (      2 ,       $V_WorkingView                ) = 9.01395636829817493E-01 ! Relative orientation
 view.motion.orient (      3 ,       $V_WorkingView                ) = -3.54572750224314448E-01 ! Relative orientation
