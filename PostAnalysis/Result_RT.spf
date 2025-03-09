@@ -1072,6 +1072,109 @@
           <Size height="0.05"/>
         </Footer>
       </Layout>
+      <Diagram id="diag5" index="0" parent="cell1" type="2D">
+        <Title>Diagram</Title>
+        <Layout name="diagramstandardlayout">
+          <FrameColor index="-1"/>
+          <BackgroundColor index="47"/>
+          <BorderColor index="0"/>
+          <Margins bottom="2" distanceto="text" left="2" right="2" top="2"/>
+          <TitleFrame id="titl1">
+            <Font family="Arial" size="12" weight="normal"/>
+            <TextColor index="0"/>
+            <Alignment hor="center"/>
+          </TitleFrame>
+          <TopArea id="topa1" visible="false">
+            <Size height="0.0833333"/>
+          </TopArea>
+          <LeftArea id="lefa1" visible="false">
+            <Size width="0.0833333"/>
+          </LeftArea>
+          <RightArea id="riga1" visible="false">
+            <Size width="0.0833333"/>
+          </RightArea>
+          <BottomArea id="bota1" visible="false">
+            <Size height="0.0833333"/>
+          </BottomArea>
+        </Layout>
+        <Legend position="top">
+          <Font family="Arial" size="10" weight="normal"/>
+          <TextColor index="0"/>
+        </Legend>
+        <Axes>
+          <XAxis id="xaxi1" type="lin">
+            <Position>bottom</Position>
+            <Title>time [s]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </XAxis>
+          <YAxis id="yaxi1" type="lin">
+            <Position>left</Position>
+            <Title>s  : Longitudinal position [m]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </YAxis>
+        </Axes>
+        <Curve id="curv1" index="0" type="curve2d" visible="false">
+          <Title>joint pos.$J_Carbody.s  : Longitudinal position</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.jointPos.J_Carbody.st_001" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="0"/>
+          <LineStyle>solid</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+        </Curve>
+        <Curve id="curv2" index="1" type="curve2d">
+          <Title>joint pos.$S_IRWBogie_Front.$J_Frame.s  : Longitudinal position</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Front__J_Frame.st_001" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="2"/>
+          <LineStyle>dash</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+          <Filter id="filt1" type="59">
+            <!--Title: 59: y(x) = y(x) - y2(x)-->
+            <Par arg="1" val="pset1.page5.diag5.curv1"/>
+          </Filter>
+        </Curve>
+        <SimInfoOverlay>Hide</SimInfoOverlay>
+      </Diagram>
     </Page>
   </PageSet>
 

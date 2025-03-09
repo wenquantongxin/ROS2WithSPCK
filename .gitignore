@@ -25,6 +25,7 @@ PostAnalysis/rosbag2_*/
 *.sir
 *.intinfo
 *.log
+*.mp4
 
 # 几何模型文件
 *.STL
