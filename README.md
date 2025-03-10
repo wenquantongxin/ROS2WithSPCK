@@ -63,6 +63,11 @@ ROS2与SIMPACK仿真软件的控制系统交互，进行车辆动力学**实时�
     source install/setup.bash
     ros2 run simpack_control controller_node
 
+    # 窗口3 (UDP 跨级通信Node, 连接 192.168.1.131: 10088)
+    cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK
+    source install/setup.bash  
+    ros2 run simpack_control udp_sender_node   
+
 ## 实时数据流监控与回放
     cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK && source install/setup.bash 
     ros2 run rqt_topic rqt_topic                              # 监控 ROS 2 主题消息传递的详细数据

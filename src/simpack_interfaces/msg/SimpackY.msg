@@ -1,4 +1,4 @@
-# /home/yaoyao/Documents/myProjects/ROS2WithSPCK/src/simpack_control/msg/SimpackY.msg
+# /home/yaoyao/Documents/myProjects/ROS2WithSPCK/src/simpack_interfaces/msg/SimpackY.msg
 
 # 当前仿真时间戳(秒)
 float64 sim_time

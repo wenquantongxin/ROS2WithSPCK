@@ -23,6 +23,7 @@ if(NOT SPCKRT_INCLUDE_DIR)
   message(FATAL_ERROR "Could not find spck_rt.h in /opt/Simpack-2021x/run/realtime")
 endif()
 
+# 包含头文件路径
 include_directories(
   include
   ${SPCKRT_INCLUDE_DIR}
@@ -63,8 +64,19 @@ target_link_libraries(controller_node
   m
 )
 
-# ====== 安装生成的两个可执行 ======
-install(TARGETS simpack_node controller_node
+# ====== 第三个可执行文件: udp_sender_node 可执行文件
+add_executable(udp_sender_node 
+  src/UDPSenderNode.cpp
+)
+ament_target_dependencies(udp_sender_node 
+  rclcpp 
+  simpack_interfaces)
+
+# ====== 安装生成的三个可执行 ======
+install(TARGETS 
+  simpack_node 
+  controller_node 
+  udp_sender_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
