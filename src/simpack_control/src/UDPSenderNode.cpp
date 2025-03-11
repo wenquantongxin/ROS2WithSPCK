@@ -1,3 +1,9 @@
+/*
+   文件名: UDPSenderNode.cpp
+   文件路径: ...\ROS2WithSPCK\src\simpack_control\src\UDPSenderNode.cpp
+
+*/
+
 #include <memory>
 #include <string>
 #include <cstring>       // for memset, strerror
@@ -183,7 +189,7 @@ private:
 
     // 打印日志 (可选)
     send_count_++;
-    if (send_count_ % 250 == 0) {
+    if (send_count_ % 2000 == 0) {
       RCLCPP_INFO(this->get_logger(), 
                   "Sent %ld bytes (count=%lu) to %s:%d", 
                   bytes_sent, send_count_,

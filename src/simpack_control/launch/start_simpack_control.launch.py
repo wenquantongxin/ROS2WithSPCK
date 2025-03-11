@@ -1,11 +1,12 @@
 import launch
 from launch import LaunchDescription
-from launch.actions import LogInfo, ExecuteProcess, SetLaunchConfiguration
-from launch_ros.actions import Node
-from launch.actions import TimerAction
+from launch.actions import (
+    LogInfo, ExecuteProcess, SetLaunchConfiguration,
+    TimerAction, RegisterEventHandler
+)
 from launch.substitutions import LaunchConfiguration
-from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
+from launch_ros.actions import Node
 import os
 from datetime import datetime
 
@@ -20,7 +21,7 @@ def generate_launch_description():
     ros_sigterm_timeout = SetLaunchConfiguration('ros_sigterm_timeout', '5')  # 5秒SIGTERM超时
     ros_sigkill_timeout = SetLaunchConfiguration('ros_sigkill_timeout', '2')  # 2秒SIGKILL超时
     
-    # 定义节点
+    # 定义节点：Simpack 主节点（立即启动）
     simpack_node = Node(
         package='simpack_control',
         executable='simpack_node',
@@ -29,12 +30,16 @@ def generate_launch_description():
         emulate_tty=True
     )
     
-    # 延时1秒后启动 controller_node
-    log_delay = LogInfo(
-        msg="Waiting 1 second before starting the controller_node..."
+    # 定义节点：UDP Sender 节点（延时 1 秒后启动）
+    udp_sender_node = Node(
+        package='simpack_control',
+        executable='udp_sender_node',
+        name='udp_sender_node',
+        output='screen',
+        emulate_tty=True
     )
     
-    # 控制器节点
+    # 定义节点：Controller 节点（再延时 0.5 秒后启动）
     controller_node = Node(
         package='simpack_control',
         executable='controller_node',
@@ -43,9 +48,21 @@ def generate_launch_description():
         emulate_tty=True
     )
     
-    # 使用 TimerAction 延时1秒后启动控制器
-    timer_action = TimerAction(
+    # 延时消息 + 延时启动 udp_sender_node
+    log_delay_udp = LogInfo(
+        msg="Waiting 1 second before starting the udp_sender_node..."
+    )
+    timer_action_udp = TimerAction(
         period=1.0,  # 延时1秒
+        actions=[udp_sender_node]
+    )
+    
+    # 再延时0.5秒后启动 controller_node
+    log_delay_controller = LogInfo(
+        msg="Waiting an additional 0.5 second to start the controller_node..."
+    )
+    timer_action_controller = TimerAction(
+        period=1.5,  # 从Launch开始共1.5秒
         actions=[controller_node]
     )
     
@@ -54,7 +71,7 @@ def generate_launch_description():
         msg=f"Starting ros2 bag to record all topics in {bag_output_path}..."
     )
     
-    # ROS2 bag 记录
+    # ROS2 bag 记录进程
     rosbag_recorder = ExecuteProcess(
         cmd=['ros2', 'bag', 'record', '-a', '-o', bag_output_path],
         output='screen',
@@ -64,7 +81,7 @@ def generate_launch_description():
         sigkill_timeout=LaunchConfiguration('ros_sigkill_timeout')
     )
     
-    # 注册事件处理器：当 simpack_node 退出时，终止 controller_node
+    # 当 simpack_node 退出时，终止 controller_node、rosbag 等
     controller_termination_handler = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=simpack_node,
@@ -97,8 +114,8 @@ def generate_launch_description():
                     actions=[
                         LogInfo(msg="正在终止所有剩余进程..."),
                         ExecuteProcess(
-                            cmd=["killall", "-9", "ros2"], 
-                            output='screen', 
+                            cmd=["killall", "-9", "ros2"],
+                            output='screen',
                             on_exit=[
                                 LogInfo(msg=f"所有进程已终止。启动序列完成。数据已保存至 {bag_output_path}")
                             ]
@@ -113,10 +130,22 @@ def generate_launch_description():
     return LaunchDescription([
         ros_sigterm_timeout,
         ros_sigkill_timeout,
+        
+        # 1) 先启动 simpack_node
         simpack_node,
-        log_delay,
-        timer_action,
+        
+        # 2) 延时 1 秒后启动 udp_sender_node
+        log_delay_udp,
+        timer_action_udp,
+        
+        # 3) 再延时 0.5 秒后启动 controller_node
+        log_delay_controller,
+        timer_action_controller,
+        
+        # 启动 rosbag 记录
         log_record,
         rosbag_recorder,
+        
+        # 事件处理器：当 simpack_node 退出时，清理其它进程
         controller_termination_handler
     ])
