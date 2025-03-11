@@ -28,7 +28,7 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
         FRotator UDP_Rot;
         if (UDPReceiverActor->GetLatestTransformData(UDP_Loc, UDP_Rot))
         {
-            // 在此示例中，我们只用位置来驱动EndRelativeLocation
+            // 在此示例中，只用位置来驱动EndRelativeLocation
             // 也可以根据需要直接SetWorldLocation
             EndRelativeLocation = UDP_Loc;
 

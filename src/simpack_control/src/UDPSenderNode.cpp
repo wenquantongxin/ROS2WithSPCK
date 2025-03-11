@@ -11,11 +11,10 @@
 #include <sys/socket.h>
 #include <unistd.h>      // for close()
 #include <errno.h>
-
 #include <vector>
 
 #include "rclcpp/rclcpp.hpp"
-#include "simpack_interfaces/msg/simpack_y.hpp" // 你的自定义消息头文件
+#include "simpack_interfaces/msg/simpack_y.hpp" // 消息头文件
 
 using std::placeholders::_1;
 
@@ -36,8 +35,6 @@ public:
       rclcpp::shutdown();
       return;
     }
-
-    // -- 不再 bind() 到本地固定端口，让系统自动分配一个随机端口 --
 
     // 3) 设置目标地址信息（远端：Windows）
     memset(&remote_addr_, 0, sizeof(remote_addr_));
