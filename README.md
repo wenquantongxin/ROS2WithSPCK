@@ -20,7 +20,7 @@ ROS2与SIMPACK仿真软件的控制系统交互，进行车辆动力学**实时�
 ## SIMPACK节点配置
 
 - 输入通道数量：nu=8（控制输入）
-- 输出通道数量：ny=76（系统输出）
+- 输出通道数量：ny=77（系统输出）
 - 时间步长：dt=0.0020
 - 最大仿真步数：max_steps=25000
 
@@ -35,9 +35,15 @@ ROS2与SIMPACK仿真软件的控制系统交互，进行车辆动力学**实时�
 - 实时因子：1.22（表示仿真速度稍慢于实际时间1.22倍）
 - 仿真于达到最大步数后停止：Reached max_steps(25000)
 
-## 启动和关闭流程
-- 启动顺序：先启动simpack_node，再启动rosbag_recorder，最后启动controller_node
-- 关闭顺序：先关闭simpack_node，然后关闭controller_node，最后停止rosbag_recorder
+
+## 运行环境配置
+
+在 pypack 环境之中，使用 Anaconda Prompt 安装:
+
+- conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+- conda install pymoo pandas numpy ipywidgets matplotlib openpyxl ipykernel
+- pip install -U pymoo ipympl scikit-learn seaborn SALib
+- pip install pyopengl pyopengl-accelerate
 
 
 ## ROS2工作空间的编译
@@ -68,7 +74,7 @@ ROS2与SIMPACK仿真软件的控制系统交互，进行车辆动力学**实时�
     source install/setup.bash  
     ros2 run simpack_control udp_sender_node   
 
-## 实时数据流监控与回放
+## Ubuntu 实时数据流监控与回放
     cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK && source install/setup.bash 
     ros2 run rqt_topic rqt_topic                              # 监控 ROS 2 主题消息传递的详细数据
 
@@ -83,3 +89,9 @@ ROS2与SIMPACK仿真软件的控制系统交互，进行车辆动力学**实时�
 
     cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK && source install/setup.bash 
     ros2 run plotjuggler plotjuggler                          # plotjuggler 实时播放与回放 (安装: sudo apt install ros-humble-plotjuggler-ros)
+
+
+## 跨机通信
+### 通过 pyopengl 实时渲染车辆动态
+    python OnlineVis_RTTrain.py # Ubuntu 实时仿真通过 UDP 10088 传输的数据
+
