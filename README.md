@@ -43,7 +43,7 @@ ROS2与SIMPACK仿真软件的控制系统交互，进行车辆动力学**实时�
 - conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
 - conda install pymoo pandas numpy ipywidgets matplotlib openpyxl ipykernel
 - pip install -U pymoo ipympl scikit-learn seaborn SALib
-- pip install pyopengl pyopengl-accelerate
+- pip install pyopengl pyopengl-accelerate ffmpeg  ffmpeg-python
 
 
 ## ROS2工作空间的编译
