@@ -67,6 +67,7 @@ import numpy as np
 import pandas as pd
 import math
 import matplotlib.pyplot as plt
+import json
 
 # =============== 1) 轨道姿态获取 ===============
 def get_track_pose(s, s_vals, xvals, yvals, zvals, psi_vals, phi_vals):
@@ -330,3 +331,72 @@ def compute_points_bounding_box(pts_list, extra_margin=0.5):
     return (Xmid - box_half, Xmid + box_half), \
            (Ymid - box_half, Ymid + box_half), \
            (Zmid - box_half, Zmid + box_half)
+
+class TrackData:
+    def __init__(self, json_path='trajectory_data.json'):
+        """Load track centerline and rail data"""
+        try:
+            import json
+            with open(json_path, 'r') as jf:
+                trajectory_data = json.load(jf)
+            
+            # 从JSON数据转换为NumPy数组
+            self.s_vals = np.array(trajectory_data['s'])        # Track mileage array
+            self.xvals = np.array(trajectory_data['x'])         # Corresponding global X
+            self.yvals = np.array(trajectory_data['y'])         # Global Y
+            self.zvals = np.array(trajectory_data['z'])         # Global Z
+            self.psi_vals = np.array(trajectory_data['psi'])    # Track yaw
+            self.phi_vals = np.array(trajectory_data['phi'])    # Track roll (if superelevation)
+            self.left_rail = np.array(trajectory_data['left_rail'])    # (N,3) Left rail
+            self.right_rail = np.array(trajectory_data['right_rail'])   # (N,3) Right rail
+            print(f"Track data loaded successfully: {len(self.s_vals)} points")
+        except Exception as e:
+            print(f"[ERROR] Failed to load track data: {e}")
+            # Create some virtual track data for testing
+            self.s_vals = np.linspace(0, 1000, 1000)
+            self.xvals = self.s_vals.copy()
+            self.yvals = np.zeros_like(self.s_vals)
+            self.zvals = np.zeros_like(self.s_vals)
+            self.psi_vals = np.zeros_like(self.s_vals)
+            self.phi_vals = np.zeros_like(self.s_vals)
+            self.left_rail = np.column_stack([self.xvals, self.yvals + 0.75, self.zvals])
+            self.right_rail = np.column_stack([self.xvals, self.yvals - 0.75, self.zvals])
+            print("[WARNING] Using virtual track data for testing")
+    
+    def get_track_pose(self, s):
+        """
+        Input track mileage s, find the nearest point index idx in s_vals array,
+        return the track position and orientation in global frame: (X_T, Y_T, Z_T, yaw_T, pitch_T, roll_T).
+        pitch_T is temporarily set to 0.0 (no gradient), roll_T=phi_vals[idx].
+        """
+        idx = np.argmin(np.abs(self.s_vals - s))
+        X_T = self.xvals[idx]
+        Y_T = self.yvals[idx]
+        Z_T = self.zvals[idx]
+        yaw_T = self.psi_vals[idx]
+        pitch_T = 0.0       # Set to 0 if no gradient
+        roll_T = self.phi_vals[idx]
+        return (X_T, Y_T, Z_T, yaw_T, pitch_T, roll_T)
+    
+
+# Function to linearly interpolate between two values
+def lerp(a, b, t):
+    """Linear interpolation between a and b with factor t (0.0-1.0)"""
+    return a + (b - a) * t
+
+# Function to linearly interpolate between two angles (in radians)
+def angle_lerp(a, b, t):
+    """Interpolate between two angles, handling wrap-around properly"""
+    # Ensure angles are within [0, 2π]
+    a = a % (2.0 * np.pi)
+    b = b % (2.0 * np.pi)
+    
+    # Find the shortest path
+    diff = b - a
+    if diff > np.pi:
+        b -= 2.0 * np.pi
+    elif diff < -np.pi:
+        b += 2.0 * np.pi
+    
+    # Linear interpolation
+    return a + (b - a) * t
