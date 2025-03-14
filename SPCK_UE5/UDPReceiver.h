@@ -3,54 +3,54 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Sockets.h"
-#include "Networking.h"
+#include "SocketSubsystem.h"
 #include "Common/UdpSocketReceiver.h"
 #include "Common/UdpSocketBuilder.h"
-#include "Interfaces/IPv4/IPv4Address.h"
-#include "Interfaces/IPv4/IPv4Endpoint.h"
-#include "SocketSubsystem.h"
-#include "HAL/CriticalSection.h"
-#include "Containers/Array.h"
-#include "Serialization/ArrayReader.h"
-
+#include "IPAddress.h"
 #include "UDPReceiver.generated.h"
 
-/**
- * 在场景中放置此Actor，用于接收外部6DoF数据（x,y,z,pitch,yaw,roll）
- */
-UCLASS()
-class MYDEMO_0309A_API AUDPReceiver : public AActor
+UCLASS(BlueprintType)
+class PROJECT_4WDBVEHICLE_API AUDPReceiver : public AActor
 {
     GENERATED_BODY()
-
 public:
-    // 构造函数
     AUDPReceiver();
-
-protected:
+    virtual void Tick(float DeltaTime) override;
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+    /** 获取最新的位置和旋转数据 */
+    UFUNCTION(BlueprintCallable, Category = "Network")
+    bool GetLatestTransformData(FVector& OutLocation, FRotator& OutRotation);
+
 private:
-    // Socket，用于监听UDP端口
-    FSocket* ListenSocket;
+    /** 初始化UDP接收器 */
+    bool InitializeUDPReceiver();
 
-    // 异步接收器
-    TSharedPtr<FUdpSocketReceiver> UDPReceiver;
+    /** 关闭Socket连接 */
+    void CloseSocket();
 
-    // 接收到数据时的回调函数
+    /** Socket接收回调 */
     void Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoint& EndPt);
 
-    // 线程安全保护 6DoF 数据
+    /** 验证数据有效性 */
+    bool IsValidData(float x, float y, float z, float pitch, float yaw, float roll);
+
+private:
+    /** 网络组件 */
+    FSocket* ListenSocket;
+    TSharedPtr<FUdpSocketReceiver> UDPReceiver;
+
+    /** 数据互斥锁 */
     FCriticalSection DataMutex;
 
-    // 最新的位置信息
+    /** 最新接收的数据 */
     FVector LatestLocation;
-    // 最新的旋转信息
     FRotator LatestRotation;
 
-public:
-    // 供外部（比如MoveComponent）查询最新的 6DoF 数据
-    UFUNCTION(BlueprintCallable, Category = "UDP")
-    bool GetLatestTransformData(FVector& OutLocation, FRotator& OutRotation);
+    /** 是否曾经收到过数据（仅用于指示是否收到过有效数据） */
+    bool bHasReceivedData;
+
+    /** 预期的数据包大小：6 个 float (XYZ + Pitch/Yaw/Roll) */
+    int32 ExpectedDataSize;
 };

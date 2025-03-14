@@ -2,20 +2,20 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
-#include "MoveComponent.generated.h"
+#include "MoveComponent_Carbody.generated.h"
 
 class AUDPReceiver;
 
 /**
- * 自定义移动组件，可让小球根据外部UDP数据进行移动(与旋转)
+ * 自定义移动组件，让Carbody根据外部UDP数据进行移动(与旋转)
  */
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class MYDEMO_0309A_API UMoveComponent : public USceneComponent
+class PROJECT_4WDBVEHICLE_API UMoveComponent_Carbody : public USceneComponent
 {
     GENERATED_BODY()
 
 public:
-    UMoveComponent();
+    UMoveComponent_Carbody();
 
 protected:
     virtual void BeginPlay() override;
@@ -31,7 +31,7 @@ private:
     UPROPERTY(EditAnywhere, Category = "Movement")
     float speed = 10.0f;
 
-    // 组件内部的“目标位置”(可与外部UDP数据进行对接)
+    // 组件内部的"目标位置"(可与外部UDP数据进行对接)
     UPROPERTY(EditAnywhere, Category = "Movement")
     FVector EndRelativeLocation;
 
