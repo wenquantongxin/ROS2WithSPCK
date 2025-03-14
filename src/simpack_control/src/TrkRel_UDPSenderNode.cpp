@@ -1,6 +1,6 @@
 /*
-   文件名: UDPSenderNode.cpp
-   文件路径: ...\ROS2WithSPCK\src\simpack_control\src\UDPSenderNode.cpp
+   文件名: TrkRel_UDPSenderNode.cpp
+   文件路径: ...\ROS2WithSPCK\src\simpack_control\src\TrkRel_UDPSenderNode.cpp
 
 */
 
@@ -22,11 +22,13 @@ class UDPSenderNode : public rclcpp::Node
 {
 public:
   UDPSenderNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
-  : Node("udp_sender_node", options), send_count_(0)
+  : Node("trkrel_udpsender_node", options), send_count_(0)
   {
     // 1) 设置目标IP、端口（Windows侧）
-    target_ip_   = "192.168.1.131";  // Windows 主机 IP
-    target_port_ = 10088;           // Windows 端接收端口
+    target_ip_   = "192.168.1.115";   // 115 是 Ubuntu 本机的IP, 但 Windows 与 MacOS 主机都可以“听得到”
+    // 无法保证更换网络环境同样适用，此处网络环境可能是端口流量做了“泛洪”式发送
+    // 此处为了实现 Ubuntu 本机的同时收发与渲染显示，采用了本机单播本机的设置，并非最佳实践，仅供测试
+    target_port_ = 10088;             // Windows 端接收端口
 
     // 2) 创建UDP socket
     udp_socket_fd_ = ::socket(AF_INET, SOCK_DGRAM, 0);

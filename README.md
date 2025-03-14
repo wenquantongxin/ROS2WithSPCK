@@ -54,25 +54,43 @@ ROS2与SIMPACK仿真软件的控制系统交互，进行车辆动力学**实时�
     source install/setup.bash  
 
 ## launch启动
+
     cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK
     source install/setup.bash  
     ros2 launch simpack_control start_simpack_control.launch.py
 
-## 分窗口启动 (窗口1: 先启动 SIMPACK 仿真器, 窗口2: 再启动 PIDT4 控制器)
-    # 窗口1
+## 分窗口启动 ROS2 Node (窗口1: 先启动 SIMPACK 仿真器, 窗口2: 再启动 PIDT4 控制器)
+    # 窗口 1 (与 SPCK 的数据交互节点)
     cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK
     source install/setup.bash 
     ros2 run simpack_control simpack_node
 
-    # 窗口2 (可以在局域网的另一个配置了ROS2的主机上运行节点)
+    # 窗口 2  (可在局域网另一主机上运行此PID控制节点)
     cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK
     source install/setup.bash
     ros2 run simpack_control controller_node
 
-    # 窗口3 (UDP 跨级通信Node, 连接 192.168.1.131: 10088)
+    # 窗口 3  (UDP 跨机通信 Node, 发送至 连接 192.168.1.115:10088, 可能被同局域网“泛洪”式接收)
     cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK
     source install/setup.bash  
-    ros2 run simpack_control udp_sender_node   
+    ros2 run simpack_control trkrel_udpsender_node  
+
+    # 窗口 4  (UDP 跨机发送绝对坐标系 Node, 连接 192.168.1.131:10099)
+    cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK
+    source install/setup.bash  
+    ros2 run simpack_control trkabs_udpsender_node 
+
+## 跨机渲染
+    # 窗口 1 (UDP发送绝对空间坐标，显示与渲染)
+    conda activate pypack && cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK/SPCK_Track && python TrkAbs_RTViz.py     # Ubuntu
+
+    E: && cd E:\ResearchDocuments\ROS2WithSPCK\SPCK_Track && python TrkAbs_RTViz.py                                     # Windows
+
+    # 窗口 2 (UDP发送轨道局部坐标系下坐标，显示与渲染)
+    conda activate pypack && cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK/SPCK_Track && python TrkRel_RTViz.py     # Ubuntu
+
+    E: && cd E:\ResearchDocuments\ROS2WithSPCK\SPCK_Track && python TrkRel_RTViz.py                                     # Windows
+
 
 ## Ubuntu 实时数据流监控与回放
     cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK && source install/setup.bash 

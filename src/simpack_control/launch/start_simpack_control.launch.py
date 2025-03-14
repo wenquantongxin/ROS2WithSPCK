@@ -30,16 +30,25 @@ def generate_launch_description():
         emulate_tty=True
     )
     
-    # 定义节点：UDP Sender 节点（延时 1 秒后启动）
-    udp_sender_node = Node(
+    # 定义节点： trkrel_udpsender_node 节点
+    trkrel_udpsender_node = Node(
         package='simpack_control',
-        executable='udp_sender_node',
-        name='udp_sender_node',
+        executable='trkrel_udpsender_node',
+        name='trkrel_udpsender_node',
         output='screen',
         emulate_tty=True
     )
     
-    # 定义节点：Controller 节点（再延时 0.5 秒后启动）
+    # 定义节点： trkabs_udpsender_node 节点
+    trkabs_udpsender_node = Node(
+        package='simpack_control',
+        executable='trkabs_udpsender_node',
+        name='trkabs_udpsender_node',
+        output='screen',
+        emulate_tty=True
+    )
+
+    # 定义节点：Controller 节点
     controller_node = Node(
         package='simpack_control',
         executable='controller_node',
@@ -48,21 +57,30 @@ def generate_launch_description():
         emulate_tty=True
     )
     
-    # 延时消息 + 延时启动 udp_sender_node
-    log_delay_udp = LogInfo(
-        msg="Waiting 1 second before starting the udp_sender_node..."
+    # 延时消息 + 延时启动 trkrel_udpsender_node (0.5秒后)
+    udp_log_delay_trkrel = LogInfo(
+        msg="Waiting 0.5 second before starting the trkrel_udpsender_node..."
     )
-    timer_action_udp = TimerAction(
-        period=1.0,  # 延时1秒
-        actions=[udp_sender_node]
+    udp_timer_action_trkrel = TimerAction(
+        period=0.5,  # 延时 0.5 秒
+        actions=[trkrel_udpsender_node]
+    )
+
+    # 延时消息 + 延时启动 trkabs_udpsender_node (1.0秒后)
+    udp_log_delay_trkabs = LogInfo(
+        msg="Waiting 1.0 second before starting the trkabs_udpsender_node..."
+    )
+    udp_timer_action_trkabs = TimerAction(
+        period=1.0,  # 延时 1.0 秒
+        actions=[trkabs_udpsender_node]
     )
     
-    # 再延时0.5秒后启动 controller_node
+    # 延时 1.5 秒后启动 controller_node
     log_delay_controller = LogInfo(
-        msg="Waiting an additional 0.5 second to start the controller_node..."
+        msg="Waiting 1.5 second before starting the controller_node..."
     )
     timer_action_controller = TimerAction(
-        period=1.5,  # 从Launch开始共1.5秒
+        period=1.5,  # 延时 1.5 秒
         actions=[controller_node]
     )
     
@@ -81,46 +99,101 @@ def generate_launch_description():
         sigkill_timeout=LaunchConfiguration('ros_sigkill_timeout')
     )
     
-    # 当 simpack_node 退出时，终止 controller_node、rosbag 等
-    controller_termination_handler = RegisterEventHandler(
+    # 当 simpack_node 退出时的完整终止流程
+    simpack_termination_handler = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=simpack_node,
             on_exit=[
-                LogInfo(msg="simpack_node 已退出，正在关闭 controller_node..."),
-                # 添加延时后终止 controller_node 进程
+                LogInfo(msg="simpack_node 已退出，开始终止所有节点..."),
+                
+                # 终止 controller_node
                 TimerAction(
-                    period=0.5,  # 延时0.5秒
+                    period=0.2,
                     actions=[
+                        LogInfo(msg="正在终止 controller_node..."),
                         ExecuteProcess(
-                            cmd=["pkill", "-f", "controller_node"],
+                            cmd=["bash", "-c", "pkill -SIGTERM -f controller_node && sleep 0.5 && pkill -SIGKILL -f controller_node 2>/dev/null || true"],
                             output='screen'
                         )
                     ]
                 ),
+                
+                # 终止 trkrel_udpsender_node
+                TimerAction(
+                    period=0.4,
+                    actions=[
+                        LogInfo(msg="正在终止 trkrel_udpsender_node..."),
+                        ExecuteProcess(
+                            cmd=["bash", "-c", "pkill -SIGTERM -f trkrel_udpsender_node && sleep 0.5 && pkill -SIGKILL -f trkrel_udpsender_node 2>/dev/null || true"],
+                            output='screen'
+                        )
+                    ]
+                ),
+                
+                # 终止 trkabs_udpsender_node
+                TimerAction(
+                    period=0.6,
+                    actions=[
+                        LogInfo(msg="正在终止 trkabs_udpsender_node..."),
+                        ExecuteProcess(
+                            cmd=["bash", "-c", "pkill -SIGTERM -f trkabs_udpsender_node && sleep 0.5 && pkill -SIGKILL -f trkabs_udpsender_node 2>/dev/null || true"],
+                            output='screen'
+                        )
+                    ]
+                ),
+                
                 # 终止 rosbag 记录进程
                 TimerAction(
-                    period=1.0,  # 延时1秒，确保所有数据都写入磁盘
+                    period=0.8,
                     actions=[
                         LogInfo(msg="正在停止 ros2 bag 记录..."),
                         ExecuteProcess(
-                            cmd=["pkill", "-f", "ros2 bag record"],
+                            cmd=["bash", "-c", "pkill -SIGTERM -f 'ros2 bag record' && sleep 0.5 && pkill -SIGKILL -f 'ros2 bag record' 2>/dev/null || true"],
                             output='screen'
                         )
                     ]
                 ),
-                # 终止所有剩余的进程，确保干净退出
+                
+                # 确保所有进程终止的后备方案
                 TimerAction(
-                    period=1.5,  # 最后延时1.5秒
+                    period=1.2,
                     actions=[
-                        LogInfo(msg="正在终止所有剩余进程..."),
+                        LogInfo(msg="正在确保所有 ROS2 进程已终止..."),
                         ExecuteProcess(
-                            cmd=["killall", "-9", "ros2"],
+                            cmd=["pkill", "-9", "-f", "ros2"],
+                            output='screen'
+                        )
+                    ]
+                ),
+                
+                # 验证所有节点已终止
+                TimerAction(
+                    period=1.5,
+                    actions=[
+                        LogInfo(msg="正在验证所有节点已终止..."),
+                        ExecuteProcess(
+                            cmd=["bash", "-c", "if pgrep -f 'simpack_node|controller_node|trkrel_udpsender_node|trkabs_udpsender_node' > /dev/null; then echo '警告：仍有节点未终止，尝试强制终止...'; pkill -9 -f 'simpack_node|controller_node|trkrel_udpsender_node|trkabs_udpsender_node'; else echo '所有节点已成功终止'; fi"],
                             output='screen',
                             on_exit=[
-                                LogInfo(msg=f"所有进程已终止。启动序列完成。数据已保存至 {bag_output_path}")
+                                LogInfo(msg=f"节点终止流程完成。数据已保存至 {bag_output_path}")
                             ]
                         )
                     ]
+                )
+            ]
+        )
+    )
+    
+    # 当 controller_node 异常退出时的处理
+    controller_termination_handler = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=controller_node,
+            on_exit=[
+                LogInfo(msg="controller_node 异常退出，检查是否需要终止其他节点..."),
+                # 检查 simpack_node 是否仍在运行，如不在运行则执行终止流程
+                ExecuteProcess(
+                    cmd=["bash", "-c", "if ! pgrep -f 'simpack_node' > /dev/null; then echo 'simpack_node 已不在运行，开始终止所有其他节点...'; pkill -f 'trkrel_udpsender_node'; pkill -f 'trkabs_udpsender_node'; pkill -f 'ros2 bag record'; fi"],
+                    output='screen'
                 )
             ]
         )
@@ -134,11 +207,15 @@ def generate_launch_description():
         # 1) 先启动 simpack_node
         simpack_node,
         
-        # 2) 延时 1 秒后启动 udp_sender_node
-        log_delay_udp,
-        timer_action_udp,
+        # 2) 延时 0.5 秒后启动 trkrel_udpsender_node 
+        udp_log_delay_trkrel,
+        udp_timer_action_trkrel,
+
+        # 3) 延时 1.0 秒后启动 trkabs_udpsender_node 
+        udp_log_delay_trkabs,
+        udp_timer_action_trkabs,
         
-        # 3) 再延时 0.5 秒后启动 controller_node
+        # 4) 延时 1.5 秒后启动 controller_node
         log_delay_controller,
         timer_action_controller,
         
@@ -146,6 +223,7 @@ def generate_launch_description():
         log_record,
         rosbag_recorder,
         
-        # 事件处理器：当 simpack_node 退出时，清理其它进程
+        # 事件处理器：终止流程
+        simpack_termination_handler,
         controller_termination_handler
     ])

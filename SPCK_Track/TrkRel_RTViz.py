@@ -1,4 +1,4 @@
-# OnlineVis_RTTrain.py
+# TrkRel_RTViz.py
 
 """
 1. UDP 接收线程 (UDPReceiverThread)
@@ -606,7 +606,7 @@ class TrainVisualization:
         glutInit(sys.argv)
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
         glutInitWindowSize(self.window_width, self.window_height)
-        glutCreateWindow(b"Real-time Train Visualization System")
+        glutCreateWindow(b"Rel-Coord Train Visualization")
         
         # 注册回调函数
         glutDisplayFunc(self.display)
@@ -959,10 +959,6 @@ class TrainVisualization:
             T_bg2T = make_transform(yw_bg, p_bg, r_bg, 0.0, y_bg, z_bg)
             T_bg2G = T_T2G @ T_bg2T
             
-            # # If 180-degree flip is needed
-            # T_flipBogie = make_transform(0, 0, math.pi, 0, 0, 0)
-            # T_bg2G = T_bg2G @ T_flipBogie
-            
             # Draw bogie
             self.train_models.draw_box(T_bg2G, self.train_models.bogie_list, "bogie")
         
@@ -982,9 +978,9 @@ class TrainVisualization:
         T_cb2T = make_transform(yw_cb, p_cb, r_cb, 0.0, y_cb, z_cb)
         T_cb2G = T_T2G @ T_cb2T
         
-        # If 180-degree flip is needed
-        cb_hc = -1.8
-        T_flipCar = make_transform(0, 0, math.pi, 0, 0, cb_hc) # T_flipCar = make_transform(0, 0, math.pi, 0, 0, 0)
+        # No More Needed --- If 180-degree flip is needed
+        cb_hc = -1.8 # 车体几何高度
+        T_flipCar = make_transform(0, 0, 0, 0, 0, cb_hc) # T_flipCar = make_transform(0, 0, math.pi, 0, 0, cb_hc)
         T_cb2G = T_cb2G @ T_flipCar
         
         # Draw car body
@@ -1083,9 +1079,16 @@ if __name__ == "__main__":
 
 运行：
 
-E:
-cd E:\ResearchDocuments\ROS2WithSPCK\SPCK_Track
-python OnlineVis_RTTrain.py
+# Windows 或者 MacOS
+    E:
+    cd E:\ResearchDocuments\ROS2WithSPCK\SPCK_Track
+    python TrkRel_RTViz.py
+
+# Ubuntu
+    conda activate pypack
+    cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK/SPCK_Track
+    python TrkRel_RTViz.py
+
 
 
 +-----------------------+      +----------------------+
