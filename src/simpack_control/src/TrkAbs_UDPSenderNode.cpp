@@ -4,7 +4,7 @@
    功能: 与 TrkRel_UDPSenderNode.cpp 类似，不过在发送前先将车辆的
          (y_cb, y_f0x, y_ws0x 等) 轨道相对坐标变换到全局绝对坐标。
          最终发送出去的数据已是“绝对坐标系”下的 (X, Y, Z, roll, yaw, pitch)，
-         并进一步从 SIMPACK Rail 的 z向下系转换到我们惯用的 z向上系。
+         并进一步从 SIMPACK Rail 的 z向下系转换到惯用的 z 向上系。
 */
 
 #include <memory>
@@ -19,7 +19,7 @@
 #include <algorithm>     // for std::lower_bound
 
 #include "rclcpp/rclcpp.hpp"
-#include "simpack_interfaces/msg/simpack_y.hpp" // 你的自定义话题
+#include "simpack_interfaces/msg/simpack_y.hpp" // 自定义话题
 
 // 下面示例使用 nlohmann/json 来解析 trajectory_data.json
 #include <nlohmann/json.hpp>
@@ -202,7 +202,7 @@ private:
   {
     /*
       由于 msg 中姿态角顺序为 (roll, yaw, pitch),
-      并且我们做 Z-Y-X (yaw-pitch-roll) 逆解时的常见公式：
+      并且做 Z-Y-X (yaw-pitch-roll) 逆解时的常见公式：
 
          pitch = -asin(r20)
          yaw   = atan2(r10, r00)

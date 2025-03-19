@@ -38,17 +38,17 @@ protected:
 private:
     // 设置默认变换
     void SetupDefaultTransform();
-    
+
     // 应用变换到Actor
     void ApplyTransform();
-    
+
     // 是否已初始化插值（第一次获取数据时会直接跳到目标位置）
     bool bInitialized;
 
     // 默认位置和旋转
     FVector DefaultLocation;
     FRotator DefaultRotation;
-    
+
     // 用于存储当前帧插值后的位姿
     FVector CurrentLocation;
     FRotator CurrentRotation;

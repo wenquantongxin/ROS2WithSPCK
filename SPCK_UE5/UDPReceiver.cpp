@@ -10,24 +10,23 @@
 #include "Misc/ScopeLock.h"
 #include "HAL/UnrealMemory.h"
 #include "Math/UnrealMathUtility.h"
-#include "TrainData.h"        // 需要包含你的 FTrainData 结构
+#include "TrainData.h"        // 需要包含 FTrainData 结构
 
 // ---------------------- 转换常量部分 ----------------------
 // 如果外部位置是以 "米" 为单位 -> UE 中默认为 "厘米"：     1m = 100cm
 static const float DistanceScale = 100.f;
 
-// 如果外部旋转角是以 "度" 为单位，而 UE Rotator 也用度 => 不需要转换:  AngleScale = 1.f
-// 如果外部是 "弧度" => 需要 (180.f / PI)
+// 外部是 "弧度" => 需要 (180.f / PI)
 static const float AngleScale = 180.f / PI;
 
 // 车体默认高度
-static const float cb_hc = 1.0; // 1.0;
+static const float cb_hc = 1.2f; // 1.0;
 
 // 转向架提高高度
-static const float bg_hc = 0.0; // 0.5;
+static const float bg_hc = 0.0; 
 
 // 轮对提高高度
-static const float ws_hc = 0.0; // 0.5;
+static const float ws_hc = 0.0; 
 
 //----------------------------------------------------------
 
@@ -64,7 +63,7 @@ bool AUDPReceiver::InitializeUDPReceiver()
         return false;
     }
 
-    // 绑定地址(0.0.0.0:10099 之类)，视你的需求修改端口
+    // 绑定地址(0.0.0.0:10099 )
     FIPv4Address Addr = FIPv4Address::Any;
     const uint16 Port = 10099; // 与 ROS2 节点发送端口匹配
     FIPv4Endpoint Endpoint(Addr, Port);
@@ -189,9 +188,9 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
     cbY *= DistanceScale;
     cbZ *= DistanceScale;
 
-    cbRoll *= AngleScale;
-    cbYaw *= AngleScale;
-    cbPitch *= AngleScale;
+    cbRoll *= - AngleScale;
+    cbYaw *=  - AngleScale;
+    cbPitch *= - AngleScale;
 
     newData.CarBodyLocation = FVector(static_cast<float>(cbX),
         static_cast<float>(cbY),
@@ -215,9 +214,9 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
     b1X *= DistanceScale;
     b1Y *= DistanceScale;
     b1Z *= DistanceScale;
-    b1Roll *= AngleScale;
-    b1Yaw *= AngleScale;
-    b1Pitch *= AngleScale;
+    b1Roll *= - AngleScale;
+    b1Yaw *= - AngleScale;
+    b1Pitch *= - AngleScale;
 
     newData.Bogie01Location = FVector(static_cast<float>(b1X),
         static_cast<float>(b1Y),
@@ -235,9 +234,9 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
     b2X *= DistanceScale;
     b2Y *= DistanceScale;
     b2Z *= DistanceScale;
-    b2Roll *= AngleScale;
-    b2Yaw *= AngleScale;
-    b2Pitch *= AngleScale;
+    b2Roll *=  - AngleScale;
+    b2Yaw *=  - AngleScale;
+    b2Pitch *= - AngleScale;
 
     newData.Bogie02Location = FVector(static_cast<float>(b2X),
         static_cast<float>(b2Y),
@@ -257,9 +256,9 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
         wsX *= DistanceScale;
         wsY *= DistanceScale;
         wsZ *= DistanceScale;
-        wsRoll *= AngleScale;
-        wsYaw *= AngleScale;
-        wsPitch *= AngleScale;
+        wsRoll *=  - AngleScale;
+        wsYaw *=  - AngleScale;
+        wsPitch *=  - AngleScale;
 
         newData.WheelsetLocations[i] = FVector(static_cast<float>(wsX),
             static_cast<float>(wsY),

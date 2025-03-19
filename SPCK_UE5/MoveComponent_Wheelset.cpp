@@ -2,7 +2,7 @@
 #include "GameFramework/Actor.h"
 #include "Kismet/KismetMathLibrary.h"
 
-// 你的UDP接收器 & 数据
+// UDP接收 & 数据
 #include "UDPReceiver.h"
 #include "TrainData.h"
 #include "Components/StaticMeshComponent.h"
@@ -16,7 +16,8 @@ UMoveComponent_Wheelset::UMoveComponent_Wheelset()
     WheelsetIndex = 0;
     bUseWorldTransform = true;
     InterpSpeed = 5.0f;
-    WheelRotationSmoothFactor = 2.0f;
+    WheelRotationSmoothFactor = 20.0f;
+    DataTimeoutThreshold = 0.5f; // 默认0.5秒无数据视为停止
 
     bInitialized = false;
     UDPReceiverRef = nullptr;
@@ -34,6 +35,13 @@ UMoveComponent_Wheelset::UMoveComponent_Wheelset()
     RightWheelRotSpeed = 0.f;
     TargetLeftWheelRotSpeed = 0.f;
     TargetRightWheelRotSpeed = 0.f;
+
+    // 初始化数据超时相关变量
+    TimeSinceLastValidData = 0.f;
+    bDataTimeout = false;
+
+    LastSimTime = -1.0;
+    bFirstDataReceived = false;
 
     SetupDefaultTransform();
 
@@ -96,6 +104,7 @@ void UMoveComponent_Wheelset::BeginPlay()
     }
 
     bInitialized = false;
+    bDataTimeout = true; // 初始状态为超时，直到收到第一个有效数据
 
     //UE_LOG(LogTemp, Warning, TEXT("[BeginPlay] Wheelset=%d -> DefaultLocation=(%.3f, %.3f, %.3f), DefaultRotation=(P=%.3f, Y=%.3f, R=%.3f)"),
         //WheelsetIndex,
@@ -126,7 +135,7 @@ void UMoveComponent_Wheelset::SetupDefaultTransform()
         break;
     }
 
-    DefaultLocation = FVector(DistanceScale * xPos, 0.0f, DistanceScale * (-0.43f));
+    DefaultLocation = FVector(DistanceScale * xPos, 0.0f, DistanceScale * (0.43f));
     DefaultRotation = FRotator::ZeroRotator;
 }
 
@@ -161,6 +170,9 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         return;
     }
 
+    // 默认情况下旋转速度数据无效
+    bool bWheelSpeedDataValid = false;
+
     // 2) 如果没关联UDPReceiver，用默认位置
     if (!UDPReceiverRef)
     {
@@ -189,7 +201,7 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         FVector TargetLocation = DefaultLocation;
         FRotator TargetRotation = DefaultRotation;
 
-        // 4) 如果有数据，则更新
+        // 4) 如果有数据，则更新位置和旋转(不考虑SimTime是否变化)
         if (bHasData &&
             WheelsetIndex < TrainData.WheelsetLocations.Num() &&
             WheelsetIndex < TrainData.WheelsetRotations.Num())
@@ -197,28 +209,48 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
             TargetLocation = TrainData.WheelsetLocations[WheelsetIndex];
             TargetRotation = TrainData.WheelsetRotations[WheelsetIndex];
 
-            // 5) 从UDP数据获取车轮旋转速度
-            if (LeftWheelIndex >= 0 && LeftWheelIndex < TrainData.WheelsRotSpeed.Num() &&
+            // 5) 仅对车轮转速应用更新检测逻辑
+            bool bDataActuallyUpdated = false;
+            if (!bFirstDataReceived)
+            {
+                // 首次收到数据
+                bDataActuallyUpdated = true;
+                bFirstDataReceived = true;
+                LastSimTime = TrainData.SimTime;
+            }
+            else if (FMath::Abs(TrainData.SimTime - LastSimTime) > 1e-6)
+            {
+                // SimTime有变化，说明有新数据
+                bDataActuallyUpdated = true;
+                LastSimTime = TrainData.SimTime;
+            }
+
+            // 只有数据真正更新时才更新车轮旋转速度
+            if (bDataActuallyUpdated &&
+                LeftWheelIndex >= 0 && LeftWheelIndex < TrainData.WheelsRotSpeed.Num() &&
                 RightWheelIndex >= 0 && RightWheelIndex < TrainData.WheelsRotSpeed.Num())
             {
                 // 转换为角度/秒
                 TargetLeftWheelRotSpeed = TrainData.WheelsRotSpeed[LeftWheelIndex] * RadToDeg;
                 TargetRightWheelRotSpeed = TrainData.WheelsRotSpeed[RightWheelIndex] * RadToDeg;
+
+                // 标记转速数据有效
+                bWheelSpeedDataValid = true;
+
+                // 重置超时计时器
+                TimeSinceLastValidData = 0.0f;
+                bDataTimeout = false;
             }
-            else
-            {
-                TargetLeftWheelRotSpeed = 0.0f;
-                TargetRightWheelRotSpeed = 0.0f;
-            }
+            // 当数据未更新时，保持当前目标转速不变，不要设为0
         }
         else
         {
-            // 没有数据，旋转速度设为0
+            // 没有有效数据时，旋转速度目标设为0
             TargetLeftWheelRotSpeed = 0.0f;
             TargetRightWheelRotSpeed = 0.0f;
         }
 
-        // 6) 平滑插值位置和旋转
+        // 6) 平滑插值位置和旋转 - 不受数据更新检测影响
         if (!bInitialized)
         {
             CurrentLocation = TargetLocation;
@@ -232,7 +264,22 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         }
     }
 
-    // 7) 应用变换到Actor
+    // 7) 处理车轮转速数据超时逻辑 - 仅影响车轮转速
+    if (!bWheelSpeedDataValid)
+    {
+        // 无有效转速数据时累加超时计时器
+        TimeSinceLastValidData += DeltaTime;
+
+        // 检查是否超过阈值
+        if (TimeSinceLastValidData > DataTimeoutThreshold && !bDataTimeout)
+        {
+            bDataTimeout = true;
+            // UE_LOG(LogTemp, Warning, TEXT("Wheelset %d: 车轮转速数据超时 (%.2f秒无有效数据)"), 
+            //     WheelsetIndex, TimeSinceLastValidData);
+        }
+    }
+
+    // 8) 应用变换到Actor - 不受数据更新检测影响
     AActor* OwnerActor = GetOwner();
     if (!OwnerActor) return;
 
@@ -245,13 +292,23 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         SetRelativeLocationAndRotation(CurrentLocation, CurrentRotation);
     }
 
-    // 8) 平滑过渡旋转速度
-    LeftWheelRotSpeed = FMath::FInterpTo(LeftWheelRotSpeed, TargetLeftWheelRotSpeed,
-        DeltaTime, WheelRotationSmoothFactor);
-    RightWheelRotSpeed = FMath::FInterpTo(RightWheelRotSpeed, TargetRightWheelRotSpeed,
-        DeltaTime, WheelRotationSmoothFactor);
+    // 9) 根据数据超时状态处理车轮旋转
+    if (bDataTimeout)
+    {
+        // 数据超时时，直接将当前旋转速度设为0，而不进行平滑过渡
+        LeftWheelRotSpeed = 0.0f;
+        RightWheelRotSpeed = 0.0f;
+    }
+    else
+    {
+        // 正常状态，使用平滑过渡旋转速度
+        LeftWheelRotSpeed = FMath::FInterpTo(LeftWheelRotSpeed, TargetLeftWheelRotSpeed,
+            DeltaTime, WheelRotationSmoothFactor);
+        RightWheelRotSpeed = FMath::FInterpTo(RightWheelRotSpeed, TargetRightWheelRotSpeed,
+            DeltaTime, WheelRotationSmoothFactor);
+    }
 
-    // 9) 基于旋转速度更新累积角度
+    // 10) 基于旋转速度更新累积角度
     AccumLeftWheelRotation += LeftWheelRotSpeed * DeltaTime;
     AccumRightWheelRotation += RightWheelRotSpeed * DeltaTime;
 
@@ -262,7 +319,7 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
     AccumRightWheelRotation = FMath::Fmod(AccumRightWheelRotation, 360.0f);
     if (AccumRightWheelRotation < 0.0f) AccumRightWheelRotation += 360.0f;
 
-    // 10) 应用累积角度到车轮网格体
+    // 11) 应用累积角度到车轮网格体
     if (LeftWheelMesh)
     {
         FRotator NewLeftRot = InitialLeftWheelRot + FRotator(0.f, 0.f, AccumLeftWheelRotation);

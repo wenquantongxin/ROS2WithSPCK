@@ -6,7 +6,7 @@
 #include "UDPReceiver.h"  // 调用GetLatestTrainData
 #include "TrainData.h"    // FTrainData
 
-static const float cb_hc = 1.8f;
+static const float cb_hc = 1.2f;
 static const float DistanceScale = 100.f;
 
 UMoveComponent_Carbody::UMoveComponent_Carbody()
@@ -31,7 +31,7 @@ void UMoveComponent_Carbody::SetupDefaultTransform()
 {
     // 设置车体默认位置为(0, 0, cb_hc)，注意单位转换
     DefaultLocation = FVector(0.0f, 0.0f, cb_hc * DistanceScale);
-    
+
     // 默认旋转为零
     DefaultRotation = FRotator::ZeroRotator;
 }
@@ -42,7 +42,7 @@ void UMoveComponent_Carbody::BeginPlay()
 
     // 重新设置默认变换
     SetupDefaultTransform();
-    
+
     // 将当前位置重置为默认位置，以确保初始显示正确
     CurrentLocation = DefaultLocation;
     CurrentRotation = DefaultRotation;
@@ -72,7 +72,7 @@ void UMoveComponent_Carbody::TickComponent(float DeltaTime, ELevelTick TickType,
             CurrentLocation = FMath::VInterpTo(CurrentLocation, DefaultLocation, DeltaTime, InterpSpeed);
             CurrentRotation = FMath::RInterpTo(CurrentRotation, DefaultRotation, DeltaTime, InterpSpeed);
         }
-        
+
         // 应用位置和旋转
         ApplyTransform();
         return;
