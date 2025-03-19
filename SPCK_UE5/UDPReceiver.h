@@ -1,56 +1,68 @@
+// UDPReceiver.h
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Common/UdpSocketReceiver.h" // ĞèÒªÒıÈëNetworkingÏà¹ØÍ·
+#include "HAL/RunnableThread.h"
+#include "HAL/CriticalSection.h"
 #include "Sockets.h"
 #include "SocketSubsystem.h"
-#include "Common/UdpSocketReceiver.h"
-#include "Common/UdpSocketBuilder.h"
-#include "IPAddress.h"
+
+#include "TrainData.h" // ÒıÈëÉÏÃæ¶¨ÒåµÄFTrainData
+
 #include "UDPReceiver.generated.h"
 
-UCLASS(BlueprintType)
-class PROJECT_4WDBVEHICLE_API AUDPReceiver : public AActor
+UCLASS()
+class VEHICLE4WDB_API AUDPReceiver : public AActor
 {
     GENERATED_BODY()
+
 public:
+    // ¹¹Ôìº¯Êı
     AUDPReceiver();
-    virtual void Tick(float DeltaTime) override;
+
+    // ÓÃÓÚ´ÓÍâ²¿»ñÈ¡×îĞÂµÄÁĞ³µÊı¾İ
+    UFUNCTION(BlueprintCallable, Category = "UDPReceiver")
+    bool GetLatestTrainData(FTrainData& OutData) const;
+
+protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-    /** è·å–æœ€æ–°çš„ä½ç½®å’Œæ—‹è½¬æ•°æ® */
-    UFUNCTION(BlueprintCallable, Category = "Network")
-    bool GetLatestTransformData(FVector& OutLocation, FRotator& OutRotation);
+    // ÓÃÓÚÔÚTickÀï×öĞÄÌø¼ì²âµÈ(±¾ÀıÎŞĞè²Ù×÷¿ÉÁô¿Õ)
+    virtual void Tick(float DeltaSeconds) override;
 
 private:
-    /** åˆå§‹åŒ–UDPæ¥æ”¶å™¨ */
+    // ============== SocketÏà¹Ø ==============
     bool InitializeUDPReceiver();
-
-    /** å…³é—­Socketè¿æ¥ */
     void CloseSocket();
 
-    /** Socketæ¥æ”¶å›è°ƒ */
+    // »Øµ÷º¯Êı£¬µ±UDPÊÕµ½Êı¾İÊ±´¥·¢
     void Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoint& EndPt);
 
-    /** éªŒè¯æ•°æ®æœ‰æ•ˆæ€§ */
-    bool IsValidData(float x, float y, float z, float pitch, float yaw, float roll);
+    // ÊÇ·ñÑéÖ¤Êı¾İ
+    bool IsValidData(double x, double y, double z, double roll, double yaw, double pitch);
 
 private:
-    /** ç½‘ç»œç»„ä»¶ */
+    // SocketÖ¸Õë
     FSocket* ListenSocket;
+
+    // ¸ºÔğÒì²½½ÓÊÕµÄ¶ÔÏó
     TSharedPtr<FUdpSocketReceiver> UDPReceiver;
 
-    /** æ•°æ®äº’æ–¥é” */
-    FCriticalSection DataMutex;
+    // ÓÃÀ´±£»¤¶àÏß³ÌĞ´Êı¾İ
+    mutable FCriticalSection DataMutex;
 
-    /** æœ€æ–°æ¥æ”¶çš„æ•°æ® */
-    FVector LatestLocation;
-    FRotator LatestRotation;
+    // ´æ·Å×îĞÂµÄÁĞ³µ/³µÌåÊı¾İ
+    FTrainData LatestTrainData;
 
-    /** æ˜¯å¦æ›¾ç»æ”¶åˆ°è¿‡æ•°æ®ï¼ˆä»…ç”¨äºæŒ‡ç¤ºæ˜¯å¦æ”¶åˆ°è¿‡æœ‰æ•ˆæ•°æ®ï¼‰ */
-    bool bHasReceivedData;
-
-    /** é¢„æœŸçš„æ•°æ®åŒ…å¤§å°ï¼š6 ä¸ª float (XYZ + Pitch/Yaw/Roll) */
+    // ÆÚÍûÒ»´ÎUDP°üµÄ×Ö½ÚÊı
     int32 ExpectedDataSize;
+
+    /**
+     * @brief Ö¸Ê¾ÊÇ·ñÒÑ¾­ÊÕµ½¹ıÖÁÉÙÒ»´ÎÓĞĞ§µÄUDPÊı¾İ
+     * ³õÊ¼Îª false£¬³É¹¦½âÎöÒ»´ÎÊı¾İºóÖÃ true
+     */
+    bool bHasValidData;
 };
