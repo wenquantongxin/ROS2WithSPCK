@@ -1,9 +1,11 @@
+// MoveComponent_Wheelset.h
+
 #pragma once
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "TrainData.h"
 #include "MoveComponent_Wheelset.generated.h"
-// 前置声明
+
 class AUDPReceiver;
 class UStaticMeshComponent;
 /**

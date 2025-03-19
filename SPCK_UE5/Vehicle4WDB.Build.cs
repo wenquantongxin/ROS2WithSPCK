@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Vehicle4WDB.Build.cs
 
 using UnrealBuildTool;
 
