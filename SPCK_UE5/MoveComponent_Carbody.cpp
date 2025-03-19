@@ -6,7 +6,7 @@
 #include "UDPReceiver.h"  // 调用GetLatestTrainData
 #include "TrainData.h"    // FTrainData
 
-static const float cb_hc = 1.2f;
+static const float cb_hc = 1.2f; // 1.2f;
 static const float DistanceScale = 100.f;
 
 UMoveComponent_Carbody::UMoveComponent_Carbody()

@@ -20,7 +20,7 @@ static const float DistanceScale = 100.f;
 static const float AngleScale = 180.f / PI;
 
 // 车体默认高度
-static const float cb_hc = 1.2f; // 1.0;
+static const float cb_hc = 1.2f; // 1.2f;
 
 // 转向架提高高度
 static const float bg_hc = 0.0; 
@@ -63,7 +63,7 @@ bool AUDPReceiver::InitializeUDPReceiver()
         return false;
     }
 
-    // 绑定地址(0.0.0.0:10099 )
+    // 绑定地址(0.0.0.0:10099)
     FIPv4Address Addr = FIPv4Address::Any;
     const uint16 Port = 10099; // 与 ROS2 节点发送端口匹配
     FIPv4Endpoint Endpoint(Addr, Port);

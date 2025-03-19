@@ -192,14 +192,14 @@ void UMoveComponent_Bogie::SetupDefaultTransform()
     if (BogieIndex == 0)
     {
         // 前部转向架默认位置
-        DefaultLocation = FVector(DistanceScale * (8.75f), DistanceScale * 0.0f, DistanceScale * (-0.43f));
+        DefaultLocation = FVector(DistanceScale * (8.75f), DistanceScale * 0.0f, DistanceScale * (0.43f));
     }
     else
     {
         // 后部转向架默认位置
-        DefaultLocation = FVector(DistanceScale * (-8.75f), DistanceScale * 0.0f, DistanceScale * (-0.43f));
+        DefaultLocation = FVector(DistanceScale * (-8.75f), DistanceScale * 0.0f, DistanceScale * (0.43f));
     }
 
     // 其余自由度为0
     DefaultRotation = FRotator::ZeroRotator;
-}
+} 

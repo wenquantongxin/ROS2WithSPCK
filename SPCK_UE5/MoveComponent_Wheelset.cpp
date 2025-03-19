@@ -24,6 +24,8 @@ UMoveComponent_Wheelset::UMoveComponent_Wheelset()
 
     LeftWheelIndex = 0;
     RightWheelIndex = 1;
+    LeftBarIndex = 0;
+    RightBarIndex = 1;
 
     CurrentLocation = FVector::ZeroVector;
     CurrentRotation = FRotator::ZeroRotator;
@@ -36,6 +38,10 @@ UMoveComponent_Wheelset::UMoveComponent_Wheelset()
     TargetLeftWheelRotSpeed = 0.f;
     TargetRightWheelRotSpeed = 0.f;
 
+    // 初始化杠杆相关变量 - 实际值会在BeginPlay中根据杠杆索引设置
+    CurrentLeftBarPitch = 0.f;
+    CurrentRightBarPitch = 0.f;
+
     // 初始化数据超时相关变量
     TimeSinceLastValidData = 0.f;
     bDataTimeout = false;
@@ -47,6 +53,8 @@ UMoveComponent_Wheelset::UMoveComponent_Wheelset()
 
     LeftWheelMesh = nullptr;
     RightWheelMesh = nullptr;
+    LeftBarMesh = nullptr;
+    RightBarMesh = nullptr;
 }
 
 void UMoveComponent_Wheelset::BeginPlay()
@@ -60,8 +68,10 @@ void UMoveComponent_Wheelset::BeginPlay()
 
     LeftWheelIndex = WheelsetIndex * 2;
     RightWheelIndex = WheelsetIndex * 2 + 1;
+    LeftBarIndex = WheelsetIndex * 2;
+    RightBarIndex = WheelsetIndex * 2 + 1;
 
-    // 自动查找并设置车轮引用
+    // 自动查找并设置车轮和杠杆引用
     TArray<USceneComponent*> ChildComponents;
     GetChildrenComponents(false, ChildComponents);
 
@@ -86,6 +96,16 @@ void UMoveComponent_Wheelset::BeginPlay()
                 RightWheelMesh = MeshComp;
                 //UE_LOG(LogTemp, Warning, TEXT("自动设置 RightWheelMesh = %s"), *CompName);
             }
+            else if (CompName.Contains(TEXT("LeftBar"), ESearchCase::IgnoreCase))
+            {
+                LeftBarMesh = MeshComp;
+                //UE_LOG(LogTemp, Warning, TEXT("自动设置 LeftBarMesh = %s"), *CompName);
+            }
+            else if (CompName.Contains(TEXT("RightBar"), ESearchCase::IgnoreCase))
+            {
+                RightBarMesh = MeshComp;
+                //UE_LOG(LogTemp, Warning, TEXT("自动设置 RightBarMesh = %s"), *CompName);
+            }
         }
     }
 
@@ -102,6 +122,41 @@ void UMoveComponent_Wheelset::BeginPlay()
         //UE_LOG(LogTemp, Warning, TEXT("右轮初始旋转：(P=%.3f, Y=%.3f, R=%.3f)"),
             //InitialRightWheelRot.Pitch, InitialRightWheelRot.Yaw, InitialRightWheelRot.Roll);
     }
+
+    // 记录杠杆的初始旋转
+    if (LeftBarMesh)
+    {
+        InitialLeftBarRot = LeftBarMesh->GetRelativeRotation();
+        //UE_LOG(LogTemp, Warning, TEXT("左杠杆初始旋转：(P=%.3f, Y=%.3f, R=%.3f)"),
+            //InitialLeftBarRot.Pitch, InitialLeftBarRot.Yaw, InitialLeftBarRot.Roll);
+    }
+    if (RightBarMesh)
+    {
+        InitialRightBarRot = RightBarMesh->GetRelativeRotation();
+        //UE_LOG(LogTemp, Warning, TEXT("右杠杆初始旋转：(P=%.3f, Y=%.3f, R=%.3f)"),
+            //InitialRightBarRot.Pitch, InitialRightBarRot.Yaw, InitialRightBarRot.Roll);
+    }
+
+    // 根据杠杆索引设置初始角度 - 使杠杆在X-Y平面上沿X方向延伸
+    if (WheelsetIndex == 0 || WheelsetIndex == 2)
+    {
+        // 0、4号杆和1、5号杆初始转角
+        // SPCK Joint 左前杆转角 4.52 rad = 259.09°; 右前杆转角 4.903 rad = 280.92°
+        // UE5之中，需要 SPCK Joint 转角 - 270°; Deg_SPCK2UE = 270.0f;
+        CurrentLeftBarPitch = 4.520 * RadToDeg - Deg_SPCK2UE;     // 左前杆 初始转角
+        CurrentRightBarPitch = 4.903 * RadToDeg - Deg_SPCK2UE;     // 右前杆 初始转角
+    }
+    else if (WheelsetIndex == 1 || WheelsetIndex == 3)
+    {
+        // 2、6号杆和3、7号杆初始转角
+        // SPCK Joint 左后杆转角 1.761 rad = 100.898°; 右后杆转角 1.38 rad = 79.068°
+        // UE5之中，需要 SPCK Joint 转角 - 270°
+        CurrentLeftBarPitch = 1.761 * RadToDeg - Deg_SPCK2UE;      // 左后杆 初始转角
+        CurrentRightBarPitch = 1.380 * RadToDeg - Deg_SPCK2UE;      // 右后杆 初始转角
+    }
+
+    //UE_LOG(LogTemp, Warning, TEXT("杠杆初始角度设置: 左=%.2f度, 右=%.2f度"), 
+    //    CurrentLeftBarPitch, CurrentRightBarPitch);
 
     bInitialized = false;
     bDataTimeout = true; // 初始状态为超时，直到收到第一个有效数据
@@ -148,6 +203,24 @@ void UMoveComponent_Wheelset::SetWheelsetIndex(int32 NewIndex)
 
         LeftWheelIndex = WheelsetIndex * 2;
         RightWheelIndex = WheelsetIndex * 2 + 1;
+        LeftBarIndex = WheelsetIndex * 2;
+        RightBarIndex = WheelsetIndex * 2 + 1;
+
+        // 更新杠杆初始角度 - 使用与BeginPlay相同的计算逻辑
+        if (WheelsetIndex == 0 || WheelsetIndex == 2)
+        {
+            // 0、4号杆和1、5号杆初始转角
+            // SPCK Joint 左前杆转角 4.52 rad = 259.09°; 右前杆转角 4.903 rad = 280.92°
+            CurrentLeftBarPitch = 4.520 * RadToDeg - Deg_SPCK2UE;     // 左前杆 初始转角
+            CurrentRightBarPitch = 4.903 * RadToDeg - Deg_SPCK2UE;     // 右前杆 初始转角
+        }
+        else if (WheelsetIndex == 1 || WheelsetIndex == 3)
+        {
+            // 2、6号杆和3、7号杆初始转角
+            // SPCK Joint 左后杆转角 1.761 rad = 100.898°; 右后杆转角 1.38 rad = 79.068°
+            CurrentLeftBarPitch = 1.761 * RadToDeg - Deg_SPCK2UE;      // 左后杆 初始转角
+            CurrentRightBarPitch = 1.380 * RadToDeg - Deg_SPCK2UE;      // 右后杆 初始转角
+        }
 
         if (bInitialized)
         {
@@ -242,6 +315,37 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
                 bDataTimeout = false;
             }
             // 当数据未更新时，保持当前目标转速不变，不要设为0
+
+            // 处理杠杆旋转 - 修改部分
+            if (bDataActuallyUpdated &&
+                LeftBarIndex >= 0 && LeftBarIndex < TrainData.BarsPitch.Num() &&
+                RightBarIndex >= 0 && RightBarIndex < TrainData.BarsPitch.Num())
+            {
+                // 获取原始杠杆pitch角度（弧度值已在UDP接收端转为角度）
+                float rawLeftPitch = TrainData.BarsPitch[LeftBarIndex];
+                float rawRightPitch = TrainData.BarsPitch[RightBarIndex];
+
+                // 应用基础变换：减去270度偏移
+                float leftPitch = rawLeftPitch - Deg_SPCK2UE;
+                float rightPitch = rawRightPitch - Deg_SPCK2UE;
+
+                // 根据轮对位置应用镜像关系
+                if (WheelsetIndex == 1 || WheelsetIndex == 3)  // 后轮对
+                {
+                    //leftPitch = leftPitch - 180.0f;
+                    //rightPitch = rightPitch ;
+                    leftPitch = leftPitch ;     // 事实上不需要变换
+                    rightPitch = rightPitch;
+
+                }
+
+                // 平滑插值杠杆pitch角度
+                CurrentLeftBarPitch = FMath::FInterpTo(CurrentLeftBarPitch, leftPitch,
+                    DeltaTime, WheelRotationSmoothFactor);
+                CurrentRightBarPitch = FMath::FInterpTo(CurrentRightBarPitch, rightPitch,
+                    DeltaTime, WheelRotationSmoothFactor);
+
+            }
         }
         else
         {
@@ -274,8 +378,7 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         if (TimeSinceLastValidData > DataTimeoutThreshold && !bDataTimeout)
         {
             bDataTimeout = true;
-            // UE_LOG(LogTemp, Warning, TEXT("Wheelset %d: 车轮转速数据超时 (%.2f秒无有效数据)"), 
-            //     WheelsetIndex, TimeSinceLastValidData);
+
         }
     }
 
@@ -298,6 +401,8 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         // 数据超时时，直接将当前旋转速度设为0，而不进行平滑过渡
         LeftWheelRotSpeed = 0.0f;
         RightWheelRotSpeed = 0.0f;
+
+        // 数据超时仅影响车轮旋转速度，不影响杠杆角度
     }
     else
     {
@@ -331,5 +436,19 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         // 注意右轮旋转方向（需要取反）
         FRotator NewRightRot = InitialRightWheelRot + FRotator(0.f, 0.f, -AccumRightWheelRotation);
         RightWheelMesh->SetRelativeRotation(NewRightRot);
+    }
+
+    // 12) 应用pitch角度到杠杆网格体 - 尝试不同的旋转轴
+    // 原始代码使用Yaw(Y)分量，但可能需要改为Pitch(P)或Roll(R)
+    if (LeftBarMesh)
+    {
+        FRotator NewLeftBarRot = InitialLeftBarRot + FRotator(0.f, CurrentLeftBarPitch, 0.f);
+        LeftBarMesh->SetRelativeRotation(NewLeftBarRot);
+    }
+
+    if (RightBarMesh)
+    {
+        FRotator NewRightBarRot = InitialRightBarRot + FRotator(0.f, CurrentRightBarPitch, 0.f);
+        RightBarMesh->SetRelativeRotation(NewRightBarRot);
     }
 }

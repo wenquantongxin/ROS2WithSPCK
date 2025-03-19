@@ -56,6 +56,21 @@ public:
      */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheelset")
     UStaticMeshComponent* RightWheelMesh;
+
+    /**
+     * 指向本蓝图中（或本Actor中）用于显示"左杠杆"的StaticMeshComponent，
+     * 以便在C++的Tick里直接 SetRelativeRotation。
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheelset")
+    UStaticMeshComponent* LeftBarMesh;
+
+    /**
+     * 指向本蓝图中（或本Actor中）用于显示"右杠杆"的StaticMeshComponent，
+     * 以便在C++的Tick里直接 SetRelativeRotation。
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheelset")
+    UStaticMeshComponent* RightBarMesh;
+
     /**
      * 通过设置新的索引来变更默认变换等
      */
@@ -73,9 +88,15 @@ protected:
     /** 对应的左轮索引、右轮索引（在TrainData.WheelsRotation中的下标） */
     int32 LeftWheelIndex;
     int32 RightWheelIndex;
+    /** 对应的左杠杆、右杠杆索引（在TrainData.BarsPitch中的下标） */
+    int32 LeftBarIndex;
+    int32 RightBarIndex;
     /** 记录蓝图中给 LeftWheelMesh / RightWheelMesh 设定的初始相对旋转，用来和外部角度叠加 */
     FRotator InitialLeftWheelRot;
     FRotator InitialRightWheelRot;
+    /** 记录蓝图中设定的杠杆初始相对旋转 */
+    FRotator InitialLeftBarRot;
+    FRotator InitialRightBarRot;
     /** 左右车轮当前累积旋转角度（度） */
     float AccumLeftWheelRotation;
     float AccumRightWheelRotation;
@@ -85,16 +106,19 @@ protected:
     /** 目标旋转速度（平滑过渡用） */
     float TargetLeftWheelRotSpeed;
     float TargetRightWheelRotSpeed;
+    /** 左右杠杆当前pitch角度 */
+    float CurrentLeftBarPitch;
+    float CurrentRightBarPitch;
     /** 上次接收到有效数据的时间累积器 */
     float TimeSinceLastValidData;
     /** 当前数据是否超时 */
     bool bDataTimeout;
     /** 弧度到角度的转换常量 */
     static constexpr float RadToDeg = 57.2957795f;
-
+    /** SPCK到UE5中角度制差值 */
+    static constexpr float Deg_SPCK2UE = 270.0f;
 private:
     // 用于检测数据是否已更新的成员变量
     double LastSimTime;  // 上一帧的模拟时间
     bool bFirstDataReceived; // 是否已收到第一帧数据
-
 };
