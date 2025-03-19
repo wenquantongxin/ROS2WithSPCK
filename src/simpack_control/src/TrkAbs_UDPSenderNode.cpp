@@ -1,9 +1,9 @@
 /*
    文件名: TrkAbs_UDPSenderNode.cpp
 
-   功能:  在发送前先将车辆的 (y_cb, y_f0x, y_ws0x 等) 轨道相对坐标变换到全局绝对坐标。
-          最终发送出去的数据已是“绝对坐标系”下的 (X, Y, Z, roll, yaw, pitch)，并进一步从 SIMPACK Rail 的 z向下系转换到我们惯用的 z向上系。
-          
+   功能: 与 TrkRel_UDPSenderNode.cpp 类似，不过在发送前先将车辆的
+         (y_cb, y_f0x, y_ws0x 等) 轨道相对坐标变换到全局绝对坐标。
+         最终发送出去的数据已是“绝对坐标系”下的 (X, Y, Z, roll, yaw, pitch)。
 */
 
 #include <memory>
@@ -18,37 +18,13 @@
 #include <algorithm>     // for std::lower_bound
 
 #include "rclcpp/rclcpp.hpp"
-#include "simpack_interfaces/msg/simpack_y.hpp" // 你的自定义话题
+#include "simpack_interfaces/msg/simpack_y.hpp" // 自定义话题
 
 // 下面示例使用 nlohmann/json 来解析 trajectory_data.json
 #include <nlohmann/json.hpp>
 using nlohmann::json;
 
 using std::placeholders::_1;
-
-//===================================================================
-//  小工具函数：将 SIMPACK Rail (z向下) 坐标姿态 => z向上右手坐标系
-//===================================================================
-/**
- * @brief 将 SIMPACK Rail 坐标系下的 (x, y, z, roll, yaw, pitch)
- *        转换到惯常 z向上坐标系下的 (x, y, z, roll, yaw, pitch)
- *
- * Rail 坐标：z向下为正，x向前，y向右，右手定则
- * 目标坐标：z向上为正，x向前，y向右，仍为右手定则
- * 变化规则： x -> x，y -> y，z -> -z，同时3个转角都取反
- */
-inline void convertFromSimpackRailToZUp(
-  double &x, double &y, double &z,
-  double &roll, double &yaw, double &pitch)
-{
-  // 位置：z 轴取负即可
-  z = -z;
-
-  // 姿态角：全部取负
-  roll  = -roll;
-  yaw   = -yaw;
-  pitch = -pitch;
-}
 
 class AbsCoordinateUDPSenderNode : public rclcpp::Node
 {
@@ -60,7 +36,7 @@ public:
     loadTrackData();
 
     // ============= 2) 设置目标IP、端口 =============
-    target_ip_   = "192.168.1.115";  // 可根据实际情况修改
+    target_ip_   = "192.168.1.131";  // 可根据实际情况修改
     target_port_ = 10099;           // 可根据实际情况修改
 
     // ============= 3) 创建UDP socket =============
@@ -206,7 +182,7 @@ private:
     double r21 = T[2][1];
     double r22 = T[2][2];
 
-    // 常见公式:
+    // 与常见公式相同:
     // pitch = -asin(r20), yaw = atan2(r10, r00), roll = atan2(r21, r22)
     pitch = std::atan2(-r20, std::sqrt(r00*r00 + r10*r10));
     yaw   = std::atan2(r10, r00);
@@ -232,7 +208,7 @@ private:
     return (diff2 < diff1) ? (idx-1) : idx;
   }
 
-  // ------------------ 里程 + 局部姿态 => 全局绝对坐标姿态 (Rail坐标下) ------------------
+  // ------------------ 里程 + 局部姿态 => 全局绝对坐标姿态 ------------------
   void getGlobalPose(double s_val,
                      double y_local, double z_local,
                      double roll_local, double yaw_local, double pitch_local,
@@ -253,7 +229,7 @@ private:
     double T_T2G[4][4];
     make_transform(yaw_T, pitch_T, roll_T, X_T, Y_T, Z_T, T_T2G);
 
-    // 3) 部件局部->轨道系 (注意 x_local=0, y_local, z_local 视Simpack定义)
+    // 3) 部件局部->轨道系 (x_local=0)
     double T_W2T[4][4];
     make_transform(yaw_local, pitch_local, roll_local, 0.0, y_local, z_local, T_W2T);
 
@@ -267,19 +243,14 @@ private:
   }
 
 private:
-  // 订阅回调函数：接收 /simpack/y 消息，进行坐标变换并通过UDP发送
   void topic_callback(const simpack_interfaces::msg::SimpackY::SharedPtr msg)
   {
     // ========== 先取出一些直接使用的量 ==========
-    double sim_time   = msg->sim_time;   // 仿真时间
-    double y_spcktime = msg->y_spcktime; // SIMPACK内部时间
-    double y_cb_vx    = msg->y_cb_vx;    // 车辆纵向运行速度(不改符号)
+    double sim_time   = msg->sim_time;
+    double y_spcktime = msg->y_spcktime;
+    double y_cb_vx    = msg->y_cb_vx;  // (不做绝对速度变换，直接传)
 
-    // =====================================================================
-    // STEP 1: 先用 getGlobalPose() 得到 Rail 系下的“绝对”坐标与姿态（z向下）
-    // =====================================================================
-
-    // ========== 1) 车体 =============
+    // ========== 1) 车体做绝对坐标变换 ==========
     double cbX_abs, cbY_abs, cbZ_abs;
     double cbRoll_abs, cbYaw_abs, cbPitch_abs;
     getGlobalPose(msg->y_cb_x, msg->y_cb_y, msg->y_cb_z,
@@ -295,7 +266,7 @@ private:
                   f01X_abs, f01Y_abs, f01Z_abs,
                   f01Roll_abs, f01Yaw_abs, f01Pitch_abs);
 
-    // ========== 3) 后转向架 #2 (或前转向架 #2?) ==========
+    // ========== 3) 前转向架 #2 ==========
     double f02X_abs, f02Y_abs, f02Z_abs;
     double f02Roll_abs, f02Yaw_abs, f02Pitch_abs;
     getGlobalPose(msg->y_f02_x, msg->y_f02_y, msg->y_f02_z,
@@ -323,39 +294,7 @@ private:
     auto ws04_abs = transform_ws(msg->y_ws04_x, msg->y_ws04_y, msg->y_ws04_z,
                                  msg->y_ws04_roll, msg->y_ws04_yaw, msg->y_ws04_pitch);
 
-    // =====================================================================
-    // STEP 2: 再把这些绝对位姿从 “Rail(z向下)系” 转换为 “z向上右手系”
-    // =====================================================================
-
-    // 2.1) 车体
-    convertFromSimpackRailToZUp(cbX_abs, cbY_abs, cbZ_abs,
-                                cbRoll_abs, cbYaw_abs, cbPitch_abs);
-
-    // 2.2) 前转向架 #1
-    convertFromSimpackRailToZUp(f01X_abs, f01Y_abs, f01Z_abs,
-                                f01Roll_abs, f01Yaw_abs, f01Pitch_abs);
-
-    // 2.3) 后转向架 #2
-    convertFromSimpackRailToZUp(f02X_abs, f02Y_abs, f02Z_abs,
-                                f02Roll_abs, f02Yaw_abs, f02Pitch_abs);
-
-    // 2.4) 4 个轮对 ws01..ws04
-    auto convert_ws = [&](std::array<double,6> &ws) {
-      convertFromSimpackRailToZUp(ws[0], ws[1], ws[2],  // x,y,z
-                                  ws[3], ws[4], ws[5]); // roll,yaw,pitch
-    };
-    auto ws01_abs_zup = ws01_abs;
-    auto ws02_abs_zup = ws02_abs;
-    auto ws03_abs_zup = ws03_abs;
-    auto ws04_abs_zup = ws04_abs;
-    convert_ws(ws01_abs_zup);
-    convert_ws(ws02_abs_zup);
-    convert_ws(ws03_abs_zup);
-    convert_ws(ws04_abs_zup);
-
-    // =====================================================================
-    // STEP 3: 将需要发送的 77 个量打包 (其中姿态已是 z向上系)
-    // =====================================================================
+    // ========== 5) 将 77 个量打包 (按 .msg 顺序) ==========
     std::vector<double> payload;
     payload.reserve(77);
 
@@ -364,9 +303,9 @@ private:
     // (2) y_spcktime
     payload.push_back(y_spcktime);
     // (3) y_cb_vx
-    payload.push_back(y_cb_vx);  // 不变: 速度不改符号
+    payload.push_back(y_cb_vx);
 
-    // (4~9) 车体绝对坐标 (z向上)
+    // (4~9) 车体绝对坐标
     payload.push_back(cbX_abs);
     payload.push_back(cbY_abs);
     payload.push_back(cbZ_abs);
@@ -374,7 +313,7 @@ private:
     payload.push_back(cbYaw_abs);
     payload.push_back(cbPitch_abs);
 
-    // (10~17) 8 个车轮旋转速度 rotw (不变)
+    // (10~17) 8 个车轮旋转速度 rotw
     payload.push_back(msg->y_w01_rotw);
     payload.push_back(msg->y_w02_rotw);
     payload.push_back(msg->y_w03_rotw);
@@ -384,7 +323,7 @@ private:
     payload.push_back(msg->y_w07_rotw);
     payload.push_back(msg->y_w08_rotw);
 
-    // (18~23) 转向架 #1 (z向上)
+    // (18~23) 转向架 #1
     payload.push_back(f01X_abs);
     payload.push_back(f01Y_abs);
     payload.push_back(f01Z_abs);
@@ -392,7 +331,7 @@ private:
     payload.push_back(f01Yaw_abs);
     payload.push_back(f01Pitch_abs);
 
-    // (24~29) 转向架 #2 (z向上)
+    // (24~29) 转向架 #2
     payload.push_back(f02X_abs);
     payload.push_back(f02Y_abs);
     payload.push_back(f02Z_abs);
@@ -400,37 +339,37 @@ private:
     payload.push_back(f02Yaw_abs);
     payload.push_back(f02Pitch_abs);
 
-    // (30~53) 4 个轮对的绝对坐标 (z向上)
+    // (30~53) 4 个轮对的绝对坐标
     // ws01 (30~35)
-    payload.push_back(ws01_abs_zup[0]);
-    payload.push_back(ws01_abs_zup[1]);
-    payload.push_back(ws01_abs_zup[2]);
-    payload.push_back(ws01_abs_zup[3]);
-    payload.push_back(ws01_abs_zup[4]);
-    payload.push_back(ws01_abs_zup[5]);
+    payload.push_back(ws01_abs[0]);
+    payload.push_back(ws01_abs[1]);
+    payload.push_back(ws01_abs[2]);
+    payload.push_back(ws01_abs[3]);
+    payload.push_back(ws01_abs[4]);
+    payload.push_back(ws01_abs[5]);
     // ws02 (36~41)
-    payload.push_back(ws02_abs_zup[0]);
-    payload.push_back(ws02_abs_zup[1]);
-    payload.push_back(ws02_abs_zup[2]);
-    payload.push_back(ws02_abs_zup[3]);
-    payload.push_back(ws02_abs_zup[4]);
-    payload.push_back(ws02_abs_zup[5]);
+    payload.push_back(ws02_abs[0]);
+    payload.push_back(ws02_abs[1]);
+    payload.push_back(ws02_abs[2]);
+    payload.push_back(ws02_abs[3]);
+    payload.push_back(ws02_abs[4]);
+    payload.push_back(ws02_abs[5]);
     // ws03 (42~47)
-    payload.push_back(ws03_abs_zup[0]);
-    payload.push_back(ws03_abs_zup[1]);
-    payload.push_back(ws03_abs_zup[2]);
-    payload.push_back(ws03_abs_zup[3]);
-    payload.push_back(ws03_abs_zup[4]);
-    payload.push_back(ws03_abs_zup[5]);
+    payload.push_back(ws03_abs[0]);
+    payload.push_back(ws03_abs[1]);
+    payload.push_back(ws03_abs[2]);
+    payload.push_back(ws03_abs[3]);
+    payload.push_back(ws03_abs[4]);
+    payload.push_back(ws03_abs[5]);
     // ws04 (48~53)
-    payload.push_back(ws04_abs_zup[0]);
-    payload.push_back(ws04_abs_zup[1]);
-    payload.push_back(ws04_abs_zup[2]);
-    payload.push_back(ws04_abs_zup[3]);
-    payload.push_back(ws04_abs_zup[4]);
-    payload.push_back(ws04_abs_zup[5]);
+    payload.push_back(ws04_abs[0]);
+    payload.push_back(ws04_abs[1]);
+    payload.push_back(ws04_abs[2]);
+    payload.push_back(ws04_abs[3]);
+    payload.push_back(ws04_abs[4]);
+    payload.push_back(ws04_abs[5]);
 
-    // (54~61) 8 个车轮的转角 rota (不变)
+    // (54~61) 8 个车轮的转角 rota
     payload.push_back(msg->y_w01_rota);
     payload.push_back(msg->y_w02_rota);
     payload.push_back(msg->y_w03_rota);
@@ -440,7 +379,7 @@ private:
     payload.push_back(msg->y_w07_rota);
     payload.push_back(msg->y_w08_rota);
 
-    // (62~69) 8 根连杆的 pitch (不变)
+    // (62~69) 8 个杠杆(或其他构件)的 pitch
     payload.push_back(msg->y_bar01_pitch);
     payload.push_back(msg->y_bar02_pitch);
     payload.push_back(msg->y_bar03_pitch);
@@ -450,21 +389,21 @@ private:
     payload.push_back(msg->y_bar07_pitch);
     payload.push_back(msg->y_bar08_pitch);
 
-    // (70~73) 4 个轮对的 vy (不变, 速度不改符号)
+    // (70~73) 4 个轮对的 vy
     payload.push_back(msg->y_ws01_vy);
     payload.push_back(msg->y_ws02_vy);
     payload.push_back(msg->y_ws03_vy);
     payload.push_back(msg->y_ws04_vy);
 
-    // (74~77) 4 个轮对的 vyaw (不变, 速度不改符号)
+    // (74~77) 4 个轮对的 vyaw
     payload.push_back(msg->y_ws01_vyaw);
     payload.push_back(msg->y_ws02_vyaw);
     payload.push_back(msg->y_ws03_vyaw);
     payload.push_back(msg->y_ws04_vyaw);
 
     // ============= 转为字节指针，UDP发送 =============
-    const char* raw_ptr    = reinterpret_cast<const char*>(payload.data());
-    size_t total_bytes     = payload.size() * sizeof(double);
+    const char* raw_ptr = reinterpret_cast<const char*>(payload.data());
+    size_t total_bytes   = payload.size() * sizeof(double);
 
     ssize_t bytes_sent = ::sendto(
       udp_socket_fd_,
@@ -484,7 +423,7 @@ private:
     send_count_++;
     if (send_count_ % 2000 == 0) {
       RCLCPP_INFO(this->get_logger(), 
-                  "Sent %ld bytes (count=%lu) [abs-coord in z-up] to %s:%d", 
+                  "Sent %ld bytes (count=%lu) [abs-coord] to %s:%d", 
                   bytes_sent, send_count_,
                   target_ip_.c_str(), target_port_);
     }

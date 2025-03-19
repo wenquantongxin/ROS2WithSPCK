@@ -676,7 +676,7 @@ class TrainVisualization:
         T_ws04 = make_ws_transform(47)
 
         # ============= 2) 先绘制“轮对” =============
-        # 假设轮对用不透明渲染(Alpha=1.0)，或你也可改半透明
+        # 假设轮对用不透明渲染(Alpha=1.0)，或也可改半透明
         # 因为转向架、车体往往在其上方，需要稍后画
         self.train_models.draw_wheelset(T_ws01)
         self.train_models.draw_wheelset(T_ws02)
@@ -691,7 +691,7 @@ class TrainVisualization:
 
         # ============= 4) 绘制转向架 (中等透明) =============
         # 为了简单，直接在 bogie 的渲染函数里设置颜色 + alpha
-        # 你可以在 TrainModels 里改 render_bogie()：
+        # 可以在 TrainModels 里改 render_bogie()：
         #   glColor4f(0.0, 0.8, 0.0, 0.3)   # 绿色 + alpha=0.3
         # 这里可以直接调用:
         self.train_models.draw_box(T_f01, self.train_models.bogie_list, "bogie")
