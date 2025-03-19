@@ -7,8 +7,8 @@
 class AUDPReceiver;
 
 /**
- * ÓÃÓÚÊ¾ÀıĞÔÇı¶¯³µÌåÔË¶¯µÄ×é¼ş¡£
- * »áÔÚTickÖĞÏòUDPReceiverÀ­È¡ FTrainData£¬²¢½«³µÌåÎ»×ËÓ¦ÓÃµ½¸Ã×é¼şËùÔÚActor¡£
+ * ç”¨äºç¤ºä¾‹æ€§é©±åŠ¨è½¦ä½“è¿åŠ¨çš„ç»„ä»¶ã€‚
+ * ä¼šåœ¨Tickä¸­å‘UDPReceiveræ‹‰å– FTrainDataï¼Œå¹¶å°†è½¦ä½“ä½å§¿åº”ç”¨åˆ°è¯¥ç»„ä»¶æ‰€åœ¨Actorã€‚
  */
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class VEHICLE4WDB_API UMoveComponent_Carbody : public USceneComponent
@@ -16,18 +16,18 @@ class VEHICLE4WDB_API UMoveComponent_Carbody : public USceneComponent
     GENERATED_BODY()
 
 public:
-    // ¹¹Ôìº¯Êı
+    // æ„é€ å‡½æ•°
     UMoveComponent_Carbody();
 
-    // ÒıÓÃµ½UDPReceiver£¬ÒÔ±ãÀ­È¡×îĞÂÊı¾İ
+    // å¼•ç”¨åˆ°UDPReceiverï¼Œä»¥ä¾¿æ‹‰å–æœ€æ–°æ•°æ®
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CarbodyMovement")
     AUDPReceiver* UDPReceiverRef;
 
-    // ¸Ã×é¼şÊÇ·ñÖ±½ÓÊ¹ÓÃÊÀ½çTransform (Ä¬ÈÏtrue)
+    // è¯¥ç»„ä»¶æ˜¯å¦ç›´æ¥ä½¿ç”¨ä¸–ç•ŒTransform (é»˜è®¤true)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CarbodyMovement")
     bool bUseWorldTransform;
 
-    // ²åÖµËÙ¶È (Ô½´ó -> ¸úËæÄ¿±êÔ½¿ì£»Ô½Ğ¡ -> Ô½Æ½ÎÈ¡¢ÖÍºó)
+    // æ’å€¼é€Ÿåº¦ (è¶Šå¤§ -> è·Ÿéšç›®æ ‡è¶Šå¿«ï¼›è¶Šå° -> è¶Šå¹³ç¨³ã€æ»å)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CarbodyMovement")
     float InterpSpeed;
 
@@ -36,10 +36,20 @@ protected:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-    // ÊÇ·ñÒÑ³õÊ¼»¯²åÖµ£¨µÚÒ»´Î»ñÈ¡Êı¾İÊ±»áÖ±½ÓÌøµ½Ä¿±êÎ»ÖÃ£©
+    // è®¾ç½®é»˜è®¤å˜æ¢
+    void SetupDefaultTransform();
+    
+    // åº”ç”¨å˜æ¢åˆ°Actor
+    void ApplyTransform();
+    
+    // æ˜¯å¦å·²åˆå§‹åŒ–æ’å€¼ï¼ˆç¬¬ä¸€æ¬¡è·å–æ•°æ®æ—¶ä¼šç›´æ¥è·³åˆ°ç›®æ ‡ä½ç½®ï¼‰
     bool bInitialized;
 
-    // ÓÃÓÚ´æ´¢µ±Ç°Ö¡²åÖµºóµÄÎ»×Ë
-    FVector  CurrentLocation;
+    // é»˜è®¤ä½ç½®å’Œæ—‹è½¬
+    FVector DefaultLocation;
+    FRotator DefaultRotation;
+    
+    // ç”¨äºå­˜å‚¨å½“å‰å¸§æ’å€¼åçš„ä½å§¿
+    FVector CurrentLocation;
     FRotator CurrentRotation;
 };

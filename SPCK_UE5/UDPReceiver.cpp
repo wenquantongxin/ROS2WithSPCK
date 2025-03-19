@@ -1,7 +1,7 @@
 // UDPReceiver.cpp
 
 #include "UDPReceiver.h"
-#include "Engine/Engine.h"    // UE_LOG µÈ
+#include "Engine/Engine.h"    // UE_LOG ç­‰
 #include "Sockets.h"
 #include "SocketSubsystem.h"
 #include "IPAddress.h"
@@ -10,23 +10,23 @@
 #include "Misc/ScopeLock.h"
 #include "HAL/UnrealMemory.h"
 #include "Math/UnrealMathUtility.h"
-#include "TrainData.h"        // ĞèÒª°üº¬ÄãµÄ FTrainData ½á¹¹
+#include "TrainData.h"        // éœ€è¦åŒ…å«ä½ çš„ FTrainData ç»“æ„
 
-// ---------------------- ×ª»»³£Á¿²¿·Ö ----------------------
-// Èç¹ûÍâ²¿Î»ÖÃÊÇÒÔ "Ã×" Îªµ¥Î» -> UE ÖĞÄ¬ÈÏÎª "ÀåÃ×"£º     1m = 100cm
+// ---------------------- è½¬æ¢å¸¸é‡éƒ¨åˆ† ----------------------
+// å¦‚æœå¤–éƒ¨ä½ç½®æ˜¯ä»¥ "ç±³" ä¸ºå•ä½ -> UE ä¸­é»˜è®¤ä¸º "å˜ç±³"ï¼š     1m = 100cm
 static const float DistanceScale = 100.f;
 
-// Èç¹ûÍâ²¿Ğı×ª½ÇÊÇÒÔ "¶È" Îªµ¥Î»£¬¶ø UE Rotator Ò²ÓÃ¶È => ²»ĞèÒª×ª»»:  AngleScale = 1.f
-// Èç¹ûÍâ²¿ÊÇ "»¡¶È" => ĞèÒª (180.f / PI)
+// å¦‚æœå¤–éƒ¨æ—‹è½¬è§’æ˜¯ä»¥ "åº¦" ä¸ºå•ä½ï¼Œè€Œ UE Rotator ä¹Ÿç”¨åº¦ => ä¸éœ€è¦è½¬æ¢:  AngleScale = 1.f
+// å¦‚æœå¤–éƒ¨æ˜¯ "å¼§åº¦" => éœ€è¦ (180.f / PI)
 static const float AngleScale = 180.f / PI;
 
-// ³µÌåÄ¬ÈÏ¸ß¶È
+// è½¦ä½“é»˜è®¤é«˜åº¦
 static const float cb_hc = 1.0; // 1.0;
 
-// ×ªÏò¼ÜÌá¸ß¸ß¶È
+// è½¬å‘æ¶æé«˜é«˜åº¦
 static const float bg_hc = 0.0; // 0.5;
 
-// ÂÖ¶ÔÌá¸ß¸ß¶È
+// è½®å¯¹æé«˜é«˜åº¦
 static const float ws_hc = 0.0; // 0.5;
 
 //----------------------------------------------------------
@@ -38,10 +38,10 @@ AUDPReceiver::AUDPReceiver()
     ListenSocket = nullptr;
     UDPReceiver = nullptr;
 
-    // 77 ¸ö double£¬Ã¿¸ö double 8 ×Ö½Ú -> 616 ×Ö½Ú
+    // 77 ä¸ª doubleï¼Œæ¯ä¸ª double 8 å­—èŠ‚ -> 616 å­—èŠ‚
     ExpectedDataSize = 77 * sizeof(double);
 
-    // ¸Õ¿ªÊ¼»¹Î´ÊÕµ½ÈÎºÎÓĞĞ§Êı¾İ
+    // åˆšå¼€å§‹è¿˜æœªæ”¶åˆ°ä»»ä½•æœ‰æ•ˆæ•°æ®
     bHasValidData = false;
 }
 
@@ -49,13 +49,13 @@ void AUDPReceiver::BeginPlay()
 {
     Super::BeginPlay();
 
-    // ³õÊ¼»¯ Socket Óë UDPReceiver
+    // åˆå§‹åŒ– Socket ä¸ UDPReceiver
     InitializeUDPReceiver();
 }
 
 bool AUDPReceiver::InitializeUDPReceiver()
 {
-    CloseSocket(); // È·±£Ö®Ç°µÄ×ÊÔ´ÇåÀí
+    CloseSocket(); // ç¡®ä¿ä¹‹å‰çš„èµ„æºæ¸…ç†
 
     ISocketSubsystem* SocketSubsystem = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM);
     if (!SocketSubsystem)
@@ -64,12 +64,12 @@ bool AUDPReceiver::InitializeUDPReceiver()
         return false;
     }
 
-    // °ó¶¨µØÖ·(0.0.0.0:10099 Ö®Àà)£¬ÊÓÄãµÄĞèÇóĞŞ¸Ä¶Ë¿Ú
+    // ç»‘å®šåœ°å€(0.0.0.0:10099 ä¹‹ç±»)ï¼Œè§†ä½ çš„éœ€æ±‚ä¿®æ”¹ç«¯å£
     FIPv4Address Addr = FIPv4Address::Any;
-    const uint16 Port = 10099; // Óë ROS2 ½Úµã·¢ËÍ¶Ë¿ÚÆ¥Åä
+    const uint16 Port = 10099; // ä¸ ROS2 èŠ‚ç‚¹å‘é€ç«¯å£åŒ¹é…
     FIPv4Endpoint Endpoint(Addr, Port);
 
-    // ´´½¨ UDP Socket
+    // åˆ›å»º UDP Socket
     ListenSocket = SocketSubsystem->CreateSocket(NAME_DGram, TEXT("UDPReceiverSocket"), false);
     if (!ListenSocket)
     {
@@ -77,10 +77,10 @@ bool AUDPReceiver::InitializeUDPReceiver()
         return false;
     }
 
-    // ÉèÎª·Ç×èÈû
+    // è®¾ä¸ºéé˜»å¡
     ListenSocket->SetNonBlocking(true);
 
-    // °ó¶¨±¾µØ¶Ë¿Ú
+    // ç»‘å®šæœ¬åœ°ç«¯å£
     bool bBindOk = ListenSocket->SetReuseAddr(true) &&
         ListenSocket->SetRecvErr() &&
         ListenSocket->Bind(*Endpoint.ToInternetAddr());
@@ -91,7 +91,7 @@ bool AUDPReceiver::InitializeUDPReceiver()
         return false;
     }
 
-    // ´´½¨Òì²½½ÓÊÕÆ÷
+    // åˆ›å»ºå¼‚æ­¥æ¥æ”¶å™¨
     UDPReceiver = MakeShared<FUdpSocketReceiver>(
         ListenSocket,
         FTimespan::FromMilliseconds(10),
@@ -100,7 +100,7 @@ bool AUDPReceiver::InitializeUDPReceiver()
 
     if (UDPReceiver.IsValid())
     {
-        // °ó¶¨»Øµ÷
+        // ç»‘å®šå›è°ƒ
         UDPReceiver->OnDataReceived().BindUObject(this, &AUDPReceiver::Recv);
         UDPReceiver->Start();
 
@@ -116,7 +116,7 @@ bool AUDPReceiver::InitializeUDPReceiver()
 void AUDPReceiver::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-    // Èç¹ûĞèÒª¼ì²â Socket ×´Ì¬¿ÉÔÚ´Ë´¦×ö
+    // å¦‚æœéœ€è¦æ£€æµ‹ Socket çŠ¶æ€å¯åœ¨æ­¤å¤„åš
 }
 
 void AUDPReceiver::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -144,15 +144,15 @@ void AUDPReceiver::CloseSocket()
     }
 }
 
-// ½ÓÊÕ»Øµ÷
+// æ¥æ”¶å›è°ƒ
 void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoint& EndPt)
 {
     if (!IsValid(this) || !ListenSocket || !UDPReceiver.IsValid())
     {
-        return; // Actor±»Ïú»Ù»òSocketÎŞĞ§
+        return; // Actorè¢«é”€æ¯æˆ–Socketæ— æ•ˆ
     }
 
-    // 1) Êı¾İÖ¸ÕëºÍ³¤¶È¼ì²é
+    // 1) æ•°æ®æŒ‡é’ˆå’Œé•¿åº¦æ£€æŸ¥
     if (!ArrayReaderPtr.IsValid())
         return;
 
@@ -164,9 +164,9 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
         return;
     }
 
-    // 2) ½âÎö 77 ¸ö double
+    // 2) è§£æ 77 ä¸ª double
     const double* rawPtr = reinterpret_cast<const double*>(ArrayReaderPtr->GetData());
-    FTrainData newData; // ÁÙÊ±´æ´¢
+    FTrainData newData; // ä¸´æ—¶å­˜å‚¨
 
     int idx = 0;
 
@@ -175,7 +175,7 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
     newData.SPCKTime = rawPtr[idx++];
     newData.CarBodyVx = rawPtr[idx++];
 
-    // (4~9) ³µÌå(X, Y, Z, roll, yaw, pitch)
+    // (4~9) è½¦ä½“(X, Y, Z, roll, yaw, pitch)
     double cbX = rawPtr[idx++];
     double cbY = rawPtr[idx++];
     double cbZ = rawPtr[idx++] + cb_hc;
@@ -198,13 +198,13 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
         static_cast<float>(cbZ));
     newData.CarBodyRotation = FRotator(cbPitch, cbYaw, cbRoll);
 
-    // (10~17) 8¸öÂÖµÄĞı×ªËÙ¶È rotw
+    // (10~17) 8ä¸ªè½®çš„æ—‹è½¬é€Ÿåº¦ rotw
     for (int i = 0; i < 8; i++)
     {
         newData.WheelsRotSpeed[i] = rawPtr[idx++];
     }
 
-    // (18~23) ×ªÏò¼Ü #1 (X,Y,Z, roll,yaw,pitch)
+    // (18~23) è½¬å‘æ¶ #1 (X,Y,Z, roll,yaw,pitch)
     double b1X = rawPtr[idx++];
     double b1Y = rawPtr[idx++];
     double b1Z = rawPtr[idx++] + bg_hc;
@@ -224,7 +224,7 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
         static_cast<float>(b1Z));
     newData.Bogie01Rotation = FRotator(b1Pitch, b1Yaw, b1Roll);
 
-    // (24~29) ×ªÏò¼Ü #2
+    // (24~29) è½¬å‘æ¶ #2
     double b2X = rawPtr[idx++];
     double b2Y = rawPtr[idx++];
     double b2Z = rawPtr[idx++] + bg_hc;
@@ -244,7 +244,7 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
         static_cast<float>(b2Z));
     newData.Bogie02Rotation = FRotator(b2Pitch, b2Yaw, b2Roll);
 
-    // (30~53) 4¸öÂÖ¶Ô (X, Y, Z, roll, yaw, pitch)
+    // (30~53) 4ä¸ªè½®å¯¹ (X, Y, Z, roll, yaw, pitch)
     for (int i = 0; i < 4; i++)
     {
         double wsX = rawPtr[idx++];
@@ -267,7 +267,7 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
         newData.WheelsetRotations[i] = FRotator(wsPitch, wsYaw, wsRoll);
     }
 
-    // (54~61) 8¸ö³µÂÖ×ª½Ç rota
+    // (54~61) 8ä¸ªè½¦è½®è½¬è§’ rota
     for (int i = 0; i < 8; i++)
     {
         double wrota = rawPtr[idx++];
@@ -275,7 +275,7 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
         newData.WheelsRotation[i] = wrota;
     }
 
-    // (62~69) 8¸ö¸Ü¸Ë pitch
+    // (62~69) 8ä¸ªæ æ† pitch
     for (int i = 0; i < 8; i++)
     {
         double barPitch = rawPtr[idx++];
@@ -283,44 +283,44 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
         newData.BarsPitch[i] = barPitch;
     }
 
-    // (70~73) 4¸öÂÖ¶Ô vy
+    // (70~73) 4ä¸ªè½®å¯¹ vy
     for (int i = 0; i < 4; i++)
     {
         newData.WheelsetVY[i] = rawPtr[idx++];
     }
 
-    // (74~77) 4¸öÂÖ¶Ô vyaw
+    // (74~77) 4ä¸ªè½®å¯¹ vyaw
     for (int i = 0; i < 4; i++)
     {
         newData.WheelsetVYaw[i] = rawPtr[idx++];
     }
 
-    // Èç¹ûÒª¼ì²é NaN / ÎŞÇî´óµÈ£¬¿ÉÊ¹ÓÃ IsValidData
+    // å¦‚æœè¦æ£€æŸ¥ NaN / æ— ç©·å¤§ç­‰ï¼Œå¯ä½¿ç”¨ IsValidData
     if (!IsValidData(cbX, cbY, cbZ, cbRoll, cbYaw, cbPitch))
     {
         UE_LOG(LogTemp, Verbose, TEXT("Invalid carbody transform data. ignoring."));
         return;
     }
 
-    // 3) Ğ´Èë³ÉÔ±±äÁ¿ (Ïß³Ì°²È«±£»¤)
+    // 3) å†™å…¥æˆå‘˜å˜é‡ (çº¿ç¨‹å®‰å…¨ä¿æŠ¤)
     {
         FScopeLock Lock(&DataMutex);
         LatestTrainData = newData;
 
-        // ********* ¹Ø¼üÂß¼­£º³É¹¦½âÎöµ½Ò»´ÎÓĞĞ§Êı¾İºó£¬ÖÃÎªtrue *********
+        // ********* å…³é”®é€»è¾‘ï¼šæˆåŠŸè§£æåˆ°ä¸€æ¬¡æœ‰æ•ˆæ•°æ®åï¼Œç½®ä¸ºtrue *********
         bHasValidData = true;
     }
 }
 
 bool AUDPReceiver::IsValidData(double x, double y, double z, double roll, double yaw, double pitch)
 {
-    // ·ÀÖ¹ NaN »ò ÎŞÇî´ó
+    // é˜²æ­¢ NaN æˆ– æ— ç©·å¤§
     if (!FMath::IsFinite((float)x) ||
         !FMath::IsFinite((float)roll))
     {
         return false;
     }
-    // Î»ÖÃ³¬³ö¼«ÏŞÒ²¿ÉÊÓ×÷Òì³£
+    // ä½ç½®è¶…å‡ºæé™ä¹Ÿå¯è§†ä½œå¼‚å¸¸
     if (FMath::Abs((float)x) > 1e8f || FMath::Abs((float)y) > 1e8f)
     {
         return false;
@@ -333,7 +333,7 @@ bool AUDPReceiver::GetLatestTrainData(FTrainData& OutData) const
     FScopeLock Lock(&DataMutex);
     OutData = LatestTrainData;
 
-    // µ± bHasValidData == false Ê±£¬ÒâÎ¶×ÅÉĞÎ´ÊÕµ½¹ıÈÎºÎÓĞĞ§Êı¾İ
-    // ÕâÊ±·µ»Ø false£¬ÈÃÉÏ²ã×é¼şµÃÒÔÊ¹ÓÃ¡°Ä¬ÈÏÎ»ÖÃ¡±¡£
+    // å½“ bHasValidData == false æ—¶ï¼Œæ„å‘³ç€å°šæœªæ”¶åˆ°è¿‡ä»»ä½•æœ‰æ•ˆæ•°æ®
+    // è¿™æ—¶è¿”å› falseï¼Œè®©ä¸Šå±‚ç»„ä»¶å¾—ä»¥ä½¿ç”¨â€œé»˜è®¤ä½ç½®â€ã€‚
     return bHasValidData;
 }

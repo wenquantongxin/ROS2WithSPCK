@@ -5,30 +5,30 @@
 #include "MoveComponent_Bogie.generated.h"
 class AUDPReceiver;
 /**
- * ÓÃÓÚÇı¶¯×ªÏò¼ÜÔË¶¯µÄ×é¼ş¡£
- * Í¨¹ıBogieIndex²ÎÊı¿ÉÅäÖÃÎªÇ°²¿»òºó²¿×ªÏò¼Ü¡£
+ * ç”¨äºé©±åŠ¨è½¬å‘æ¶è¿åŠ¨çš„ç»„ä»¶ã€‚
+ * é€šè¿‡BogieIndexå‚æ•°å¯é…ç½®ä¸ºå‰éƒ¨æˆ–åéƒ¨è½¬å‘æ¶ã€‚
  */
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class VEHICLE4WDB_API UMoveComponent_Bogie : public USceneComponent
 {
     GENERATED_BODY()
 public:
-    // ¹¹Ôìº¯Êı
+    // æ„é€ å‡½æ•°
     UMoveComponent_Bogie();
-    // ÒıÓÃµ½UDPReceiver£¬ÒÔ±ãÀ­È¡×îĞÂÊı¾İ
+    // å¼•ç”¨åˆ°UDPReceiverï¼Œä»¥ä¾¿æ‹‰å–æœ€æ–°æ•°æ®
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BogieMovement")
     AUDPReceiver* UDPReceiverRef;
-    // ×ªÏò¼ÜË÷Òı (0=Ç°²¿×ªÏò¼Ü, 1=ºó²¿×ªÏò¼Ü)
+    // è½¬å‘æ¶ç´¢å¼• (0=å‰éƒ¨è½¬å‘æ¶, 1=åéƒ¨è½¬å‘æ¶)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BogieMovement", meta = (ClampMin = "0", ClampMax = "1", ExposeOnSpawn = true))
     int32 BogieIndex;
-    // ¸Ã×é¼şÊÇ·ñÖ±½ÓÊ¹ÓÃÊÀ½çTransform (Ä¬ÈÏtrue)
+    // è¯¥ç»„ä»¶æ˜¯å¦ç›´æ¥ä½¿ç”¨ä¸–ç•ŒTransform (é»˜è®¤true)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BogieMovement")
     bool bUseWorldTransform;
-    // ²åÖµËÙ¶È (Ô½´ó -> ¸úËæÄ¿±êÔ½¿ì£»Ô½Ğ¡ -> Ô½Æ½ÎÈ¡¢ÖÍºó)
+    // æ’å€¼é€Ÿåº¦ (è¶Šå¤§ -> è·Ÿéšç›®æ ‡è¶Šå¿«ï¼›è¶Šå° -> è¶Šå¹³ç¨³ã€æ»å)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BogieMovement")
     float InterpSpeed;
 
-    // ÉèÖÃ×ªÏò¼ÜË÷Òı²¢¸üĞÂÄ¬ÈÏ±ä»»
+    // è®¾ç½®è½¬å‘æ¶ç´¢å¼•å¹¶æ›´æ–°é»˜è®¤å˜æ¢
     UFUNCTION(BlueprintCallable, Category = "BogieMovement")
     void SetBogieIndex(int32 NewIndex);
 
@@ -36,15 +36,15 @@ protected:
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 private:
-    // ÊÇ·ñÒÑ³õÊ¼»¯²åÖµ£¨µÚÒ»´Î»ñÈ¡Êı¾İÊ±»áÖ±½ÓÌøµ½Ä¿±êÎ»ÖÃ£©
+    // æ˜¯å¦å·²åˆå§‹åŒ–æ’å€¼ï¼ˆç¬¬ä¸€æ¬¡è·å–æ•°æ®æ—¶ä¼šç›´æ¥è·³åˆ°ç›®æ ‡ä½ç½®ï¼‰
     bool bInitialized;
-    // ÓÃÓÚ´æ´¢µ±Ç°Ö¡²åÖµºóµÄÎ»×Ë
+    // ç”¨äºå­˜å‚¨å½“å‰å¸§æ’å€¼åçš„ä½å§¿
     FVector CurrentLocation;
     FRotator CurrentRotation;
-    // Ä¬ÈÏµÄ×ªÏò¼ÜÎ»ÖÃ£¨µ±Î´½ÓÊÕUDPÊı¾İÊ±Ê¹ÓÃ£©
+    // é»˜è®¤çš„è½¬å‘æ¶ä½ç½®ï¼ˆå½“æœªæ¥æ”¶UDPæ•°æ®æ—¶ä½¿ç”¨ï¼‰
     FVector DefaultLocation;
-    // Ä¬ÈÏµÄ×ªÏò¼ÜĞı×ª£¨µ±Î´½ÓÊÕUDPÊı¾İÊ±Ê¹ÓÃ£©
+    // é»˜è®¤çš„è½¬å‘æ¶æ—‹è½¬ï¼ˆå½“æœªæ¥æ”¶UDPæ•°æ®æ—¶ä½¿ç”¨ï¼‰
     FRotator DefaultRotation;
-    // ¸ù¾İBogieIndexÉèÖÃÄ¬ÈÏÎ»ÖÃºÍĞı×ª
+    // æ ¹æ®BogieIndexè®¾ç½®é»˜è®¤ä½ç½®å’Œæ—‹è½¬
     void SetupDefaultTransform();
 };

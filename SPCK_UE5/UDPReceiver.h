@@ -3,13 +3,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Common/UdpSocketReceiver.h" // ĞèÒªÒıÈëNetworkingÏà¹ØÍ·
+#include "Common/UdpSocketReceiver.h" // éœ€è¦å¼•å…¥Networkingç›¸å…³å¤´
 #include "HAL/RunnableThread.h"
 #include "HAL/CriticalSection.h"
 #include "Sockets.h"
 #include "SocketSubsystem.h"
 
-#include "TrainData.h" // ÒıÈëÉÏÃæ¶¨ÒåµÄFTrainData
+#include "TrainData.h" // å¼•å…¥ä¸Šé¢å®šä¹‰çš„FTrainData
 
 #include "UDPReceiver.generated.h"
 
@@ -19,10 +19,10 @@ class VEHICLE4WDB_API AUDPReceiver : public AActor
     GENERATED_BODY()
 
 public:
-    // ¹¹Ôìº¯Êı
+    // æ„é€ å‡½æ•°
     AUDPReceiver();
 
-    // ÓÃÓÚ´ÓÍâ²¿»ñÈ¡×îĞÂµÄÁĞ³µÊı¾İ
+    // ç”¨äºä»å¤–éƒ¨è·å–æœ€æ–°çš„åˆ—è½¦æ•°æ®
     UFUNCTION(BlueprintCallable, Category = "UDPReceiver")
     bool GetLatestTrainData(FTrainData& OutData) const;
 
@@ -30,39 +30,39 @@ protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-    // ÓÃÓÚÔÚTickÀï×öĞÄÌø¼ì²âµÈ(±¾ÀıÎŞĞè²Ù×÷¿ÉÁô¿Õ)
+    // ç”¨äºåœ¨Tické‡Œåšå¿ƒè·³æ£€æµ‹ç­‰(æœ¬ä¾‹æ— éœ€æ“ä½œå¯ç•™ç©º)
     virtual void Tick(float DeltaSeconds) override;
 
 private:
-    // ============== SocketÏà¹Ø ==============
+    // ============== Socketç›¸å…³ ==============
     bool InitializeUDPReceiver();
     void CloseSocket();
 
-    // »Øµ÷º¯Êı£¬µ±UDPÊÕµ½Êı¾İÊ±´¥·¢
+    // å›è°ƒå‡½æ•°ï¼Œå½“UDPæ”¶åˆ°æ•°æ®æ—¶è§¦å‘
     void Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoint& EndPt);
 
-    // ÊÇ·ñÑéÖ¤Êı¾İ
+    // æ˜¯å¦éªŒè¯æ•°æ®
     bool IsValidData(double x, double y, double z, double roll, double yaw, double pitch);
 
 private:
-    // SocketÖ¸Õë
+    // SocketæŒ‡é’ˆ
     FSocket* ListenSocket;
 
-    // ¸ºÔğÒì²½½ÓÊÕµÄ¶ÔÏó
+    // è´Ÿè´£å¼‚æ­¥æ¥æ”¶çš„å¯¹è±¡
     TSharedPtr<FUdpSocketReceiver> UDPReceiver;
 
-    // ÓÃÀ´±£»¤¶àÏß³ÌĞ´Êı¾İ
+    // ç”¨æ¥ä¿æŠ¤å¤šçº¿ç¨‹å†™æ•°æ®
     mutable FCriticalSection DataMutex;
 
-    // ´æ·Å×îĞÂµÄÁĞ³µ/³µÌåÊı¾İ
+    // å­˜æ”¾æœ€æ–°çš„åˆ—è½¦/è½¦ä½“æ•°æ®
     FTrainData LatestTrainData;
 
-    // ÆÚÍûÒ»´ÎUDP°üµÄ×Ö½ÚÊı
+    // æœŸæœ›ä¸€æ¬¡UDPåŒ…çš„å­—èŠ‚æ•°
     int32 ExpectedDataSize;
 
     /**
-     * @brief Ö¸Ê¾ÊÇ·ñÒÑ¾­ÊÕµ½¹ıÖÁÉÙÒ»´ÎÓĞĞ§µÄUDPÊı¾İ
-     * ³õÊ¼Îª false£¬³É¹¦½âÎöÒ»´ÎÊı¾İºóÖÃ true
+     * @brief æŒ‡ç¤ºæ˜¯å¦å·²ç»æ”¶åˆ°è¿‡è‡³å°‘ä¸€æ¬¡æœ‰æ•ˆçš„UDPæ•°æ®
+     * åˆå§‹ä¸º falseï¼ŒæˆåŠŸè§£æä¸€æ¬¡æ•°æ®åç½® true
      */
     bool bHasValidData;
 };

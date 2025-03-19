@@ -43,7 +43,7 @@ class UDPReceiverThread(threading.Thread):
         self.UDP_PORT = port
         self.sock = None
 
-        # 数据包应包含 77 个 double (小端)
+        # 数据包应包含 77 个 double (小端序)
         self.EXPECTED_LEN = 77
         self.EXPECTED_BYTES = self.EXPECTED_LEN * 8
         self.fmt = "<" + "d" * self.EXPECTED_LEN
@@ -105,37 +105,60 @@ def interpolate_frames(frame1, frame2, t):
 
     interpolated = np.zeros(len(frame1), dtype=float)
 
-    # 位置索引示例：车体 (3,4,5), f01 (18,19,20), f02(24,25,26), ws01(30,31,32) ...
-    # 角度索引示例：车体 (6,7,8), f01 (21,22,23), ...
-    # 根据实际需要可再补充
+    # === 参照 SimpackY.msg 的下标 ===
+    # 0: sim_time
+    # 1: y_spcktime
+    # 2: y_cb_vx
+    # (3..5):  车体 x,y,z
+    # (6..8):  车体 roll,yaw,pitch
+    # (9..16): 8车轮转速
+    # (17..19): f01 x,y,z
+    # (20..22): f01 roll,yaw,pitch
+    # (23..25): f02 x,y,z
+    # (26..28): f02 roll,yaw,pitch
+    # (29..31): ws01 x,y,z
+    # (32..34): ws01 roll,yaw,pitch
+    # (35..37): ws02 x,y,z
+    # (38..40): ws02 roll,yaw,pitch
+    # (41..43): ws03 x,y,z
+    # (44..46): ws03 roll,yaw,pitch
+    # (47..49): ws04 x,y,z
+    # (50..52): ws04 roll,yaw,pitch
+    # (53..60): 8车轮转角 rota
+    # (61..68): 8根连杆 pitch
+    # (69..72): 4车轮组 vy
+    # (73..76): 4车轮组 vyaw
+
+    # 坐标 (x,y,z) 的索引
     position_indices = [
-        3,4,5,    # 车体X,Y,Z
-        17,18,19, # f01X,Y,Z (注意下标见 .msg 映射)
-        23,24,25, # f02X,Y,Z
-        29,30,31, # ws01 X,Y,Z
-        35,36,37, # ws02
-        41,42,43, # ws03
-        47,48,49  # ws04
+        3,4,5,       # 车体
+        17,18,19,    # f01
+        23,24,25,    # f02
+        29,30,31,    # ws01
+        35,36,37,    # ws02
+        41,42,43,    # ws03
+        47,48,49,    # ws04
     ]
+    # 姿态 (roll,yaw,pitch) 的索引
     angle_indices = [
-        6,7,8,   # 车体 roll,yaw,pitch
-        20,21,22,  # f01
-        26,27,28,  # f02
-        32,33,34,  # ws01 roll,yaw,pitch
-        38,39,40,  # ws02
-        44,45,46,  # ws03
-        50,51,52   # ws04
+        6,7,8,       # 车体
+        20,21,22,    # f01
+        26,27,28,    # f02
+        32,33,34,    # ws01
+        38,39,40,    # ws02
+        44,45,46,    # ws03
+        50,51,52,    # ws04
     ]
 
-    # 线性插值(位置)
+    # 1) 线性插值(位置)
     for idx in position_indices:
         interpolated[idx] = lerp(frame1[idx], frame2[idx], t)
 
-    # 角度插值(roll, yaw, pitch)
+    # 2) 角度插值(roll, yaw, pitch)
     for idx in angle_indices:
         interpolated[idx] = angle_lerp(frame1[idx], frame2[idx], t)
 
-    # 其它字段直接取 frame2
+    # 3) 其它字段直接取 frame2
     for i in range(len(frame1)):
         if i not in position_indices and i not in angle_indices:
             interpolated[i] = frame2[i]
@@ -145,14 +168,15 @@ def interpolate_frames(frame1, frame2, t):
 # ---------------------- 3) 车辆模型类 ----------------------
 class TrainModels:
     """
-    生成并管理车体、转向架、轮对等几何模型（与之前 TrkRel_RTViz 类似）。
+    生成并管理车体、转向架、轮对等几何模型（与之前类似）。
     """
     def __init__(self):
+        # 基础参数可自行调整
         self.axle_length = 2.0
         self.axle_radius = 0.065
         self.wheel_radius = 0.43
         self.wheel_thickness = 0.04
-        self.wheel_offset = 0.7175
+        self.wheel_offset = 0.72
 
         self.car_body_length = 25.0
         self.car_body_width = 3.0
@@ -295,7 +319,7 @@ class TrainModels:
         """
         绘制一个轮对 (车轴 + 两个车轮) 在变换矩阵 T_W2G 下的姿态。
         """
-        # 车轴需要绕Z旋转90度
+        # 车轴需要绕Z旋转90度，令轴平行 X
         axle_rotation = np.array([
             [0, -1,  0, 0],
             [1,  0,  0, 0],
@@ -357,6 +381,11 @@ class TrainModels:
         glDisable(GL_BLEND)
         glPopMatrix()
 
+# ---------------------- (原先的) “Rail坐标 -> z向上” 变换函数已移除 ----------------------
+# 如下函数已不再需要：
+# def convert_from_simpack_rail_to_z_up(...):
+#     pass
+
 # ---------------------- 4) OpenGL 可视化类 ----------------------
 class TrainVisualization:
     def __init__(self, width=1200, height=800):
@@ -379,7 +408,7 @@ class TrainVisualization:
         self.camera_azimuth = 120.0
         self.camera_target = [0.0, 0.0, 0.0]
         self.auto_camera = True
-        self.camera_up_vector = [0, 0, -1]
+        self.camera_up_vector = [0, 0, 1]
 
         # 轨道显示开关
         self.show_track = True
@@ -607,104 +636,114 @@ class TrainVisualization:
         glutSwapBuffers()
 
     # ---------- 在绝对坐标下绘制车辆 ----------
-# ---------- 在绝对坐标下绘制车辆 ----------
     def render_train(self, data):
         """
-        data: 长度=77 的数组，各下标对应 SimpackY.msg 里推送的绝对坐标。
-        下标对齐 C++ 发送端:
-        - data[3..5]:   车体 X, Y, Z
-        - data[6..8]:   车体 roll, yaw, pitch
-        - data[17..22]: 转向架 #1
-        - data[23..28]: 转向架 #2
-        - data[29..34]: 轮对 #1
-        - data[35..40]: 轮对 #2
-        - data[41..46]: 轮对 #3
-        - data[47..52]: 轮对 #4
+        data: 长度=77 的数组，索引对应 SimpackY.msg 各字段:
+
+        0: sim_time
+        1: y_spcktime
+        2: y_cb_vx
+        3..5:   车体 x,y,z
+        6..8:   车体 roll,yaw,pitch
+        9..16:  8车轮转速
+        17..19: f01 x,y,z
+        20..22: f01 roll,yaw,pitch
+        23..25: f02 x,y,z
+        26..28: f02 roll,yaw,pitch
+        29..31: ws01 x,y,z
+        32..34: ws01 roll,yaw,pitch
+        35..37: ws02 x,y,z
+        38..40: ws02 roll,yaw,pitch
+        41..43: ws03 x,y,z
+        44..46: ws03 roll,yaw,pitch
+        47..49: ws04 x,y,z
+        50..52: ws04 roll,yaw,pitch
+        53..60: 8 车轮转角
+        61..68: 8 连杆 pitch
+        69..72: 4 轮对 vy
+        73..76: 4 轮对 vyaw
         """
+        # 直接从 data 里取，**不再**做 z->-z 或角度翻转
+        cbx, cby, cbz = data[3], data[4], data[5]
+        cbroll, cbyaw, cbpitch = data[6], data[7], data[8]
 
-        # ------------ 相机跟随车体 ------------
-        cbX = data[3]
-        cbY = data[4]
-        cbZ = data[5]
+        # 相机跟随车体
         if self.auto_camera:
-            self.camera_target = [cbX, cbY, cbZ]
+            self.camera_target = [cbx, cby, cbz]
 
-        # 用于生成 4x4 齐次变换矩阵的小函数
-        def make_transform(yaw, pitch, roll, px, py, pz):
-            cy, sy = np.cos(yaw), np.sin(yaw)
-            cp, sp = np.cos(pitch), np.sin(pitch)
-            cr, sr = np.cos(roll), np.sin(roll)
-            return np.array([
-                [cy*cp, cy*sp*sr - sy*cr, cy*sp*cr + sy*sr, px],
-                [sy*cp, sy*sp*sr + cy*cr, sy*sp*cr - cy*sr, py],
-                [-sp,   cp*sr,           cp*cr,           pz],
-                [0,0,0,1]
+        # 用于生成 4x4 矩阵的小函数
+        def euler_zyx_to_matrix(yaw_, pitch_, roll_):
+            """
+            计算 Rz(yaw)*Ry(pitch)*Rx(roll)
+            """
+            cy, sy = np.cos(yaw_), np.sin(yaw_)
+            cp, sp = np.cos(pitch_), np.sin(pitch_)
+            cr, sr = np.cos(roll_), np.sin(roll_)
+            R = np.array([
+                [cy*cp,  cy*sp*sr - sy*cr,  cy*sp*cr + sy*sr],
+                [sy*cp,  sy*sp*sr + cy*cr,  sy*sp*cr - cy*sr],
+                [-sp,    cp*sr,            cp*cr         ]
             ], dtype=float)
+            return R
 
-        # ============= 1) 计算各部件的变换矩阵 =============
-        # 1.1) 车体
-        cbRoll  = data[6]
-        cbYaw   = data[7]
-        cbPitch = data[8]
+        def make_transform(yaw_, pitch_, roll_, px, py, pz):
+            R = euler_zyx_to_matrix(yaw_, pitch_, roll_)
+            T = np.eye(4, dtype=float)
+            T[:3,:3] = R
+            T[0,3], T[1,3], T[2,3] = px, py, pz
+            return T
 
-        cb_hc = -1.8 # 车体几何高度
-        T_cb2G  = make_transform(cbYaw, cbPitch, cbRoll, cbX, cbY, cbZ + cb_hc)
+        # 车体做一些位置微调(例如模型中心参考)
+        cb_hc = + 1.8   # Z 向上为正值
 
-        # 1.2) 转向架 #1 (f01)
-        f01X, f01Y, f01Z = data[17], data[18], data[19]
-        f01Roll, f01Yaw, f01Pitch = data[20], data[21], data[22]
-        T_f01 = make_transform(f01Yaw, f01Pitch, f01Roll, f01X, f01Y, f01Z)
+        T_cb2G = make_transform(-cbyaw, -cbpitch, -cbroll, cbx, cby, cbz  + cb_hc)
 
-        # 1.3) 转向架 #2 (f02)
-        f02X, f02Y, f02Z = data[23], data[24], data[25]
-        f02Roll, f02Yaw, f02Pitch = data[26], data[27], data[28]
-        T_f02 = make_transform(f02Yaw, f02Pitch, f02Roll, f02X, f02Y, f02Z)
+        # 取转向架 #1
+        f01x, f01y, f01z = data[17], data[18], data[19]
+        f01roll, f01yaw, f01pitch = data[20], data[21], data[22]
+        T_f01 = make_transform(-f01yaw, -f01pitch, -f01roll, f01x, f01y, f01z)
+        # T_f01 = make_transform(f01yaw, f01pitch, f01roll, f01x, f01y, f01z)
 
-        # 1.4) 四个轮对 (ws01..ws04)
-        def make_ws_transform(start_idx):
-            wsX = data[start_idx]
-            wsY = data[start_idx+1]
-            wsZ = data[start_idx+2]
-            wsRoll = data[start_idx+3]
-            wsYaw  = data[start_idx+4]
-            wsPitch= data[start_idx+5]
-            return make_transform(wsYaw, wsPitch, wsRoll, wsX, wsY, wsZ)
+        # 取转向架 #2
+        f02x, f02y, f02z = data[23], data[24], data[25]
+        f02roll, f02yaw, f02pitch = data[26], data[27], data[28]
+        T_f02 = make_transform(-f02yaw, -f02pitch, -f02roll, f02x, f02y, f02z)
 
-        T_ws01 = make_ws_transform(29)
-        T_ws02 = make_ws_transform(35)
-        T_ws03 = make_ws_transform(41)
-        T_ws04 = make_ws_transform(47)
+        # 轮对 (ws01..ws04)
+        def get_ws_transform(base_idx):
+            wsx = data[base_idx]
+            wsy = data[base_idx+1]
+            wsz = data[base_idx+2]
+            wsroll = data[base_idx+3]
+            wsyaw  = data[base_idx+4]
+            wspitch= data[base_idx+5]
+            return make_transform(-wsyaw, -wspitch, -wsroll, wsx, wsy, wsz)
 
-        # ============= 2) 先绘制“轮对” =============
-        # 假设轮对用不透明渲染(Alpha=1.0)，或也可改半透明
-        # 因为转向架、车体往往在其上方，需要稍后画
+        T_ws01 = get_ws_transform(29)
+        T_ws02 = get_ws_transform(35)
+        T_ws03 = get_ws_transform(41)
+        T_ws04 = get_ws_transform(47)
+
+        # ============= 先绘制轮对 =============
         self.train_models.draw_wheelset(T_ws01)
         self.train_models.draw_wheelset(T_ws02)
         self.train_models.draw_wheelset(T_ws03)
         self.train_models.draw_wheelset(T_ws04)
 
-        # ============= 3) 开启 alpha 混合，并禁写深度 =============
+        # ============= 半透明模型 =============
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        # 禁止向深度缓冲写入，但保留深度测试，这样后面的半透明对象不会遮挡已画内容
-        glDepthMask(GL_FALSE)
+        glDepthMask(GL_FALSE)  # 禁写深度
 
-        # ============= 4) 绘制转向架 (中等透明) =============
-        # 为了简单，直接在 bogie 的渲染函数里设置颜色 + alpha
-        # 可以在 TrainModels 里改 render_bogie()：
-        #   glColor4f(0.0, 0.8, 0.0, 0.3)   # 绿色 + alpha=0.3
-        # 这里可以直接调用:
+        # 转向架
         self.train_models.draw_box(T_f01, self.train_models.bogie_list, "bogie")
         self.train_models.draw_box(T_f02, self.train_models.bogie_list, "bogie")
 
-        # ============= 5) 最后绘制车体 (更低透明) =============
-        # 同理，在 render_car_body() 函数中设置 alpha=0.15, 颜色可改亮一些
+        # 车体
         self.train_models.draw_box(T_cb2G, self.train_models.car_body_list, "car_body")
 
-        # ============= 6) 恢复深度写入 + 关闭混合 =============
         glDepthMask(GL_TRUE)
         glDisable(GL_BLEND)
-    
 
     def display_info_text(self):
         glDisable(GL_LIGHTING)
@@ -772,21 +811,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-"""
-
-运行：
-
-# Windows 或者 MacOS
-    E:
-    cd E:\ResearchDocuments\ROS2WithSPCK\SPCK_Track
-    python TrkAbs_RTViz.py
-
-# Ubuntu
-    conda activate pypack
-    cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK/SPCK_Track
-    python TrkAbs_RTViz.py
-
-
-"""

@@ -4,12 +4,12 @@
 #include "TrainData.h"
 #include "MoveComponent_Wheelset.generated.h"
 
-// Ç°ÖÃÉùÃ÷
+// å‰ç½®å£°æ˜
 class AUDPReceiver;
 class UStaticMeshComponent;
 
 /**
- * ¸ºÔğ½ÓÊÕ²¢²åÖµ¸üĞÂ ÂÖ¶ÔµÄÊÀ½ç±ä»»£¬ÒÔ¼°×óÓÒ³µÂÖµÄĞı×ª
+ * è´Ÿè´£æ¥æ”¶å¹¶æ’å€¼æ›´æ–° è½®å¯¹çš„ä¸–ç•Œå˜æ¢ï¼Œä»¥åŠå·¦å³è½¦è½®çš„æ—‹è½¬
  */
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class VEHICLE4WDB_API UMoveComponent_Wheelset : public USceneComponent
@@ -22,73 +22,73 @@ protected:
 public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType,
         FActorComponentTickFunction* ThisTickFunction) override;
-    /** ÂÖ¶ÔµÄË÷Òı£¨0~3£©£¬ÓÃÀ´¾ö¶¨´Ó FTrainData ÖĞÈ¡ÄÄ×éÎ»ÖÃ¡¢Ğı×ª */
+    /** è½®å¯¹çš„ç´¢å¼•ï¼ˆ0~3ï¼‰ï¼Œç”¨æ¥å†³å®šä» FTrainData ä¸­å–å“ªç»„ä½ç½®ã€æ—‹è½¬ */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheelset")
     int32 WheelsetIndex;
-    /** ÊÇ·ñÊ¹ÓÃÊÀ½ç±ä»»£¨SetActorLocationAndRotation£© */
+    /** æ˜¯å¦ä½¿ç”¨ä¸–ç•Œå˜æ¢ï¼ˆSetActorLocationAndRotationï¼‰ */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheelset")
     bool bUseWorldTransform;
-    /** ²åÖµËÙ¶È */
+    /** æ’å€¼é€Ÿåº¦ */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheelset")
     float InterpSpeed;
-    /** ³µÂÖĞı×ªÆ½»¬ÏµÊı (0-5)£¬ÖµÔ½´óÆ½»¬Ğ§¹ûÔ½Ã÷ÏÔ */
+    /** è½¦è½®æ—‹è½¬å¹³æ»‘ç³»æ•° (0-5)ï¼Œå€¼è¶Šå¤§å¹³æ»‘æ•ˆæœè¶Šæ˜æ˜¾ */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheelset", meta = (ClampMin = "0.0", ClampMax = "5.0"))
     float WheelRotationSmoothFactor;
-    /** Ö¸Ïò UDPReceiver£¬»ñÈ¡×îĞÂ TrainData */
+    /** æŒ‡å‘ UDPReceiverï¼Œè·å–æœ€æ–° TrainData */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheelset")
     AUDPReceiver* UDPReceiverRef;
-    /** µ±Ç°²åÖµºóµÄÊÀ½çÎ»ÖÃ */
+    /** å½“å‰æ’å€¼åçš„ä¸–ç•Œä½ç½® */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Wheelset")
     FVector CurrentLocation;
-    /** µ±Ç°²åÖµºóµÄÊÀ½çĞı×ª */
+    /** å½“å‰æ’å€¼åçš„ä¸–ç•Œæ—‹è½¬ */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Wheelset")
     FRotator CurrentRotation;
     /**
-     * Ö¸Ïò±¾À¶Í¼ÖĞ£¨»ò±¾ActorÖĞ£©ÓÃÓÚÏÔÊ¾"×ó³µÂÖ"µÄStaticMeshComponent£¬
-     * ÒÔ±ãÔÚC++µÄTickÀïÖ±½Ó SetRelativeRotation¡£
+     * æŒ‡å‘æœ¬è“å›¾ä¸­ï¼ˆæˆ–æœ¬Actorä¸­ï¼‰ç”¨äºæ˜¾ç¤º"å·¦è½¦è½®"çš„StaticMeshComponentï¼Œ
+     * ä»¥ä¾¿åœ¨C++çš„Tické‡Œç›´æ¥ SetRelativeRotationã€‚
      */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheelset")
     UStaticMeshComponent* LeftWheelMesh;
     /**
-     * Ö¸Ïò±¾À¶Í¼ÖĞ£¨»ò±¾ActorÖĞ£©ÓÃÓÚÏÔÊ¾"ÓÒ³µÂÖ"µÄStaticMeshComponent£¬
-     * ÒÔ±ãÔÚC++µÄTickÀïÖ±½Ó SetRelativeRotation¡£
+     * æŒ‡å‘æœ¬è“å›¾ä¸­ï¼ˆæˆ–æœ¬Actorä¸­ï¼‰ç”¨äºæ˜¾ç¤º"å³è½¦è½®"çš„StaticMeshComponentï¼Œ
+     * ä»¥ä¾¿åœ¨C++çš„Tické‡Œç›´æ¥ SetRelativeRotationã€‚
      */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheelset")
     UStaticMeshComponent* RightWheelMesh;
     /**
-     * Í¨¹ıÉèÖÃĞÂµÄË÷ÒıÀ´±ä¸üÄ¬ÈÏ±ä»»µÈ
+     * é€šè¿‡è®¾ç½®æ–°çš„ç´¢å¼•æ¥å˜æ›´é»˜è®¤å˜æ¢ç­‰
      */
     UFUNCTION(BlueprintCallable, Category = "Wheelset")
     void SetWheelsetIndex(int32 NewIndex);
 protected:
-    /** ÓÃÀ´¼ÆËãÄ¬ÈÏÎ»ÖÃºÍĞı×ªµÄ¸¨Öúº¯Êı */
+    /** ç”¨æ¥è®¡ç®—é»˜è®¤ä½ç½®å’Œæ—‹è½¬çš„è¾…åŠ©å‡½æ•° */
     void SetupDefaultTransform();
 
-    /** Ä¬ÈÏ³õÊ¼ÊÀ½çÎ»ÖÃ£¨¸ù¾İWheelsetIndexµÃÀ´£© */
+    /** é»˜è®¤åˆå§‹ä¸–ç•Œä½ç½®ï¼ˆæ ¹æ®WheelsetIndexå¾—æ¥ï¼‰ */
     FVector DefaultLocation;
-    /** Ä¬ÈÏ³õÊ¼ÊÀ½çĞı×ª */
+    /** é»˜è®¤åˆå§‹ä¸–ç•Œæ—‹è½¬ */
     FRotator DefaultRotation;
-    /** ÊÇ·ñÒÑ¾­´ÓUDPÊÕµ½ÁËÓĞĞ§Êı¾İ */
+    /** æ˜¯å¦å·²ç»ä»UDPæ”¶åˆ°äº†æœ‰æ•ˆæ•°æ® */
     bool bInitialized;
-    /** ¶ÔÓ¦µÄ×óÂÖË÷Òı¡¢ÓÒÂÖË÷Òı£¨ÔÚTrainData.WheelsRotationÖĞµÄÏÂ±ê£© */
+    /** å¯¹åº”çš„å·¦è½®ç´¢å¼•ã€å³è½®ç´¢å¼•ï¼ˆåœ¨TrainData.WheelsRotationä¸­çš„ä¸‹æ ‡ï¼‰ */
     int32 LeftWheelIndex;
     int32 RightWheelIndex;
-    /** ¼ÇÂ¼À¶Í¼ÖĞ¸ø LeftWheelMesh / RightWheelMesh Éè¶¨µÄ³õÊ¼Ïà¶ÔĞı×ª£¬ÓÃÀ´ºÍÍâ²¿½Ç¶Èµş¼Ó */
+    /** è®°å½•è“å›¾ä¸­ç»™ LeftWheelMesh / RightWheelMesh è®¾å®šçš„åˆå§‹ç›¸å¯¹æ—‹è½¬ï¼Œç”¨æ¥å’Œå¤–éƒ¨è§’åº¦å åŠ  */
     FRotator InitialLeftWheelRot;
     FRotator InitialRightWheelRot;
 
-    /** ×óÓÒ³µÂÖµ±Ç°ÀÛ»ıĞı×ª½Ç¶È£¨¶È£© */
+    /** å·¦å³è½¦è½®å½“å‰ç´¯ç§¯æ—‹è½¬è§’åº¦ï¼ˆåº¦ï¼‰ */
     float AccumLeftWheelRotation;
     float AccumRightWheelRotation;
 
-    /** ×óÓÒ³µÂÖµ±Ç°Ğı×ªËÙ¶È£¨¶È/Ãë£© */
+    /** å·¦å³è½¦è½®å½“å‰æ—‹è½¬é€Ÿåº¦ï¼ˆåº¦/ç§’ï¼‰ */
     float LeftWheelRotSpeed;
     float RightWheelRotSpeed;
 
-    /** Ä¿±êĞı×ªËÙ¶È£¨Æ½»¬¹ı¶ÉÓÃ£© */
+    /** ç›®æ ‡æ—‹è½¬é€Ÿåº¦ï¼ˆå¹³æ»‘è¿‡æ¸¡ç”¨ï¼‰ */
     float TargetLeftWheelRotSpeed;
     float TargetRightWheelRotSpeed;
 
-    /** »¡¶Èµ½½Ç¶ÈµÄ×ª»»³£Á¿ */
+    /** å¼§åº¦åˆ°è§’åº¦çš„è½¬æ¢å¸¸é‡ */
     static constexpr float RadToDeg = 57.2957795f;
 };
