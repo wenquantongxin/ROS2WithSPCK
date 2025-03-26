@@ -15,6 +15,12 @@ log/
 install/
 备份/
 PostAnalysis/rosbag2_*/
+路网GIS数据集/
+beijing-latest-free.shp/
+guangdong-latest-free.shp/
+shaanxi-latest-free.shp/
+shanghai-latest-free.shp/
+sichuan-latest-free.shp/
 
 # 数据文件
 *.mat
@@ -62,6 +68,14 @@ PostAnalysis/rosbag2_*/
 
 # 日志文件
 *.log
+
+# GIS相关
+*.cpg
+*.dbf
+*.lock
+*.prj
+*.shp
+*.shx
 
 # IDE 相关
 .idea/
