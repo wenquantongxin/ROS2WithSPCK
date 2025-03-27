@@ -36,6 +36,7 @@ sichuan-latest-free.shp/
 
 # 几何模型文件
 *.STL
+*.SLDPRT
 
 # 文档和表格
 *.csv
