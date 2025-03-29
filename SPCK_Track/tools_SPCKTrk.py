@@ -1,6 +1,7 @@
 # tools_SPCKTrk.py
 
 import numpy as np
+import pandas as pd
 
 def bloss_kappa_raw(srel, Lseg, R1, R2):
     """
@@ -56,7 +57,6 @@ def bloss_u_2deriv_raw(srel, Lseg, u1, u2):
     """
     x = srel / Lseg
     return (u2 - u1)*(6 -12*x) / (Lseg**2)
-
 
 def kappa_raw_formula(stype, Lseg, srel, params):
     """
@@ -303,7 +303,6 @@ def eval_piecewise(s, pieces, segments, raw_func):
     # 理论上不应到这里
     return 0.0
 
-
 def generate_trajectory(h_segments, u_segments, L_smo, b_ref, ds):
     """
     生成轨道3D坐标和左右股钢轨，同时**返回**可调用的Kappa(s)和U(s)。
@@ -444,7 +443,6 @@ def generate_trajectory(h_segments, u_segments, L_smo, b_ref, ds):
     # 返回 (trajectory_data, Kappa, U)
     return trajectory_data, Kappa, U
 
-
 # 从SIMPACK文件读取轨道数据的函数
 def read_track_data(filename):
     # 用于存储数据的列表
@@ -483,3 +481,77 @@ def read_track_data(filename):
         return np.array([]), np.array([])
     
     return np.array(splined_track_x), np.array(splined_track_y)
+
+# 从Excel文件中读取轨道分段信息，并构建水平段和超高段列表
+def read_track_segments(file_path, sheet_name="自定义线路"):
+    """
+    从Excel文件中读取轨道分段信息，并构建水平段和超高段列表。
+    
+    参数:
+    file_path (str): Excel文件路径
+    sheet_name (str): 工作表名称，默认为"自定义线路"
+    
+    返回:
+    tuple: (h_segments, u_segments) - 水平段和超高段列表
+    """
+    # 读取Excel文件
+    try:
+        df = pd.read_excel(file_path, sheet_name=sheet_name)
+    except Exception as e:
+        print(f"读取Excel文件时出错: {e}")
+        return [], []
+    
+    # 初始化列表
+    h_segments = []
+    u_segments = []
+    
+    # 遍历每一行
+    for idx, row in df.iterrows():
+        try:
+            # 处理水平段
+            h_type = row['平面线路类型']
+            
+            if pd.isna(h_type):
+                continue  # 跳过空行
+            
+            h_type = str(h_type).strip().upper()  # 标准化类型名称
+            
+            if h_type == 'STR':
+                # STR只需要一个参数
+                if not pd.isna(row['Par1']):
+                    h_segments.append((h_type, float(row['Par1'])))
+            elif h_type == 'BLO':
+                # BLO需要三个参数
+                if not pd.isna(row['Par1']) and not pd.isna(row['Par2']) and not pd.isna(row['Par3']):
+                    h_segments.append((h_type, float(row['Par1']), float(row['Par2']), float(row['Par3'])))
+            elif h_type == 'CIR':
+                # CIR需要两个参数
+                if not pd.isna(row['Par1']) and not pd.isna(row['Par2']):
+                    h_segments.append((h_type, float(row['Par1']), float(row['Par2'])))
+            
+            # 处理超高段
+            u_type = row['超高线路类型']
+            
+            if pd.isna(u_type):
+                continue  # 跳过空行
+                
+            u_type = str(u_type).strip().upper()  # 标准化类型名称
+            
+            if u_type == 'CST':
+                # CST需要两个参数
+                if not pd.isna(row['H_Par1']) and not pd.isna(row['H_Par2']):
+                    # H_Par1是长度，H_Par2是超高值
+                    u_segments.append((u_type, float(row['H_Par1']), float(row['H_Par2'])))
+            elif u_type == 'BLO':
+                # BLO需要三个参数
+                if not pd.isna(row['H_Par1']) and not pd.isna(row['H_Par2']) and not pd.isna(row['H_Par3']):
+                    # H_Par1是长度
+                    # H_Par2和H_Par3是超高值
+                    u_segments.append((u_type, float(row['H_Par1']), 
+                                      float(row['H_Par2']), 
+                                      float(row['H_Par3'])))
+        
+        except Exception as e:
+            print(f"处理第 {idx+2} 行时出错: {e}")
+    
+    return h_segments, u_segments
