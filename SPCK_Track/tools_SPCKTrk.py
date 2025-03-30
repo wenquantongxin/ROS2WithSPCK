@@ -443,6 +443,146 @@ def generate_trajectory(h_segments, u_segments, L_smo, b_ref, ds):
     # 返回 (trajectory_data, Kappa, U)
     return trajectory_data, Kappa, U
 
+def generate_trajectory_withVertical(h_segments, u_segments, v_segments, 
+                                     L_smo, b_ref, ds, z0=0.0):
+    """
+    在已有的 generate_trajectory 基础上，增加对“竖曲线段” v_segments 的处理。
+    """
+
+    # =========== A) 先构建水平曲率的 piecewise ============
+    h_s_bounds = build_s_bounds(h_segments)
+    h_pieces = build_piecewise_function(
+        h_segments, 
+        h_s_bounds,
+        raw_func=kappa_raw_formula, 
+        L_smo=L_smo
+    )
+    def Kappa(s):
+        return eval_piecewise(s, h_pieces, h_segments, kappa_raw_formula)
+
+    # =========== B) 先构建超高的 piecewise ============
+    u_s_bounds = build_s_bounds(u_segments)
+    u_pieces = build_piecewise_function(
+        u_segments,
+        u_s_bounds,
+        raw_func=u_raw_formula,
+        L_smo=L_smo
+    )
+    def U(s):
+        return eval_piecewise(s, u_pieces, u_segments, u_raw_formula)
+
+    # =========== C) 构建竖向坡度的 no-smoothing piecewise ============
+    v_pieces, v_s_bounds = build_vertical_pieces_no_smoothing(v_segments)
+    def Slope(s):
+        return eval_piecewise_vertical(s, v_pieces, v_segments)
+
+    # =========== D) 数值积分 x,y,z, psi, phi ============
+    s_end = h_s_bounds[-1]  # 假设水平段的总长==竖向段的总长
+    s_vals = np.arange(0, s_end+ds*0.1, ds)
+
+    # 初值
+    xvals = [0.0]
+    yvals = [0.0]
+    zvals = [z0]   # 允许一个 z0 起始高度
+    psi   = 0.0
+    psi_vals = [psi]
+
+    curr_z = z0
+
+    for i in range(1, len(s_vals)):
+        sA  = s_vals[i-1]
+        sB  = s_vals[i]
+        sM  = 0.5*(sA + sB)
+        ds_ = (sB - sA)
+
+        # 1) 航向角
+        kM       = Kappa(sM)
+        psi_new  = psi + kM*ds_
+
+        # 2) x,y 积分(中点法)
+        x_new = xvals[-1] + ds_ * np.cos(psi + 0.5*kM*ds_)
+        y_new = yvals[-1] + ds_ * np.sin(psi + 0.5*kM*ds_)
+
+        # 3) z 积分(中点法)
+        pM = Slope(sM)
+        z_new = curr_z + pM*ds_
+
+        # 更新
+        xvals.append(x_new)
+        yvals.append(y_new)
+        zvals.append(z_new)
+        psi_vals.append(psi_new)
+
+        psi = psi_new
+        curr_z = z_new
+
+    xvals = np.array(xvals)
+    yvals = np.array(yvals)
+    zvals = np.array(zvals)
+    psi_vals = np.array(psi_vals)
+
+    # 4) 计算滚转角 phi = arcsin(u/b_ref)
+    phi_vals = []
+    for s_ in s_vals:
+        u_ = U(s_)
+        phi_ = np.arcsin(u_ / b_ref)
+        phi_vals.append(phi_)
+    phi_vals = np.array(phi_vals)
+
+    # 5) 计算左右股钢轨坐标
+    left_rail = []
+    right_rail = []
+    for i in range(len(s_vals)):
+        xC = xvals[i]
+        yC = yvals[i]
+        zC = zvals[i]
+
+        if i == 0:
+            psi_ = psi_vals[0]
+        else:
+            # 也可以直接 psi_ = psi_vals[i]
+            psi_ = np.arctan2(yvals[i]-yvals[i-1],
+                              xvals[i]-xvals[i-1])
+        phi_ = phi_vals[i]
+
+        half_b = 0.5 * b_ref
+        z_shift = half_b * np.sin(phi_)
+
+        # 左股
+        dxL =  half_b * (-np.sin(psi_))
+        dyL =  half_b * ( np.cos(psi_))
+        xL  =  xC + dxL
+        yL  =  yC + dyL
+        zL  =  zC + z_shift
+
+        # 右股
+        dxR = -half_b * (-np.sin(psi_))
+        dyR = -half_b * ( np.cos(psi_))
+        xR  =  xC + dxR
+        yR  =  yC + dyR
+        zR  =  zC - z_shift
+
+        left_rail.append((xL, yL, zL))
+        right_rail.append((xR, yR, zR))
+
+    left_rail  = np.array(left_rail)
+    right_rail = np.array(right_rail)
+
+    # 6) 封装输出
+    trajectory_data = {
+        's': s_vals.tolist(),
+        'x': xvals.tolist(),
+        'y': yvals.tolist(),
+        'z': zvals.tolist(),
+        'psi': psi_vals.tolist(),
+        'phi': phi_vals.tolist(),
+        'left_rail': left_rail.tolist(),
+        'right_rail': right_rail.tolist()
+    }
+
+    # 返回 (trajectory_data, Kappa, U, Slope)
+    return trajectory_data, Kappa, U, Slope
+
 # 从SIMPACK文件读取轨道数据的函数
 def read_track_data(filename):
     # 用于存储数据的列表
@@ -482,76 +622,279 @@ def read_track_data(filename):
     
     return np.array(splined_track_x), np.array(splined_track_y)
 
-# 从Excel文件中读取轨道分段信息，并构建水平段和超高段列表
+def vert_slope_raw_formula(vtype, Lseg, srel, params):
+    """
+    给定分段类型 vtype ('CSL'/'PL2')，
+    在该分段局部里程 srel 处，返回:
+      p(s)   = 坡度,
+      p'(s)  = d(p)/ds,
+      p''(s) = d^2(p)/ds^2.
+    """
+    if vtype == 'CSL':
+        # params = (p,)
+        p_ = params[0]
+        return (p_, 0.0, 0.0)
+
+    elif vtype == 'PL2':
+        # params = (p1, p2)
+        p1, p2 = params
+        x  = srel / Lseg
+        p_   = p1 + (p2 - p1)*x
+        dp_  = (p2 - p1)/Lseg
+        ddp_ = 0.0  # 二阶导数为0
+        return (p_, dp_, ddp_)
+
+    else:
+        # 其他类型(本示例不处理)
+        return (0.0, 0.0, 0.0)
+
+# 从Excel文件中读取轨道分段信息，并构建水平段、超高段、竖向坡度段列表
+# 在此处将竖曲线曲率正负翻转，以匹配 SIMPACK 坐标
 def read_track_segments(file_path, sheet_name="自定义线路"):
     """
-    从Excel文件中读取轨道分段信息，并构建水平段和超高段列表。
-    
-    参数:
-    file_path (str): Excel文件路径
-    sheet_name (str): 工作表名称，默认为"自定义线路"
-    
-    返回:
-    tuple: (h_segments, u_segments) - 水平段和超高段列表
+    从Excel文件中读取轨道分段信息，并构建水平段、超高段、竖向坡度段列表。
+    返回: (h_segments, u_segments, v_segments)
     """
     # 读取Excel文件
     try:
         df = pd.read_excel(file_path, sheet_name=sheet_name)
     except Exception as e:
         print(f"读取Excel文件时出错: {e}")
-        return [], []
+        return [], [], []
     
-    # 初始化列表
     h_segments = []
     u_segments = []
-    
-    # 遍历每一行
+    v_segments = []
+
     for idx, row in df.iterrows():
         try:
-            # 处理水平段
+            # ================== 1) 处理水平 h_segments ==================
             h_type = row['平面线路类型']
-            
             if pd.isna(h_type):
-                continue  # 跳过空行
-            
-            h_type = str(h_type).strip().upper()  # 标准化类型名称
-            
-            if h_type == 'STR':
-                # STR只需要一个参数
-                if not pd.isna(row['Par1']):
-                    h_segments.append((h_type, float(row['Par1'])))
-            elif h_type == 'BLO':
-                # BLO需要三个参数
-                if not pd.isna(row['Par1']) and not pd.isna(row['Par2']) and not pd.isna(row['Par3']):
-                    h_segments.append((h_type, float(row['Par1']), float(row['Par2']), float(row['Par3'])))
-            elif h_type == 'CIR':
-                # CIR需要两个参数
-                if not pd.isna(row['Par1']) and not pd.isna(row['Par2']):
-                    h_segments.append((h_type, float(row['Par1']), float(row['Par2'])))
-            
-            # 处理超高段
+                pass
+            else:
+                h_type = str(h_type).strip().upper()
+                if h_type == 'STR':
+                    # STR 需要1个参数(长度)
+                    if not pd.isna(row['Par1']):
+                        h_segments.append((h_type, float(row['Par1'])))
+                elif h_type == 'BLO':
+                    # BLO 需要3个参数(长度, R1, R2) => Par1, Par2, Par3
+                    if (not pd.isna(row['Par1']) and 
+                        not pd.isna(row['Par2']) and 
+                        not pd.isna(row['Par3'])):
+                        h_segments.append((h_type, 
+                                          float(row['Par1']), 
+                                          float(row['Par2']), 
+                                          float(row['Par3'])))
+                elif h_type == 'CIR':
+                    # CIR 需要2个参数(长度, R)
+                    if (not pd.isna(row['Par1']) and 
+                        not pd.isna(row['Par2'])):
+                        h_segments.append((h_type, 
+                                          float(row['Par1']), 
+                                          float(row['Par2'])))
+
+            # ================== 2) 处理超高 u_segments ==================
             u_type = row['超高线路类型']
-            
             if pd.isna(u_type):
-                continue  # 跳过空行
-                
-            u_type = str(u_type).strip().upper()  # 标准化类型名称
-            
-            if u_type == 'CST':
-                # CST需要两个参数
-                if not pd.isna(row['H_Par1']) and not pd.isna(row['H_Par2']):
-                    # H_Par1是长度，H_Par2是超高值
-                    u_segments.append((u_type, float(row['H_Par1']), float(row['H_Par2'])))
-            elif u_type == 'BLO':
-                # BLO需要三个参数
-                if not pd.isna(row['H_Par1']) and not pd.isna(row['H_Par2']) and not pd.isna(row['H_Par3']):
-                    # H_Par1是长度
-                    # H_Par2和H_Par3是超高值
-                    u_segments.append((u_type, float(row['H_Par1']), 
-                                      float(row['H_Par2']), 
-                                      float(row['H_Par3'])))
-        
+                pass
+            else:
+                u_type = str(u_type).strip().upper()
+                if u_type == 'CST':
+                    # CST 需要2个参数(H_Par1长度, H_Par2超高)
+                    if not pd.isna(row['H_Par1']) and not pd.isna(row['H_Par2']):
+                        u_segments.append((u_type,
+                                           float(row['H_Par1']),
+                                           float(row['H_Par2'])))
+                elif u_type == 'BLO':
+                    # BLO 需要3个参数(H_Par1长度, H_Par2, H_Par3)
+                    if (not pd.isna(row['H_Par1']) and 
+                        not pd.isna(row['H_Par2']) and 
+                        not pd.isna(row['H_Par3'])):
+                        u_segments.append((u_type,
+                                           float(row['H_Par1']),
+                                           float(row['H_Par2']),
+                                           float(row['H_Par3'])))
+
+            # ================== 3) 处理竖向 v_segments ==================
+            v_type = row['竖曲线类型']
+            if pd.isna(v_type):
+                pass
+            else:
+                v_type = str(v_type).strip().upper()  # 'CSL' or 'PL2'
+                # 长度 Z_Par1
+                Zp1 = row['Z_Par1'] if not pd.isna(row['Z_Par1']) else 0.0
+                Zp2 = row['Z_Par2'] if not pd.isna(row['Z_Par2']) else 0.0
+                Zp3 = row['Z_Par3'] if not pd.isna(row['Z_Par3']) else 0.0
+
+                if v_type == 'CSL':
+                    # 只需要 (length=Zp1, slope=Zp2)
+                    # 如果您在表格中是 "Z_Par1 = 段长, Z_Par2 = 斜率" 的形式
+                    L_  = float(Zp1)
+                    p_  = -float(Zp2)   # 改为取负 p_  = float(Zp2)
+                    v_segments.append((v_type, L_, p_))
+                elif v_type == 'PL2':
+                    # 需要 (length=Zp1, p1=Zp2, p2=Zp3)
+                    L_   = float(Zp1)
+                    p1_  = -float(Zp2)   # 改为取负 p1_  = float(Zp2)
+                    p2_  = -float(Zp3)   # 改为取负 p2_  = float(Zp3)
+                    v_segments.append((v_type, L_, p1_, p2_))
+
         except Exception as e:
             print(f"处理第 {idx+2} 行时出错: {e}")
     
-    return h_segments, u_segments
+    return h_segments, u_segments, v_segments
+
+def build_vertical_pieces_no_smoothing(v_segments):
+    """
+    不做五次多项式衔接，直接按段划分。
+    返回一个 pieces 列表，每段只含 'type':'raw', 'seg_id':i, 's_min','s_max'。
+    """
+    s_bounds = build_s_bounds(v_segments)
+    pieces = []
+    for i in range(len(v_segments)):
+        s0 = s_bounds[i]
+        s1 = s_bounds[i+1]
+        pieces.append({
+            's_min': s0,
+            's_max': s1,
+            'type': 'raw',
+            'seg_id': i
+        })
+    return pieces, s_bounds
+
+def eval_piecewise_vertical(s, pieces, v_segments):
+    """
+    在给定的 pieces 范围内，对任意 s 计算坡度p(s) (只返回0阶值)。
+    不做段与段之间的平滑过渡，段交界直接跳变。
+    """
+    if s < 0:
+        return 0.0
+    s_max_all = max(p['s_max'] for p in pieces)
+    if s > s_max_all:
+        return 0.0
+
+    for p in pieces:
+        if p['s_min'] <= s <= p['s_max']:
+            i_seg = p['seg_id']
+            seg_start = sum(seg[1] for seg in v_segments[:i_seg])  # 该段起点全局S
+            Lseg      = v_segments[i_seg][1]
+            vtype     = v_segments[i_seg][0]
+            params    = v_segments[i_seg][2:]
+            srel      = s - seg_start
+            if srel < 0:
+                srel = 0
+            if srel > Lseg:
+                srel = Lseg
+            
+            # 调用 vert_slope_raw_formula
+            val3 = vert_slope_raw_formula(vtype, Lseg, srel, params)
+            return val3[0]  # 只返回 p(s)
+    
+    return 0.0
+
+def read_track_Zs_data(filename):
+    """
+    从 SIMPACK 导出的竖曲线文本文件(如 'TrkZs_sides_VirtualLine.txt') 中，
+    读取中心线、左右钢轨的 (s,z) 数据。文件格式示例：
+    
+    "Layout"
+    "z(s)"
+    "spline (center)_x","spline (center)_y","_x","_y","spline (right)_x","spline (right)_y","_x","_y","spline (left)_x","spline (left)_y","_x","_y"
+    "[]","[]","[]","[]","[]","[]","[]","[]","[]","[]","[]","[]"
+    0,0,0,-0,0,0,0,0,0,0,0,-0
+    0.330502,0,0.998328,-0,0.330502,6.0392e-178,0.998328,0,0.330502,-6.0392e-178,0.998328,-0
+    ...
+    
+    其中我们只关心12列中的这几列：
+      col0 => spline(center)_x 作为 center_s
+      col1 => spline(center)_y 作为 center_z
+      col4 => spline(right)_x  作为 right_s
+      col5 => spline(right)_y  作为 right_z
+      col8 => spline(left)_x   作为 left_s
+      col9 => spline(left)_y   作为 left_z
+    
+    返回:
+      (center_s, center_z, right_s, right_z, left_s, left_z),
+      均为 np.array 类型。
+    """
+
+    center_s = []
+    center_z = []
+    right_s  = []
+    right_z  = []
+    left_s   = []
+    left_z   = []
+
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except Exception as e:
+        print(f"读取文件失败: {e}")
+        # 返回空数组
+        return (np.array([]), np.array([]), 
+                np.array([]), np.array([]),
+                np.array([]), np.array([]))
+
+    if len(lines) < 5:
+        # 至少需要跳过4行 header
+        print("文件行数太少，无法解析。")
+        return (np.array([]), np.array([]), 
+                np.array([]), np.array([]),
+                np.array([]), np.array([]))
+
+    # 跳过前4行(示例中包含 "Layout", "z(s)", 表头行, 以及全是 "[]" 的行)
+    data_lines = lines[4:]  # 从第5行开始都是数值
+
+    for line_idx, line in enumerate(data_lines, start=5):
+        # 去掉首尾空白
+        line = line.strip()
+        if not line:
+            # 空行，跳过
+            continue
+
+        parts = line.split(',')
+        # 理论上应有12列
+        if len(parts) < 12:
+            # 行内列数不够，跳过
+            continue
+
+        # 试着解析我们关心的那几列：
+        try:
+            # 0,1 => center s,z
+            s_c  = float(parts[0]) if parts[0].strip() else 0.0
+            z_c  = float(parts[1]) if parts[1].strip() else 0.0
+            # 4,5 => right s,z
+            s_r  = float(parts[4]) if parts[4].strip() else 0.0
+            z_r  = float(parts[5]) if parts[5].strip() else 0.0
+            # 8,9 => left s,z
+            s_l  = float(parts[8]) if parts[8].strip() else 0.0
+            z_l  = float(parts[9]) if parts[9].strip() else 0.0
+
+            # 检查极小数值(近似0)可视需求处理，这里简单保留或强制设为0.0也可
+            # if abs(z_c) < 1e-100: z_c = 0.0
+            # ...
+
+            center_s.append(s_c)
+            center_z.append(z_c)
+            right_s.append(s_r)
+            right_z.append(z_r)
+            left_s.append(s_l)
+            left_z.append(z_l)
+
+        except ValueError:
+            # 某列无法解析为浮点数，跳过
+            continue
+
+    # 转成 numpy 数组返回
+    return (np.array(center_s), np.array(center_z),
+            np.array(right_s),  np.array(right_z),
+            np.array(left_s),   np.array(left_z))
+
+
+
+
+
+
+

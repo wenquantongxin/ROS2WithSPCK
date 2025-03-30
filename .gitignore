@@ -33,6 +33,7 @@ sichuan-latest-free.shp/
 *.log
 *.mp4
 *.json
+*.geojson
 
 # 几何模型文件
 *.STL
