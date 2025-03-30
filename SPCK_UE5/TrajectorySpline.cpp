@@ -7,33 +7,33 @@
 #include "Serialization/JsonSerializer.h"
 #include "Components/SplineMeshComponent.h"
 
-static constexpr float RadToDeg = 57.2957795f; // å¼§åº¦â†’åº¦
-static constexpr float DistanceScale = 100.f;       // ç±³â†’å˜ç±³ï¼š1m = 100cm
+static constexpr float RadToDeg = 57.2957795f; // »¡¶È¡ú¶È
+static constexpr float DistanceScale = 100.f;       // Ã×¡úÀåÃ×£º1m = 100cm
 
 ATrajectorySpline::ATrajectorySpline()
 {
     PrimaryActorTick.bCanEverTick = false;
 
-    // åˆ›å»ºæ ¹ç»„ä»¶
+    // ´´½¨¸ù×é¼ş
     RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
-    // ä¸­å¿ƒçº¿
+    // ÖĞĞÄÏß
     TrajectorySpline = CreateDefaultSubobject<USplineComponent>(TEXT("TrajectorySpline"));
     TrajectorySpline->SetupAttachment(RootComponent);
 
-    // å·¦è½¨
+    // ×ó¹ì
     LeftRailSpline = CreateDefaultSubobject<USplineComponent>(TEXT("LeftRailSpline"));
     LeftRailSpline->SetupAttachment(RootComponent);
 
-    // å³è½¨
+    // ÓÒ¹ì
     RightRailSpline = CreateDefaultSubobject<USplineComponent>(TEXT("RightRailSpline"));
     RightRailSpline->SetupAttachment(RootComponent);
 
-    // é»˜è®¤å‚æ•°
+    // Ä¬ÈÏ²ÎÊı
     CurrentTrackMesh = nullptr;
     MeshScaleFactor = 1.0f;
-    RailBaseCantDeg = 1.432f; // å¤§çº¦ 1:40 è½¨åº•å¡
-    DeltaHalfGaugeCm = 0.f;    // è½¨è·å¾®è°ƒ
+    RailBaseCantDeg = 1.432f; // ´óÔ¼ 1:40 ¹ìµ×ÆÂ
+    DeltaHalfGaugeCm = 0.f;    // ¹ì¾àÎ¢µ÷
     bRenderCenterLine = true;
     bUseSlopeForSplineTangent = false;
 }
@@ -60,7 +60,7 @@ bool ATrajectorySpline::LoadTrajectoryFromJSON(const FString& FilePath)
         return false;
     }
 
-    // æ¸…ç©ºæ—§æ•°æ®
+    // Çå¿Õ¾ÉÊı¾İ
     SValues.Empty();
     XValues.Empty();
     YValues.Empty();
@@ -71,14 +71,14 @@ bool ATrajectorySpline::LoadTrajectoryFromJSON(const FString& FilePath)
     LeftRailPoints.Empty();
     RightRailPoints.Empty();
 
-    // ä» JSON è¯»å–æ•°ç»„
+    // ´Ó JSON ¶ÁÈ¡Êı×é
     const TArray<TSharedPtr<FJsonValue>>* SArray = nullptr;
     const TArray<TSharedPtr<FJsonValue>>* XArray = nullptr;
     const TArray<TSharedPtr<FJsonValue>>* YArray = nullptr;
     const TArray<TSharedPtr<FJsonValue>>* ZArray = nullptr;
     const TArray<TSharedPtr<FJsonValue>>* PsiArray = nullptr;
     const TArray<TSharedPtr<FJsonValue>>* PhiArray = nullptr;
-    const TArray<TSharedPtr<FJsonValue>>* SlopeArr = nullptr; // slope å¯èƒ½å­˜åœ¨
+    const TArray<TSharedPtr<FJsonValue>>* SlopeArr = nullptr; // slope ¿ÉÄÜ´æÔÚ
 
     bool bOk = (
         JsonObject->TryGetArrayField(TEXT("s"), SArray) &&
@@ -94,7 +94,7 @@ bool ATrajectorySpline::LoadTrajectoryFromJSON(const FString& FilePath)
         return false;
     }
 
-    // slope å­—æ®µè‹¥å­˜åœ¨åˆ™è¯»å–
+    // slope ×Ö¶ÎÈô´æÔÚÔò¶ÁÈ¡
     if (JsonObject->TryGetArrayField(TEXT("slope"), SlopeArr))
     {
         UE_LOG(LogTemp, Log, TEXT("Detected slope array in JSON, will read it."));
@@ -107,10 +107,10 @@ bool ATrajectorySpline::LoadTrajectoryFromJSON(const FString& FilePath)
     NumPoints = FMath::Min(NumPoints, PsiArray->Num());
     NumPoints = FMath::Min(NumPoints, PhiArray->Num());
 
-    // è‹¥ slope å­˜åœ¨ï¼Œåˆ™ç‚¹æ•°ä¹Ÿè¦ä¿è¯ä¸€è‡´
+    // Èô slope ´æÔÚ£¬ÔòµãÊıÒ²Òª±£Ö¤Ò»ÖÂ
     if (SlopeArr && SlopeArr->Num() < NumPoints)
     {
-        // å¦‚æœ slope ç‚¹æ•°æ¯”å…¶å®ƒå°‘ï¼Œåˆ™ä»¥ slopeArr->Num() ä¸ºå‡†
+        // Èç¹û slope µãÊı±ÈÆäËüÉÙ£¬ÔòÒÔ slopeArr->Num() Îª×¼
         NumPoints = FMath::Min(NumPoints, SlopeArr->Num());
     }
 
@@ -121,16 +121,16 @@ bool ATrajectorySpline::LoadTrajectoryFromJSON(const FString& FilePath)
     }
 
     // ===================
-    // 1) é€ç‚¹è¯»å‡º SIMPACK åæ ‡ & å§¿æ€
-    // 2) åšåæ ‡ç³»ç¿»è½¬: (X, Y, Z)UE = ( X, Y, -Z )SIM
-    // 3) åšèˆªå‘è§’(psi)ç¬¦å·ç¿»è½¬: psiUE = -psiSIM
-    // 4) æ¨ªæ»šè§’(phi)å¯è§†éœ€æ±‚å†³å®šå–æ­£æˆ–å–è´Ÿï¼›æœ¬ç¤ºä¾‹ä¿ç•™phiUE = phiSIM
-    // 5) slope è‹¥æœ‰ï¼Œåˆ™ slopeUE = -slopeSIM ï¼ˆå› ä¸º Z è½´ç¿»è½¬ï¼‰
-    // 6) å•ä½ m->cm
+    // 1) Öğµã¶Á³ö SIMPACK ×ø±ê & ×ËÌ¬
+    // 2) ×ö×ø±êÏµ·­×ª: (X, Y, Z)UE = ( X, Y, -Z )SIM
+    // 3) ×öº½Ïò½Ç(psi)·ûºÅ·­×ª: psiUE = -psiSIM
+    // 4) ºá¹ö½Ç(phi)¿ÉÊÓĞèÇó¾ö¶¨È¡Õı»òÈ¡¸º£»±¾Ê¾Àı±£ÁôphiUE = phiSIM
+    // 5) slope ÈôÓĞ£¬Ôò slopeUE = -slopeSIM £¨ÒòÎª Z Öá·­×ª£©
+    // 6) µ¥Î» m->cm
     // ===================
     for (int32 i = 0; i < NumPoints; i++)
     {
-        float sVal_m = (*SArray)[i]->AsNumber(); // é‡Œç¨‹(ç±³)
+        float sVal_m = (*SArray)[i]->AsNumber(); // Àï³Ì(Ã×)
         float xVal_m = (*XArray)[i]->AsNumber();
         float yVal_m = (*YArray)[i]->AsNumber();
         float zVal_m = (*ZArray)[i]->AsNumber();
@@ -143,17 +143,17 @@ bool ATrajectorySpline::LoadTrajectoryFromJSON(const FString& FilePath)
             slopeSim = (*SlopeArr)[i]->AsNumber();
         }
 
-        // è½¬åˆ° UE5 åæ ‡ç³»
-        float xUE_cm = xVal_m * DistanceScale; // X ä¸å˜
-        float yUE_cm = yVal_m * DistanceScale; // Y ä¸å˜
-        float zUE_cm = -zVal_m * DistanceScale; // ç¿»è½¬ Z
+        // ×ªµ½ UE5 ×ø±êÏµ
+        float xUE_cm = xVal_m * DistanceScale; // X ²»±ä
+        float yUE_cm = yVal_m * DistanceScale; // Y ²»±ä
+        float zUE_cm = -zVal_m * DistanceScale; // ·­×ª Z
 
-        float psiUE = -psiSim;  // èˆªå‘è§’ç¿»è½¬
-        float phiUE = phiSim;  // å¯æ”¹ä¸º -phiSim, è§†å¤–è½¨/å†…è½¨éœ€æ±‚
-        float slopeUE = -slopeSim; // ç«–å‘å¡åº¦ç¿»è½¬
+        float psiUE = -psiSim;  // º½Ïò½Ç·­×ª
+        float phiUE = phiSim;  // ¿É¸ÄÎª -phiSim, ÊÓÍâ¹ì/ÄÚ¹ìĞèÇó
+        float slopeUE = -slopeSim; // ÊúÏòÆÂ¶È·­×ª
 
-        // å†™å…¥å±æ€§æ•°ç»„
-        SValues.Add(sVal_m * DistanceScale);   // é‡Œç¨‹(ä»…æ”¾å¤§ï¼Œç¿»è½¬æ— æ„ä¹‰)
+        // Ğ´ÈëÊôĞÔÊı×é
+        SValues.Add(sVal_m * DistanceScale);   // Àï³Ì(½ö·Å´ó£¬·­×ªÎŞÒâÒå)
         XValues.Add(xUE_cm);
         YValues.Add(yUE_cm);
         ZValues.Add(zUE_cm);
@@ -162,10 +162,10 @@ bool ATrajectorySpline::LoadTrajectoryFromJSON(const FString& FilePath)
         SlopeValues.Add(slopeUE);
     }
 
-    // è®¡ç®—å·¦å³è½¨åæ ‡
+    // ¼ÆËã×óÓÒ¹ì×ø±ê
     ComputeRailCoordsFromCenterLine();
 
-    // æ›´æ–°ä¸­å¿ƒçº¿ Spline
+    // ¸üĞÂÖĞĞÄÏß Spline
     TrajectorySpline->ClearSplinePoints(false);
 
     const int32 NumPointsFinal = XValues.Num();
@@ -175,32 +175,32 @@ bool ATrajectorySpline::LoadTrajectoryFromJSON(const FString& FilePath)
         TrajectorySpline->AddSplinePoint(Loc, ESplineCoordinateSpace::World, false);
     }
 
-    // è‹¥éœ€è¦è®¾ç½®æ¯ä¸ªç‚¹çš„åˆ‡çº¿/å§¿æ€ï¼Œå¯åœ¨è¿™é‡Œå¤„ç†
-    // è¿™éœ€è¦ yaw+pitch+roll çš„ç»„åˆï¼›æ­¤å¤„ yaw = psiUE, roll = phiUE, pitch = arctan(slopeUE)?
-    // UE4/5 ä¸­è‹¥è¦ç»™ SplinePoint è®¾ç½®â€œå±€éƒ¨æ—‹è½¬â€ï¼Œå¯å‚è€ƒä¸‹åˆ—ç®€åŒ–ï¼š
+    // ÈôĞèÒªÉèÖÃÃ¿¸öµãµÄÇĞÏß/×ËÌ¬£¬¿ÉÔÚÕâÀï´¦Àí
+    // ÕâĞèÒª yaw+pitch+roll µÄ×éºÏ£»´Ë´¦ yaw = psiUE, roll = phiUE, pitch = arctan(slopeUE)?
+    // UE4/5 ÖĞÈôÒª¸ø SplinePoint ÉèÖÃ¡°¾Ö²¿Ğı×ª¡±£¬¿É²Î¿¼ÏÂÁĞ¼ò»¯£º
     for (int32 i = 0; i < NumPointsFinal; i++)
     {
         float psi = (i < PsiValues.Num()) ? PsiValues[i] : 0.f;
         float slope = (i < SlopeValues.Num()) ? SlopeValues[i] : 0.f;
 
-        // è®¡ç®— pitch = atan(slope)
+        // ¼ÆËã pitch = atan(slope)
         float pitchRad = 0.f;
         if (bUseSlopeForSplineTangent)
         {
             pitchRad = FMath::Atan(slope);
         }
 
-        // è®¡ç®—ä¸€ä¸ªæ–¹å‘å‘é‡ (èˆªå‘+ä¿¯ä»°)
-        // yaw = psi, pitch = pitchRad, roll = 0 (æš‚ä¸åœ¨åˆ‡çº¿ä¸ŠåŠ roll)
-        // å…ˆç®—æ¬§æ‹‰å˜æ¢ -> æ–¹å‘å‘é‡
+        // ¼ÆËãÒ»¸ö·½ÏòÏòÁ¿ (º½Ïò+¸©Ñö)
+        // yaw = psi, pitch = pitchRad, roll = 0 (Ôİ²»ÔÚÇĞÏßÉÏ¼Óroll)
+        // ÏÈËãÅ·À­±ä»» -> ·½ÏòÏòÁ¿
         FRotator RotDeg(FMath::RadiansToDegrees(pitchRad),
             FMath::RadiansToDegrees(psi),
             0.f);
         FVector Dir = RotDeg.Vector(); // (X=cosP cosY, Y=cosP sinY, Z=sinP)
 
-        // UE Spline Tangent åœ¨ä¸–ç•Œç©ºé—´ä¸‹å¯ç›´æ¥è®¾ç½®
-        // æ³¨æ„ï¼šä¸è¦æŠŠ Tangent è®¾ç½®å¤ªå¤§ï¼Œå¦åˆ™ä¼šè¢«å½“æˆmeshæ‹‰ä¼¸é•¿åº¦
-        // è¿™é‡Œåªç»™ä¸ªå•ä½æ–¹å‘å‘é‡ * 100(æˆ–ä»»æ„)
+        // UE Spline Tangent ÔÚÊÀ½ç¿Õ¼äÏÂ¿ÉÖ±½ÓÉèÖÃ
+        // ×¢Òâ£º²»Òª°Ñ Tangent ÉèÖÃÌ«´ó£¬·ñÔò»á±»µ±³ÉmeshÀ­Éì³¤¶È
+        // ÕâÀïÖ»¸ø¸öµ¥Î»·½ÏòÏòÁ¿ * 100(»òÈÎÒâ)
         FVector TangentWS = Dir * 100.f;
 
         TrajectorySpline->SetTangentAtSplinePoint(i, TangentWS, ESplineCoordinateSpace::World, false);
@@ -208,10 +208,10 @@ bool ATrajectorySpline::LoadTrajectoryFromJSON(const FString& FilePath)
 
     TrajectorySpline->UpdateSpline();
 
-    // åˆ›å»ºå·¦å³è½¨ Spline
+    // ´´½¨×óÓÒ¹ì Spline
     CreateRailSplines();
 
-    // å¦‚æœå·²æœ‰ Mesh è®¾ç½®ï¼Œåˆ™å¯è§†åŒ–
+    // Èç¹ûÒÑÓĞ Mesh ÉèÖÃ£¬Ôò¿ÉÊÓ»¯
     if (CurrentTrackMesh != nullptr)
     {
         UpdateTrackMeshes();
@@ -229,71 +229,71 @@ void ATrajectorySpline::ComputeRailCoordsFromCenterLine()
     LeftRailPoints.Reserve(Num);
     RightRailPoints.Reserve(Num);
 
-    // è®¾å®šåŸºç¡€åŠè½¨è· = 75 cm (è½¨è·150cmçš„ä¸€åŠ) + å¯è°ƒèŠ‚çš„DeltaHalfGaugeCm
+    // Éè¶¨»ù´¡°ë¹ì¾à = 75 cm (¹ì¾à150cmµÄÒ»°ë) + ¿Éµ÷½ÚµÄDeltaHalfGaugeCm
     float halfGauge = 75.f + DeltaHalfGaugeCm;
 
     for (int32 i = 0; i < Num; i++)
     {
-        // ä¸­å¿ƒç‚¹
+        // ÖĞĞÄµã
         float xC = XValues[i];
         float yC = YValues[i];
         float zC = ZValues[i];
 
-        // ============ã€1ã€‘åœ¨ XY å¹³é¢è·å–ä¸­å¿ƒçº¿çš„å‰è¿›æ–¹å‘============
-        // åšç›¸é‚»ç‚¹å·®åˆ†:
+        // ============¡¾1¡¿ÔÚ XY Æ½Ãæ»ñÈ¡ÖĞĞÄÏßµÄÇ°½ø·½Ïò============
+        // ×öÏàÁÚµã²î·Ö:
         float dx = 0.f;
         float dy = 0.f;
 
         if (i == 0 && Num > 1)
         {
-            // ç¬¬1ä¸ªç‚¹ï¼Œç”¨åä¸€ç‚¹å·®åˆ†æ¥è¿‘ä¼¼
+            // µÚ1¸öµã£¬ÓÃºóÒ»µã²î·ÖÀ´½üËÆ
             dx = XValues[i + 1] - XValues[i];
             dy = YValues[i + 1] - YValues[i];
         }
         else
         {
-            // å…¶å®ƒç‚¹ï¼Œç”¨å‰ä¸€ç‚¹å·®åˆ†
-            // å½“ç„¶ï¼Œä¹Ÿå¯ä»¥å¯¹ä¸­ç‚¹ i-1/i+1 åšåŒè¾¹æ’å€¼ï¼Œä½†ä¸€èˆ¬è¿™ä¹ˆå†™å°±å¤Ÿç”¨äº†
+            // ÆäËüµã£¬ÓÃÇ°Ò»µã²î·Ö
+            // µ±È»£¬ÄãÒ²¿ÉÒÔ¶ÔÖĞµã i-1/i+1 ×öË«±ß²åÖµ£¬µ«Ò»°ãÕâÃ´Ğ´¾Í¹»ÓÃÁË
             dx = XValues[i] - XValues[i - 1];
             dy = YValues[i] - YValues[i - 1];
         }
 
-        // è‹¥dx,dyå…¨ä¸º0(æç«¯æƒ…å†µ), åšä¸ªä¿æŠ¤
+        // Èôdx,dyÈ«Îª0(¼«¶ËÇé¿ö), ×ö¸ö±£»¤
         if (FMath::IsNearlyZero(dx) && FMath::IsNearlyZero(dy))
         {
-            dx = 1.f; // é»˜è®¤ç»™ä¸ªæ–¹å‘
+            dx = 1.f; // Ä¬ÈÏ¸ø¸ö·½Ïò
             dy = 0.f;
         }
 
-        // è®¡ç®—è½¨é“æ–¹å‘å’Œå•ä½æ³•çº¿
+        // ¼ÆËã¹ìµÀ·½ÏòºÍµ¥Î»·¨Ïß
         float len = FMath::Sqrt(dx * dx + dy * dy);
-        float nx = -dy / len; // å·¦æ³•çº¿
-        float ny = dx / len; // å·¦æ³•çº¿
-        // å³æ³•çº¿å°±æ˜¯ -(nx, ny)ï¼Œä¹Ÿå¯ä¾åœºæ™¯åè½¬
+        float nx = -dy / len; // ×ó·¨Ïß
+        float ny = dx / len; // ×ó·¨Ïß
+        // ÓÒ·¨Ïß¾ÍÊÇ -(nx, ny)£¬Ò²¿ÉÒÀ³¡¾°·´×ª
 
-        // ============ã€2ã€‘è¶…é«˜æ»šè½¬å¸¦æ¥çš„ZæŠ¬å‡============ 
-        // phiUE = PhiValues[i] -> zShift = halfGauge * sin(phiUE)
-        // è¿™é‡Œå¯ä»¥ç»§ç»­ç”¨:
+        // ============¡¾2¡¿³¬¸ß¹ö×ª´øÀ´µÄZÌ§Éı============ 
+        // ÄãÖ®Ç°ÔÚ code ÀïÊ¹ÓÃ phiUE = PhiValues[i] -> zShift = halfGauge * sin(phiUE)
+        // ÕâÀï¿ÉÒÔ¼ÌĞøÓÃ:
         float phiUE = (i < PhiValues.Num()) ? PhiValues[i] : 0.f;
         float zShift = halfGauge * FMath::Sin(phiUE);
 
-        // ============ã€3ã€‘æ„é€ å·¦å³è½¨åæ ‡============
-        // ä¸­å¿ƒçº¿ C
+        // ============¡¾3¡¿¹¹Ôì×óÓÒ¹ì×ø±ê============
+        // ÖĞĞÄÏß C
         FVector centerPos(xC, yC, zC);
 
-        // å·¦è½¨: centerPos + halfGauge*(nx, ny) + zShift
+        // ×ó¹ì: centerPos + halfGauge*(nx, ny) + zShift
         FVector L = centerPos;
         L.X += halfGauge * nx;
         L.Y += halfGauge * ny;
         L.Z -= zShift;
 
-        // å³è½¨: centerPos - halfGauge*(nx, ny) - zShift
+        // ÓÒ¹ì: centerPos - halfGauge*(nx, ny) - zShift
         FVector R = centerPos;
         R.X -= halfGauge * nx;
         R.Y -= halfGauge * ny;
         R.Z += zShift;
 
-        // ä¿å­˜
+        // ±£´æ
         LeftRailPoints.Add(L);
         RightRailPoints.Add(R);
     }
@@ -302,7 +302,7 @@ void ATrajectorySpline::ComputeRailCoordsFromCenterLine()
 
 void ATrajectorySpline::CreateRailSplines()
 {
-    // å·¦è½¨
+    // ×ó¹ì
     LeftRailSpline->ClearSplinePoints(false);
     for (const FVector& Pt : LeftRailPoints)
     {
@@ -310,7 +310,7 @@ void ATrajectorySpline::CreateRailSplines()
     }
     LeftRailSpline->UpdateSpline();
 
-    // å³è½¨
+    // ÓÒ¹ì
     RightRailSpline->ClearSplinePoints(false);
     for (const FVector& Pt : RightRailPoints)
     {
@@ -339,7 +339,7 @@ void ATrajectorySpline::UpdateTrackMeshes()
         return;
     }
 
-    // é”€æ¯æ—§çš„Mesh
+    // Ïú»Ù¾ÉµÄMesh
     for (USplineMeshComponent* MeshComp : CenterTrackMeshes)
     {
         if (MeshComp) MeshComp->DestroyComponent();
@@ -358,18 +358,18 @@ void ATrajectorySpline::UpdateTrackMeshes()
     }
     RightTrackMeshes.Empty();
 
-    // ä¸­å¿ƒçº¿
+    // ÖĞĞÄÏß
     if (bRenderCenterLine)
     {
         GenerateMeshesForSpline(TrajectorySpline, CenterTrackMeshes,
             /*bIsLeftRail=*/false, /*bIsCenterLine=*/true);
     }
 
-    // å·¦è½¨
+    // ×ó¹ì
     GenerateMeshesForSpline(LeftRailSpline, LeftTrackMeshes,
         /*bIsLeftRail=*/true, /*bIsCenterLine=*/false);
 
-    // å³è½¨
+    // ÓÒ¹ì
     GenerateMeshesForSpline(RightRailSpline, RightTrackMeshes,
         /*bIsLeftRail=*/false, /*bIsCenterLine=*/false);
 }
@@ -397,13 +397,13 @@ void ATrajectorySpline::GenerateMeshesForSpline(
         SplineMesh->SetupAttachment(RootComponent);
         SplineMesh->SetStaticMesh(CurrentTrackMesh);
 
-        // è®¾ç½®æ®µçš„é¦–å°¾
+        // ÉèÖÃ¶ÎµÄÊ×Î²
         SplineMesh->SetStartAndEnd(StartPos, StartTangent, EndPos, EndTangent, true);
 
-        // æŒ‡å®šUpæ–¹å‘(ä¸–ç•ŒZ)
+        // Ö¸¶¨Up·½Ïò(ÊÀ½çZ)
         SplineMesh->SetSplineUpDir(FVector::UpVector, false);
 
-        // æ ¹æ®ç´¢å¼•ï¼Œé€‰å–å¹³å‡phi
+        // ¸ù¾İË÷Òı£¬Ñ¡È¡Æ½¾ùphi
         float StartPhi = (i < PhiValues.Num()) ? PhiValues[i] : 0.f;
         float EndPhi = ((i + 1) < PhiValues.Num()) ? PhiValues[i + 1] : 0.f;
         float avgPhiRad = 0.5f * (StartPhi + EndPhi);
@@ -412,13 +412,13 @@ void ATrajectorySpline::GenerateMeshesForSpline(
         float finalRollDeg = 0.f;
         if (bIsCenterLine)
         {
-            // ä¸­å¿ƒçº¿ç›´æ¥ç”¨phi
+            // ÖĞĞÄÏßÖ±½ÓÓÃphi
             finalRollDeg = avgPhiDeg;
         }
         else
         {
-            // è½¨åº•å¡(åº¦)ä¸è¶…é«˜å åŠ ï¼›å·¦è½¨å€¾å†… => phi - baseCantï¼›å³è½¨å€¾å†… => phi + baseCant
-            // æ ¹æ®éœ€è¦å¯åè½¬
+            // ¹ìµ×ÆÂ(¶È)Óë³¬¸ßµş¼Ó£»×ó¹ìÇãÄÚ => phi - baseCant£»ÓÒ¹ìÇãÄÚ => phi + baseCant
+            // ¸ù¾İĞèÒª¿É·´×ª
             if (bIsLeftRail)
             {
                 finalRollDeg = avgPhiDeg - RailBaseCantDeg;
@@ -432,12 +432,12 @@ void ATrajectorySpline::GenerateMeshesForSpline(
         SplineMesh->SetStartRoll(finalRollRad);
         SplineMesh->SetEndRoll(finalRollRad);
 
-        // è®¾ç½®Meshç¼©æ”¾
+        // ÉèÖÃMeshËõ·Å
         FVector2D Scale2D(MeshScaleFactor, MeshScaleFactor);
         SplineMesh->SetStartScale(Scale2D);
         SplineMesh->SetEndScale(Scale2D);
 
-        // æ³¨å†Œ
+        // ×¢²á
         SplineMesh->RegisterComponent();
         OutMeshArray.Add(SplineMesh);
     }

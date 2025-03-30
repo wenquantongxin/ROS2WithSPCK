@@ -3,7 +3,7 @@
 #include "MoveComponent_Carbody.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "UDPReceiver.h"  // è°ƒç”¨GetLatestTrainData
+#include "UDPReceiver.h"  // µ÷ÓÃGetLatestTrainData
 #include "TrainData.h"    // FTrainData
 
 static const float cb_hc = 1.2f; // 1.2f;
@@ -13,15 +13,15 @@ UMoveComponent_Carbody::UMoveComponent_Carbody()
 {
     PrimaryComponentTick.bCanEverTick = true;
 
-    // é»˜è®¤ç›´æ¥ä½¿ç”¨ä¸–ç•Œåæ ‡
+    // Ä¬ÈÏÖ±½ÓÊ¹ÓÃÊÀ½ç×ø±ê
     bUseWorldTransform = true;
 
-    // ç¼ºçœæ’å€¼é€Ÿåº¦
+    // È±Ê¡²åÖµËÙ¶È
     InterpSpeed = 5.0f;
 
     bInitialized = false;
 
-    // å…ˆå°†æ’å€¼ä½ç½®åˆå§‹åŒ–ä¸ºè½¦ä½“é»˜è®¤ä½ç½®
+    // ÏÈ½«²åÖµÎ»ÖÃ³õÊ¼»¯Îª³µÌåÄ¬ÈÏÎ»ÖÃ
     SetupDefaultTransform();
     CurrentLocation = DefaultLocation;
     CurrentRotation = DefaultRotation;
@@ -29,10 +29,10 @@ UMoveComponent_Carbody::UMoveComponent_Carbody()
 
 void UMoveComponent_Carbody::SetupDefaultTransform()
 {
-    // è®¾ç½®è½¦ä½“é»˜è®¤ä½ç½®ä¸º(0, 0, cb_hc)ï¼Œæ³¨æ„å•ä½è½¬æ¢
+    // ÉèÖÃ³µÌåÄ¬ÈÏÎ»ÖÃÎª(0, 0, cb_hc)£¬×¢Òâµ¥Î»×ª»»
     DefaultLocation = FVector(0.0f, 0.0f, cb_hc * DistanceScale);
 
-    // é»˜è®¤æ—‹è½¬ä¸ºé›¶
+    // Ä¬ÈÏĞı×ªÎªÁã
     DefaultRotation = FRotator::ZeroRotator;
 }
 
@@ -40,14 +40,14 @@ void UMoveComponent_Carbody::BeginPlay()
 {
     Super::BeginPlay();
 
-    // é‡æ–°è®¾ç½®é»˜è®¤å˜æ¢
+    // ÖØĞÂÉèÖÃÄ¬ÈÏ±ä»»
     SetupDefaultTransform();
 
-    // å°†å½“å‰ä½ç½®é‡ç½®ä¸ºé»˜è®¤ä½ç½®ï¼Œä»¥ç¡®ä¿åˆå§‹æ˜¾ç¤ºæ­£ç¡®
+    // ½«µ±Ç°Î»ÖÃÖØÖÃÎªÄ¬ÈÏÎ»ÖÃ£¬ÒÔÈ·±£³õÊ¼ÏÔÊ¾ÕıÈ·
     CurrentLocation = DefaultLocation;
     CurrentRotation = DefaultRotation;
 
-    // ç­‰å¾…ç¬¬ä¸€æ¬¡æ¥æ”¶åˆ°æ•°æ®åï¼Œå†å°† bInitialized ç½®ä¸ºtrue
+    // µÈ´ıµÚÒ»´Î½ÓÊÕµ½Êı¾İºó£¬ÔÙ½« bInitialized ÖÃÎªtrue
     bInitialized = false;
 }
 
@@ -55,63 +55,63 @@ void UMoveComponent_Carbody::TickComponent(float DeltaTime, ELevelTick TickType,
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    // 1) ç¡®ä¿æœ‰UDPReceiverå¯ç”¨
+    // 1) È·±£ÓĞUDPReceiver¿ÉÓÃ
     if (!UDPReceiverRef)
     {
-        // å¦‚æœæ²¡æœ‰UDPReceiverï¼Œç›´æ¥ä½¿ç”¨é»˜è®¤å€¼
+        // Èç¹ûÃ»ÓĞUDPReceiver£¬Ö±½ÓÊ¹ÓÃÄ¬ÈÏÖµ
         if (!bInitialized)
         {
-            // æœªåˆå§‹åŒ–å‰ç›´æ¥è·³åˆ°é»˜è®¤
+            // Î´³õÊ¼»¯Ç°Ö±½ÓÌøµ½Ä¬ÈÏ
             CurrentLocation = DefaultLocation;
             CurrentRotation = DefaultRotation;
             bInitialized = true;
         }
         else
         {
-            // å·²åˆå§‹åŒ–åè¿›è¡Œæ’å€¼
+            // ÒÑ³õÊ¼»¯ºó½øĞĞ²åÖµ
             CurrentLocation = FMath::VInterpTo(CurrentLocation, DefaultLocation, DeltaTime, InterpSpeed);
             CurrentRotation = FMath::RInterpTo(CurrentRotation, DefaultRotation, DeltaTime, InterpSpeed);
         }
 
-        // åº”ç”¨ä½ç½®å’Œæ—‹è½¬
+        // Ó¦ÓÃÎ»ÖÃºÍĞı×ª
         ApplyTransform();
         return;
     }
 
-    // 2) è·å–æœ€æ–°TrainData
+    // 2) »ñÈ¡×îĞÂTrainData
     FTrainData TrainData;
     bool bHasData = UDPReceiverRef->GetLatestTrainData(TrainData);
 
-    // å®šä¹‰ç›®æ ‡ä½ç½®ä¸æ—‹è½¬ï¼Œé»˜è®¤å…ˆä½¿ç”¨Defaultå€¼
+    // ¶¨ÒåÄ¿±êÎ»ÖÃÓëĞı×ª£¬Ä¬ÈÏÏÈÊ¹ÓÃDefaultÖµ
     FVector TargetLocation = DefaultLocation;
     FRotator TargetRotation = DefaultRotation;
 
-    // 3) å¦‚æœæœ‰æ•°æ®ï¼Œæ›´æ–°ç›®æ ‡ä½ç½®ä¸æ—‹è½¬
+    // 3) Èç¹ûÓĞÊı¾İ£¬¸üĞÂÄ¿±êÎ»ÖÃÓëĞı×ª
     if (bHasData)
     {
         TargetLocation = TrainData.CarBodyLocation;
         TargetRotation = TrainData.CarBodyRotation;
     }
 
-    // 4) åšå¹³æ»‘æ’å€¼ï¼Œå‡å°‘è·³åŠ¨
+    // 4) ×öÆ½»¬²åÖµ£¬¼õÉÙÌø¶¯
     if (!bInitialized)
     {
-        // ç¬¬ä¸€æ¬¡ï¼šç›´æ¥è·³åˆ°ç›®æ ‡ä½ç½®ï¼Œé¿å…åˆå§‹ç¬ç§»
+        // µÚÒ»´Î£ºÖ±½ÓÌøµ½Ä¿±êÎ»ÖÃ£¬±ÜÃâ³õÊ¼Ë²ÒÆ
         CurrentLocation = TargetLocation;
         CurrentRotation = TargetRotation;
         bInitialized = true;
     }
     else
     {
-        // ä½ç½®æ’å€¼
+        // Î»ÖÃ²åÖµ
         CurrentLocation = FMath::VInterpTo(
-            CurrentLocation,   // ä¸Šä¸€å¸§æ’å€¼ä½ç½®
-            TargetLocation,    // æœ¬å¸§æƒ³è¦åˆ°è¾¾çš„ä½ç½®
-            DeltaTime,         // å¸§DeltaTime
-            InterpSpeed        // æ’å€¼é€Ÿåº¦
+            CurrentLocation,   // ÉÏÒ»Ö¡²åÖµÎ»ÖÃ
+            TargetLocation,    // ±¾Ö¡ÏëÒªµ½´ïµÄÎ»ÖÃ
+            DeltaTime,         // Ö¡DeltaTime
+            InterpSpeed        // ²åÖµËÙ¶È
         );
 
-        // æ—‹è½¬æ’å€¼
+        // Ğı×ª²åÖµ
         CurrentRotation = FMath::RInterpTo(
             CurrentRotation,
             TargetRotation,
@@ -120,7 +120,7 @@ void UMoveComponent_Carbody::TickComponent(float DeltaTime, ELevelTick TickType,
         );
     }
 
-    // 5) å°†æ’å€¼ç»“æœåº”ç”¨
+    // 5) ½«²åÖµ½á¹ûÓ¦ÓÃ
     ApplyTransform();
 }
 
@@ -131,12 +131,12 @@ void UMoveComponent_Carbody::ApplyTransform()
 
     if (bUseWorldTransform)
     {
-        // ç›´æ¥Setä¸–ç•Œåæ ‡
+        // Ö±½ÓSetÊÀ½ç×ø±ê
         OwnerActor->SetActorLocationAndRotation(CurrentLocation, CurrentRotation);
     }
     else
     {
-        // ä½¿ç”¨ç›¸å¯¹åæ ‡
+        // Ê¹ÓÃÏà¶Ô×ø±ê
         SetRelativeLocationAndRotation(CurrentLocation, CurrentRotation);
     }
 }

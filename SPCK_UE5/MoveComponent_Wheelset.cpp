@@ -1,10 +1,8 @@
-// MoveComponent_Wheelset.cpp
-
 #include "MoveComponent_Wheelset.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/KismetMathLibrary.h"
 
-// UDPæ¥æ”¶å™¨ & æ•°æ®
+// ÄãµÄUDP½ÓÊÕÆ÷ & Êı¾İ
 #include "UDPReceiver.h"
 #include "TrainData.h"
 #include "Components/StaticMeshComponent.h"
@@ -20,7 +18,7 @@ UMoveComponent_Wheelset::UMoveComponent_Wheelset()
     InterpSpeed = 5.0f;
 
     WheelRotationSmoothFactor = 20.0f;
-    DataTimeoutThreshold = 0.5f; // é»˜è®¤0.5ç§’æ— æ•°æ®è§†ä¸ºåœæ­¢
+    DataTimeoutThreshold = 0.5f; // Ä¬ÈÏ0.5ÃëÎŞÊı¾İÊÓÎªÍ£Ö¹
 
     bInitialized = false;
     UDPReceiverRef = nullptr;
@@ -33,7 +31,7 @@ UMoveComponent_Wheelset::UMoveComponent_Wheelset()
     CurrentLocation = FVector::ZeroVector;
     CurrentRotation = FRotator::ZeroRotator;
 
-    // åˆå§‹åŒ–è§’åº¦å’Œé€Ÿåº¦å˜é‡
+    // ³õÊ¼»¯½Ç¶ÈºÍËÙ¶È±äÁ¿
     AccumLeftWheelRotation = 0.f;
     AccumRightWheelRotation = 0.f;
     LeftWheelRotSpeed = 0.f;
@@ -41,11 +39,11 @@ UMoveComponent_Wheelset::UMoveComponent_Wheelset()
     TargetLeftWheelRotSpeed = 0.f;
     TargetRightWheelRotSpeed = 0.f;
 
-    // åˆå§‹åŒ–æ æ†ç›¸å…³å˜é‡ - å®é™…å€¼ä¼šåœ¨BeginPlayä¸­æ ¹æ®æ æ†ç´¢å¼•è®¾ç½®
+    // ³õÊ¼»¯¸Ü¸ËÏà¹Ø±äÁ¿ - Êµ¼ÊÖµ»áÔÚBeginPlayÖĞ¸ù¾İ¸Ü¸ËË÷ÒıÉèÖÃ
     CurrentLeftBarPitch = 0.f;
     CurrentRightBarPitch = 0.f;
 
-    // åˆå§‹åŒ–æ•°æ®è¶…æ—¶ç›¸å…³å˜é‡
+    // ³õÊ¼»¯Êı¾İ³¬Ê±Ïà¹Ø±äÁ¿
     TimeSinceLastValidData = 0.f;
     bDataTimeout = false;
 
@@ -74,7 +72,7 @@ void UMoveComponent_Wheelset::BeginPlay()
     LeftBarIndex = WheelsetIndex * 2;
     RightBarIndex = WheelsetIndex * 2 + 1;
 
-    // è‡ªåŠ¨æŸ¥æ‰¾å¹¶è®¾ç½®è½¦è½®å’Œæ æ†å¼•ç”¨
+    // ×Ô¶¯²éÕÒ²¢ÉèÖÃ³µÂÖºÍ¸Ü¸ËÒıÓÃ
     TArray<USceneComponent*> ChildComponents;
     GetChildrenComponents(false, ChildComponents);
 
@@ -87,82 +85,82 @@ void UMoveComponent_Wheelset::BeginPlay()
             if (CompName.Contains(TEXT("LeftWheel"), ESearchCase::IgnoreCase))
             {
                 LeftWheelMesh = MeshComp;
-                //UE_LOG(LogTemp, Warning, TEXT("è‡ªåŠ¨è®¾ç½® LeftWheelMesh = %s"), *CompName);
+                //UE_LOG(LogTemp, Warning, TEXT("×Ô¶¯ÉèÖÃ LeftWheelMesh = %s"), *CompName);
 
-                // ç¡®ä¿å·¦è½®åˆå§‹æ—‹è½¬æ­£ç¡®ï¼ˆéœ€è¦ç»•Zè½´æ—‹è½¬90åº¦ï¼‰
+                // È·±£×óÂÖ³õÊ¼Ğı×ªÕıÈ·£¨ĞèÒªÈÆZÖáĞı×ª90¶È£©
                 FRotator InitialRotation = MeshComp->GetRelativeRotation();
-                InitialRotation.Roll += 90.0f; // ç»•Zè½´æ—‹è½¬90åº¦
+                InitialRotation.Roll += 90.0f; // ÈÆZÖáĞı×ª90¶È
                 MeshComp->SetRelativeRotation(InitialRotation);
             }
             else if (CompName.Contains(TEXT("RightWheel"), ESearchCase::IgnoreCase))
             {
                 RightWheelMesh = MeshComp;
-                //UE_LOG(LogTemp, Warning, TEXT("è‡ªåŠ¨è®¾ç½® RightWheelMesh = %s"), *CompName);
+                //UE_LOG(LogTemp, Warning, TEXT("×Ô¶¯ÉèÖÃ RightWheelMesh = %s"), *CompName);
             }
             else if (CompName.Contains(TEXT("LeftBar"), ESearchCase::IgnoreCase))
             {
                 LeftBarMesh = MeshComp;
-                //UE_LOG(LogTemp, Warning, TEXT("è‡ªåŠ¨è®¾ç½® LeftBarMesh = %s"), *CompName);
+                //UE_LOG(LogTemp, Warning, TEXT("×Ô¶¯ÉèÖÃ LeftBarMesh = %s"), *CompName);
             }
             else if (CompName.Contains(TEXT("RightBar"), ESearchCase::IgnoreCase))
             {
                 RightBarMesh = MeshComp;
-                //UE_LOG(LogTemp, Warning, TEXT("è‡ªåŠ¨è®¾ç½® RightBarMesh = %s"), *CompName);
+                //UE_LOG(LogTemp, Warning, TEXT("×Ô¶¯ÉèÖÃ RightBarMesh = %s"), *CompName);
             }
         }
     }
 
-    // è®°å½•è“å›¾ä¸­è®¾å®šçš„ç›¸å¯¹æ—‹è½¬ï¼ˆè½¦è½®åˆå§‹å¯¹é½ï¼‰
+    // ¼ÇÂ¼À¶Í¼ÖĞÉè¶¨µÄÏà¶ÔĞı×ª£¨³µÂÖ³õÊ¼¶ÔÆë£©
     if (LeftWheelMesh)
     {
         InitialLeftWheelRot = LeftWheelMesh->GetRelativeRotation();
-        //UE_LOG(LogTemp, Warning, TEXT("å·¦è½®åˆå§‹æ—‹è½¬ï¼š(P=%.3f, Y=%.3f, R=%.3f)"),
+        //UE_LOG(LogTemp, Warning, TEXT("×óÂÖ³õÊ¼Ğı×ª£º(P=%.3f, Y=%.3f, R=%.3f)"),
             //InitialLeftWheelRot.Pitch, InitialLeftWheelRot.Yaw, InitialLeftWheelRot.Roll);
     }
     if (RightWheelMesh)
     {
         InitialRightWheelRot = RightWheelMesh->GetRelativeRotation();
-        //UE_LOG(LogTemp, Warning, TEXT("å³è½®åˆå§‹æ—‹è½¬ï¼š(P=%.3f, Y=%.3f, R=%.3f)"),
+        //UE_LOG(LogTemp, Warning, TEXT("ÓÒÂÖ³õÊ¼Ğı×ª£º(P=%.3f, Y=%.3f, R=%.3f)"),
             //InitialRightWheelRot.Pitch, InitialRightWheelRot.Yaw, InitialRightWheelRot.Roll);
     }
 
-    // è®°å½•æ æ†çš„åˆå§‹æ—‹è½¬
+    // ¼ÇÂ¼¸Ü¸ËµÄ³õÊ¼Ğı×ª
     if (LeftBarMesh)
     {
         InitialLeftBarRot = LeftBarMesh->GetRelativeRotation();
-        //UE_LOG(LogTemp, Warning, TEXT("å·¦æ æ†åˆå§‹æ—‹è½¬ï¼š(P=%.3f, Y=%.3f, R=%.3f)"),
+        //UE_LOG(LogTemp, Warning, TEXT("×ó¸Ü¸Ë³õÊ¼Ğı×ª£º(P=%.3f, Y=%.3f, R=%.3f)"),
             //InitialLeftBarRot.Pitch, InitialLeftBarRot.Yaw, InitialLeftBarRot.Roll);
     }
     if (RightBarMesh)
     {
         InitialRightBarRot = RightBarMesh->GetRelativeRotation();
-        //UE_LOG(LogTemp, Warning, TEXT("å³æ æ†åˆå§‹æ—‹è½¬ï¼š(P=%.3f, Y=%.3f, R=%.3f)"),
+        //UE_LOG(LogTemp, Warning, TEXT("ÓÒ¸Ü¸Ë³õÊ¼Ğı×ª£º(P=%.3f, Y=%.3f, R=%.3f)"),
             //InitialRightBarRot.Pitch, InitialRightBarRot.Yaw, InitialRightBarRot.Roll);
     }
 
-    // æ ¹æ®æ æ†ç´¢å¼•è®¾ç½®åˆå§‹è§’åº¦ - ä½¿æ æ†åœ¨X-Yå¹³é¢ä¸Šæ²¿Xæ–¹å‘å»¶ä¼¸
+    // ¸ù¾İ¸Ü¸ËË÷ÒıÉèÖÃ³õÊ¼½Ç¶È - Ê¹¸Ü¸ËÔÚX-YÆ½ÃæÉÏÑØX·½ÏòÑÓÉì
     if (WheelsetIndex == 0 || WheelsetIndex == 2)
     {
-        // 0ã€4å·æ†å’Œ1ã€5å·æ†åˆå§‹è½¬è§’
-        // SPCK Joint å·¦å‰æ†è½¬è§’ 4.52 rad = 259.09Â°; å³å‰æ†è½¬è§’ 4.903 rad = 280.92Â°
-        // UE5ä¹‹ä¸­ï¼Œéœ€è¦ SPCK Joint è½¬è§’ - 270Â°; Deg_SPCK2UE = 270.0f;
-        CurrentLeftBarPitch = 4.520 * RadToDeg - Deg_SPCK2UE;     // å·¦å‰æ† åˆå§‹è½¬è§’
-        CurrentRightBarPitch = 4.903 * RadToDeg - Deg_SPCK2UE;     // å³å‰æ† åˆå§‹è½¬è§’
+        // 0¡¢4ºÅ¸ËºÍ1¡¢5ºÅ¸Ë³õÊ¼×ª½Ç
+        // SPCK Joint ×óÇ°¸Ë×ª½Ç 4.52 rad = 259.09¡ã; ÓÒÇ°¸Ë×ª½Ç 4.903 rad = 280.92¡ã
+        // UE5Ö®ÖĞ£¬ĞèÒª SPCK Joint ×ª½Ç - 270¡ã; Deg_SPCK2UE = 270.0f;
+        CurrentLeftBarPitch = 4.520 * RadToDeg - Deg_SPCK2UE;     // ×óÇ°¸Ë ³õÊ¼×ª½Ç
+        CurrentRightBarPitch = 4.903 * RadToDeg - Deg_SPCK2UE;     // ÓÒÇ°¸Ë ³õÊ¼×ª½Ç
     }
     else if (WheelsetIndex == 1 || WheelsetIndex == 3)
     {
-        // 2ã€6å·æ†å’Œ3ã€7å·æ†åˆå§‹è½¬è§’
-        // SPCK Joint å·¦åæ†è½¬è§’ 1.761 rad = 100.898Â°; å³åæ†è½¬è§’ 1.38 rad = 79.068Â°
-        // UE5ä¹‹ä¸­ï¼Œéœ€è¦ SPCK Joint è½¬è§’ - 270Â°
-        CurrentLeftBarPitch = 1.761 * RadToDeg - Deg_SPCK2UE;      // å·¦åæ† åˆå§‹è½¬è§’
-        CurrentRightBarPitch = 1.380 * RadToDeg - Deg_SPCK2UE;      // å³åæ† åˆå§‹è½¬è§’
+        // 2¡¢6ºÅ¸ËºÍ3¡¢7ºÅ¸Ë³õÊ¼×ª½Ç
+        // SPCK Joint ×óºó¸Ë×ª½Ç 1.761 rad = 100.898¡ã; ÓÒºó¸Ë×ª½Ç 1.38 rad = 79.068¡ã
+        // UE5Ö®ÖĞ£¬ĞèÒª SPCK Joint ×ª½Ç - 270¡ã
+        CurrentLeftBarPitch = 1.761 * RadToDeg - Deg_SPCK2UE;      // ×óºó¸Ë ³õÊ¼×ª½Ç
+        CurrentRightBarPitch = 1.380 * RadToDeg - Deg_SPCK2UE;      // ÓÒºó¸Ë ³õÊ¼×ª½Ç
     }
 
-    //UE_LOG(LogTemp, Warning, TEXT("æ æ†åˆå§‹è§’åº¦è®¾ç½®: å·¦=%.2fåº¦, å³=%.2fåº¦"), 
+    //UE_LOG(LogTemp, Warning, TEXT("¸Ü¸Ë³õÊ¼½Ç¶ÈÉèÖÃ: ×ó=%.2f¶È, ÓÒ=%.2f¶È"), 
     //    CurrentLeftBarPitch, CurrentRightBarPitch);
 
     bInitialized = false;
-    bDataTimeout = true; // åˆå§‹çŠ¶æ€ä¸ºè¶…æ—¶ï¼Œç›´åˆ°æ”¶åˆ°ç¬¬ä¸€ä¸ªæœ‰æ•ˆæ•°æ®
+    bDataTimeout = true; // ³õÊ¼×´Ì¬Îª³¬Ê±£¬Ö±µ½ÊÕµ½µÚÒ»¸öÓĞĞ§Êı¾İ
 
     //UE_LOG(LogTemp, Warning, TEXT("[BeginPlay] Wheelset=%d -> DefaultLocation=(%.3f, %.3f, %.3f), DefaultRotation=(P=%.3f, Y=%.3f, R=%.3f)"),
         //WheelsetIndex,
@@ -176,20 +174,20 @@ void UMoveComponent_Wheelset::SetupDefaultTransform()
     switch (WheelsetIndex)
     {
     case 0:
-        xPos = 10.0f;  // +10 ç±³
+        xPos = 10.0f;  // +10 Ã×
         break;
     case 1:
-        xPos = 7.5f;   // +7.5 ç±³
+        xPos = 7.5f;   // +7.5 Ã×
         break;
     case 2:
-        xPos = -7.5f;  // -7.5 ç±³
+        xPos = -7.5f;  // -7.5 Ã×
         break;
     case 3:
-        xPos = -10.0f; // -10 ç±³
+        xPos = -10.0f; // -10 Ã×
         break;
     default:
         xPos = 0.0f;
-        //UE_LOG(LogTemp, Warning, TEXT("æ— æ•ˆçš„WheelsetIndex: %d"), WheelsetIndex);
+        //UE_LOG(LogTemp, Warning, TEXT("ÎŞĞ§µÄWheelsetIndex: %d"), WheelsetIndex);
         break;
     }
 
@@ -209,20 +207,20 @@ void UMoveComponent_Wheelset::SetWheelsetIndex(int32 NewIndex)
         LeftBarIndex = WheelsetIndex * 2;
         RightBarIndex = WheelsetIndex * 2 + 1;
 
-        // æ›´æ–°æ æ†åˆå§‹è§’åº¦ - ä½¿ç”¨ä¸BeginPlayç›¸åŒçš„è®¡ç®—é€»è¾‘
+        // ¸üĞÂ¸Ü¸Ë³õÊ¼½Ç¶È - Ê¹ÓÃÓëBeginPlayÏàÍ¬µÄ¼ÆËãÂß¼­
         if (WheelsetIndex == 0 || WheelsetIndex == 2)
         {
-            // 0ã€4å·æ†å’Œ1ã€5å·æ†åˆå§‹è½¬è§’
-            // SPCK Joint å·¦å‰æ†è½¬è§’ 4.52 rad = 259.09Â°; å³å‰æ†è½¬è§’ 4.903 rad = 280.92Â°
-            CurrentLeftBarPitch = 4.520 * RadToDeg - Deg_SPCK2UE;     // å·¦å‰æ† åˆå§‹è½¬è§’
-            CurrentRightBarPitch = 4.903 * RadToDeg - Deg_SPCK2UE;     // å³å‰æ† åˆå§‹è½¬è§’
+            // 0¡¢4ºÅ¸ËºÍ1¡¢5ºÅ¸Ë³õÊ¼×ª½Ç
+            // SPCK Joint ×óÇ°¸Ë×ª½Ç 4.52 rad = 259.09¡ã; ÓÒÇ°¸Ë×ª½Ç 4.903 rad = 280.92¡ã
+            CurrentLeftBarPitch = 4.520 * RadToDeg - Deg_SPCK2UE;     // ×óÇ°¸Ë ³õÊ¼×ª½Ç
+            CurrentRightBarPitch = 4.903 * RadToDeg - Deg_SPCK2UE;     // ÓÒÇ°¸Ë ³õÊ¼×ª½Ç
         }
         else if (WheelsetIndex == 1 || WheelsetIndex == 3)
         {
-            // 2ã€6å·æ†å’Œ3ã€7å·æ†åˆå§‹è½¬è§’
-            // SPCK Joint å·¦åæ†è½¬è§’ 1.761 rad = 100.898Â°; å³åæ†è½¬è§’ 1.38 rad = 79.068Â°
-            CurrentLeftBarPitch = 1.761 * RadToDeg - Deg_SPCK2UE;      // å·¦åæ† åˆå§‹è½¬è§’
-            CurrentRightBarPitch = 1.380 * RadToDeg - Deg_SPCK2UE;      // å³åæ† åˆå§‹è½¬è§’
+            // 2¡¢6ºÅ¸ËºÍ3¡¢7ºÅ¸Ë³õÊ¼×ª½Ç
+            // SPCK Joint ×óºó¸Ë×ª½Ç 1.761 rad = 100.898¡ã; ÓÒºó¸Ë×ª½Ç 1.38 rad = 79.068¡ã
+            CurrentLeftBarPitch = 1.761 * RadToDeg - Deg_SPCK2UE;      // ×óºó¸Ë ³õÊ¼×ª½Ç
+            CurrentRightBarPitch = 1.380 * RadToDeg - Deg_SPCK2UE;      // ÓÒºó¸Ë ³õÊ¼×ª½Ç
         }
 
         if (bInitialized)
@@ -231,7 +229,7 @@ void UMoveComponent_Wheelset::SetWheelsetIndex(int32 NewIndex)
             CurrentRotation = DefaultRotation;
         }
 
-        //UE_LOG(LogTemp, Log, TEXT("WheelsetIndex æ›´æ–° -> %d"), WheelsetIndex);
+        //UE_LOG(LogTemp, Log, TEXT("WheelsetIndex ¸üĞÂ -> %d"), WheelsetIndex);
     }
 }
 
@@ -240,16 +238,16 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    // 1) æ£€æŸ¥ç´¢å¼•
+    // 1) ¼ì²éË÷Òı
     if (WheelsetIndex < 0 || WheelsetIndex > 3)
     {
         return;
     }
 
-    // é»˜è®¤æƒ…å†µä¸‹æ—‹è½¬é€Ÿåº¦æ•°æ®æ— æ•ˆ
+    // Ä¬ÈÏÇé¿öÏÂĞı×ªËÙ¶ÈÊı¾İÎŞĞ§
     bool bWheelSpeedDataValid = false;
 
-    // 2) å¦‚æœæ²¡å…³è”UDPReceiverï¼Œç”¨é»˜è®¤ä½ç½®
+    // 2) Èç¹ûÃ»¹ØÁªUDPReceiver£¬ÓÃÄ¬ÈÏÎ»ÖÃ
     if (!UDPReceiverRef)
     {
         if (!bInitialized)
@@ -264,20 +262,20 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
             CurrentRotation = FMath::RInterpTo(CurrentRotation, DefaultRotation, DeltaTime, InterpSpeed);
         }
 
-        // æ²¡æœ‰UDPæ•°æ®æ—¶ï¼Œæ—‹è½¬é€Ÿåº¦è®¾ä¸º0
+        // Ã»ÓĞUDPÊı¾İÊ±£¬Ğı×ªËÙ¶ÈÉèÎª0
         TargetLeftWheelRotSpeed = 0.0f;
         TargetRightWheelRotSpeed = 0.0f;
     }
     else
     {
-        // 3) è·å–æœ€æ–° FTrainData
+        // 3) »ñÈ¡×îĞÂ FTrainData
         FTrainData TrainData;
         bool bHasData = UDPReceiverRef->GetLatestTrainData(TrainData);
 
         FVector TargetLocation = DefaultLocation;
         FRotator TargetRotation = DefaultRotation;
 
-        // 4) å¦‚æœæœ‰æ•°æ®ï¼Œåˆ™æ›´æ–°ä½ç½®å’Œæ—‹è½¬(ä¸è€ƒè™‘SimTimeæ˜¯å¦å˜åŒ–)
+        // 4) Èç¹ûÓĞÊı¾İ£¬Ôò¸üĞÂÎ»ÖÃºÍĞı×ª(²»¿¼ÂÇSimTimeÊÇ·ñ±ä»¯)
         if (bHasData &&
             WheelsetIndex < TrainData.WheelsetLocations.Num() &&
             WheelsetIndex < TrainData.WheelsetRotations.Num())
@@ -285,64 +283,64 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
             TargetLocation = TrainData.WheelsetLocations[WheelsetIndex];
             TargetRotation = TrainData.WheelsetRotations[WheelsetIndex];
 
-            // 5) ä»…å¯¹è½¦è½®è½¬é€Ÿåº”ç”¨æ›´æ–°æ£€æµ‹é€»è¾‘
+            // 5) ½ö¶Ô³µÂÖ×ªËÙÓ¦ÓÃ¸üĞÂ¼ì²âÂß¼­
             bool bDataActuallyUpdated = false;
             if (!bFirstDataReceived)
             {
-                // é¦–æ¬¡æ”¶åˆ°æ•°æ®
+                // Ê×´ÎÊÕµ½Êı¾İ
                 bDataActuallyUpdated = true;
                 bFirstDataReceived = true;
                 LastSimTime = TrainData.SimTime;
             }
             else if (FMath::Abs(TrainData.SimTime - LastSimTime) > 1e-6)
             {
-                // SimTimeæœ‰å˜åŒ–ï¼Œè¯´æ˜æœ‰æ–°æ•°æ®
+                // SimTimeÓĞ±ä»¯£¬ËµÃ÷ÓĞĞÂÊı¾İ
                 bDataActuallyUpdated = true;
                 LastSimTime = TrainData.SimTime;
             }
 
-            // åªæœ‰æ•°æ®çœŸæ­£æ›´æ–°æ—¶æ‰æ›´æ–°è½¦è½®æ—‹è½¬é€Ÿåº¦
+            // Ö»ÓĞÊı¾İÕæÕı¸üĞÂÊ±²Å¸üĞÂ³µÂÖĞı×ªËÙ¶È
             if (bDataActuallyUpdated &&
                 LeftWheelIndex >= 0 && LeftWheelIndex < TrainData.WheelsRotSpeed.Num() &&
                 RightWheelIndex >= 0 && RightWheelIndex < TrainData.WheelsRotSpeed.Num())
             {
-                // è½¬æ¢ä¸ºè§’åº¦/ç§’
+                // ×ª»»Îª½Ç¶È/Ãë
                 TargetLeftWheelRotSpeed = TrainData.WheelsRotSpeed[LeftWheelIndex] * RadToDeg;
                 TargetRightWheelRotSpeed = TrainData.WheelsRotSpeed[RightWheelIndex] * RadToDeg;
 
-                // æ ‡è®°è½¬é€Ÿæ•°æ®æœ‰æ•ˆ
+                // ±ê¼Ç×ªËÙÊı¾İÓĞĞ§
                 bWheelSpeedDataValid = true;
 
-                // é‡ç½®è¶…æ—¶è®¡æ—¶å™¨
+                // ÖØÖÃ³¬Ê±¼ÆÊ±Æ÷
                 TimeSinceLastValidData = 0.0f;
                 bDataTimeout = false;
             }
-            // å½“æ•°æ®æœªæ›´æ–°æ—¶ï¼Œä¿æŒå½“å‰ç›®æ ‡è½¬é€Ÿä¸å˜ï¼Œä¸è¦è®¾ä¸º0
+            // µ±Êı¾İÎ´¸üĞÂÊ±£¬±£³Öµ±Ç°Ä¿±ê×ªËÙ²»±ä£¬²»ÒªÉèÎª0
 
-            // å¤„ç†æ æ†æ—‹è½¬ - ä¿®æ”¹éƒ¨åˆ†
+            // ´¦Àí¸Ü¸ËĞı×ª - ĞŞ¸Ä²¿·Ö
             if (bDataActuallyUpdated &&
                 LeftBarIndex >= 0 && LeftBarIndex < TrainData.BarsPitch.Num() &&
                 RightBarIndex >= 0 && RightBarIndex < TrainData.BarsPitch.Num())
             {
-                // è·å–åŸå§‹æ æ†pitchè§’åº¦ï¼ˆå¼§åº¦å€¼å·²åœ¨UDPæ¥æ”¶ç«¯è½¬ä¸ºè§’åº¦ï¼‰
+                // »ñÈ¡Ô­Ê¼¸Ü¸Ëpitch½Ç¶È£¨»¡¶ÈÖµÒÑÔÚUDP½ÓÊÕ¶Ë×ªÎª½Ç¶È£©
                 float rawLeftPitch = TrainData.BarsPitch[LeftBarIndex];
                 float rawRightPitch = TrainData.BarsPitch[RightBarIndex];
 
-                // åº”ç”¨åŸºç¡€å˜æ¢ï¼šå‡å»270åº¦åç§»
+                // Ó¦ÓÃ»ù´¡±ä»»£º¼õÈ¥270¶ÈÆ«ÒÆ
                 float leftPitch = rawLeftPitch - Deg_SPCK2UE;
                 float rightPitch = rawRightPitch - Deg_SPCK2UE;
 
-                // æ ¹æ®è½®å¯¹ä½ç½®åº”ç”¨é•œåƒå…³ç³»
-                if (WheelsetIndex == 1 || WheelsetIndex == 3)  // åè½®å¯¹
+                // ¸ù¾İÂÖ¶ÔÎ»ÖÃÓ¦ÓÃ¾µÏñ¹ØÏµ
+                if (WheelsetIndex == 1 || WheelsetIndex == 3)  // ºóÂÖ¶Ô
                 {
                     //leftPitch = leftPitch - 180.0f;
                     //rightPitch = rightPitch ;
-                    leftPitch = leftPitch ;     // äº‹å®ä¸Šä¸éœ€è¦å˜æ¢
+                    leftPitch = leftPitch ;     // ÊÂÊµÉÏ²»ĞèÒª±ä»»
                     rightPitch = rightPitch;
 
                 }
 
-                // å¹³æ»‘æ’å€¼æ æ†pitchè§’åº¦
+                // Æ½»¬²åÖµ¸Ü¸Ëpitch½Ç¶È
                 CurrentLeftBarPitch = FMath::FInterpTo(CurrentLeftBarPitch, leftPitch,
                     DeltaTime, WheelRotationSmoothFactor);
                 CurrentRightBarPitch = FMath::FInterpTo(CurrentRightBarPitch, rightPitch,
@@ -352,12 +350,12 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         }
         else
         {
-            // æ²¡æœ‰æœ‰æ•ˆæ•°æ®æ—¶ï¼Œæ—‹è½¬é€Ÿåº¦ç›®æ ‡è®¾ä¸º0
+            // Ã»ÓĞÓĞĞ§Êı¾İÊ±£¬Ğı×ªËÙ¶ÈÄ¿±êÉèÎª0
             TargetLeftWheelRotSpeed = 0.0f;
             TargetRightWheelRotSpeed = 0.0f;
         }
 
-        // 6) å¹³æ»‘æ’å€¼ä½ç½®å’Œæ—‹è½¬ - ä¸å—æ•°æ®æ›´æ–°æ£€æµ‹å½±å“
+        // 6) Æ½»¬²åÖµÎ»ÖÃºÍĞı×ª - ²»ÊÜÊı¾İ¸üĞÂ¼ì²âÓ°Ïì
         if (!bInitialized)
         {
             CurrentLocation = TargetLocation;
@@ -371,13 +369,13 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         }
     }
 
-    // 7) å¤„ç†è½¦è½®è½¬é€Ÿæ•°æ®è¶…æ—¶é€»è¾‘ - ä»…å½±å“è½¦è½®è½¬é€Ÿ
+    // 7) ´¦Àí³µÂÖ×ªËÙÊı¾İ³¬Ê±Âß¼­ - ½öÓ°Ïì³µÂÖ×ªËÙ
     if (!bWheelSpeedDataValid)
     {
-        // æ— æœ‰æ•ˆè½¬é€Ÿæ•°æ®æ—¶ç´¯åŠ è¶…æ—¶è®¡æ—¶å™¨
+        // ÎŞÓĞĞ§×ªËÙÊı¾İÊ±ÀÛ¼Ó³¬Ê±¼ÆÊ±Æ÷
         TimeSinceLastValidData += DeltaTime;
 
-        // æ£€æŸ¥æ˜¯å¦è¶…è¿‡é˜ˆå€¼
+        // ¼ì²éÊÇ·ñ³¬¹ıãĞÖµ
         if (TimeSinceLastValidData > DataTimeoutThreshold && !bDataTimeout)
         {
             bDataTimeout = true;
@@ -385,7 +383,7 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         }
     }
 
-    // 8) åº”ç”¨å˜æ¢åˆ°Actor - ä¸å—æ•°æ®æ›´æ–°æ£€æµ‹å½±å“
+    // 8) Ó¦ÓÃ±ä»»µ½Actor - ²»ÊÜÊı¾İ¸üĞÂ¼ì²âÓ°Ïì
     AActor* OwnerActor = GetOwner();
     if (!OwnerActor) return;
 
@@ -398,36 +396,36 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         SetRelativeLocationAndRotation(CurrentLocation, CurrentRotation);
     }
 
-    // 9) æ ¹æ®æ•°æ®è¶…æ—¶çŠ¶æ€å¤„ç†è½¦è½®æ—‹è½¬
+    // 9) ¸ù¾İÊı¾İ³¬Ê±×´Ì¬´¦Àí³µÂÖĞı×ª
     if (bDataTimeout)
     {
-        // æ•°æ®è¶…æ—¶æ—¶ï¼Œç›´æ¥å°†å½“å‰æ—‹è½¬é€Ÿåº¦è®¾ä¸º0ï¼Œè€Œä¸è¿›è¡Œå¹³æ»‘è¿‡æ¸¡
+        // Êı¾İ³¬Ê±Ê±£¬Ö±½Ó½«µ±Ç°Ğı×ªËÙ¶ÈÉèÎª0£¬¶ø²»½øĞĞÆ½»¬¹ı¶É
         LeftWheelRotSpeed = 0.0f;
         RightWheelRotSpeed = 0.0f;
 
-        // æ•°æ®è¶…æ—¶ä»…å½±å“è½¦è½®æ—‹è½¬é€Ÿåº¦ï¼Œä¸å½±å“æ æ†è§’åº¦
+        // Êı¾İ³¬Ê±½öÓ°Ïì³µÂÖĞı×ªËÙ¶È£¬²»Ó°Ïì¸Ü¸Ë½Ç¶È
     }
     else
     {
-        // æ­£å¸¸çŠ¶æ€ï¼Œä½¿ç”¨å¹³æ»‘è¿‡æ¸¡æ—‹è½¬é€Ÿåº¦
+        // Õı³£×´Ì¬£¬Ê¹ÓÃÆ½»¬¹ı¶ÉĞı×ªËÙ¶È
         LeftWheelRotSpeed = FMath::FInterpTo(LeftWheelRotSpeed, TargetLeftWheelRotSpeed,
             DeltaTime, WheelRotationSmoothFactor);
         RightWheelRotSpeed = FMath::FInterpTo(RightWheelRotSpeed, TargetRightWheelRotSpeed,
             DeltaTime, WheelRotationSmoothFactor);
     }
 
-    // 10) åŸºäºæ—‹è½¬é€Ÿåº¦æ›´æ–°ç´¯ç§¯è§’åº¦
+    // 10) »ùÓÚĞı×ªËÙ¶È¸üĞÂÀÛ»ı½Ç¶È
     AccumLeftWheelRotation += LeftWheelRotSpeed * DeltaTime;
     AccumRightWheelRotation += RightWheelRotSpeed * DeltaTime;
 
-    // è§„èŒƒåŒ–åˆ°[0,360]åŒºé—´ï¼Œé˜²æ­¢æµ®ç‚¹æ•°è¿‡å¤§
+    // ¹æ·¶»¯µ½[0,360]Çø¼ä£¬·ÀÖ¹¸¡µãÊı¹ı´ó
     AccumLeftWheelRotation = FMath::Fmod(AccumLeftWheelRotation, 360.0f);
     if (AccumLeftWheelRotation < 0.0f) AccumLeftWheelRotation += 360.0f;
 
     AccumRightWheelRotation = FMath::Fmod(AccumRightWheelRotation, 360.0f);
     if (AccumRightWheelRotation < 0.0f) AccumRightWheelRotation += 360.0f;
 
-    // 11) åº”ç”¨ç´¯ç§¯è§’åº¦åˆ°è½¦è½®ç½‘æ ¼ä½“
+    // 11) Ó¦ÓÃÀÛ»ı½Ç¶Èµ½³µÂÖÍø¸ñÌå
     if (LeftWheelMesh)
     {
         FRotator NewLeftRot = InitialLeftWheelRot + FRotator(0.f, 0.f, AccumLeftWheelRotation);
@@ -436,13 +434,13 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
 
     if (RightWheelMesh)
     {
-        // æ³¨æ„å³è½®æ—‹è½¬æ–¹å‘ï¼ˆéœ€è¦å–åï¼‰
+        // ×¢ÒâÓÒÂÖĞı×ª·½Ïò£¨ĞèÒªÈ¡·´£©
         FRotator NewRightRot = InitialRightWheelRot + FRotator(0.f, 0.f, -AccumRightWheelRotation);
         RightWheelMesh->SetRelativeRotation(NewRightRot);
     }
 
-    // 12) åº”ç”¨pitchè§’åº¦åˆ°æ æ†ç½‘æ ¼ä½“ - å°è¯•ä¸åŒçš„æ—‹è½¬è½´
-    // åŸå§‹ä»£ç ä½¿ç”¨Yaw(Y)åˆ†é‡ï¼Œä½†å¯èƒ½éœ€è¦æ”¹ä¸ºPitch(P)æˆ–Roll(R)
+    // 12) Ó¦ÓÃpitch½Ç¶Èµ½¸Ü¸ËÍø¸ñÌå - ³¢ÊÔ²»Í¬µÄĞı×ªÖá
+    // Ô­Ê¼´úÂëÊ¹ÓÃYaw(Y)·ÖÁ¿£¬µ«¿ÉÄÜĞèÒª¸ÄÎªPitch(P)»òRoll(R)
     if (LeftBarMesh)
     {
         FRotator NewLeftBarRot = InitialLeftBarRot + FRotator(0.f, CurrentLeftBarPitch, 0.f);

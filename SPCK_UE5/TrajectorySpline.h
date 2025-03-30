@@ -11,11 +11,11 @@
 /**
  * ATrajectorySpline
  *
- * åŠŸèƒ½ï¼š
- *  1. ä»å¤–éƒ¨ JSON æ–‡ä»¶è¯»å–è½¨è¿¹ï¼ˆä¸­å¿ƒçº¿ï¼šs, x, y, z, psi, phi, slope ç­‰ï¼‰ã€‚
- *  2. å®Œæˆåæ ‡ç³»è½¬æ¢ï¼ˆSIMPACK -> UE5ï¼‰ä¸å•ä½è½¬æ¢ï¼ˆm -> cmï¼‰ã€‚
- *  3. åœ¨ UE ä¸­æ„å»ºä¸‰æ¡ Splineï¼ˆä¸­å¿ƒçº¿ã€å·¦è½¨ã€å³è½¨ï¼‰ï¼Œå¹¶å¯ç”Ÿæˆ SplineMesh ç½‘æ ¼è¿›è¡Œå¯è§†åŒ–ã€‚
- *  4. å¯é€‰åœ°å°† slope å€¼è½¬åŒ–ä¸ºä¿¯ä»°è§’ Pitchï¼Œä¸ psi (yaw) å’Œ phi (roll) ä¸€èµ·æ˜ å°„åˆ° Spline çš„åˆ‡çº¿ã€‚
+ * ¹¦ÄÜ£º
+ *  1. ´ÓÍâ²¿ JSON ÎÄ¼ş¶ÁÈ¡¹ì¼££¨ÖĞĞÄÏß£ºs, x, y, z, psi, phi, slope µÈ£©¡£
+ *  2. Íê³É×ø±êÏµ×ª»»£¨SIMPACK -> UE5£©Óëµ¥Î»×ª»»£¨m -> cm£©¡£
+ *  3. ÔÚ UE ÖĞ¹¹½¨ÈıÌõ Spline£¨ÖĞĞÄÏß¡¢×ó¹ì¡¢ÓÒ¹ì£©£¬²¢¿ÉÉú³É SplineMesh Íø¸ñ½øĞĞ¿ÉÊÓ»¯¡£
+ *  4. ¿ÉÑ¡µØ½« slope Öµ×ª»¯Îª¸©Ñö½Ç Pitch£¬Óë psi (yaw) ºÍ phi (roll) Ò»ÆğÓ³Éäµ½ Spline µÄÇĞÏß¡£
  */
 UCLASS()
 class VEHICLE4WDB_API ATrajectorySpline : public AActor
@@ -23,80 +23,80 @@ class VEHICLE4WDB_API ATrajectorySpline : public AActor
     GENERATED_BODY()
 
 public:
-    // æ„é€ å‡½æ•°
+    // ¹¹Ôìº¯Êı
     ATrajectorySpline();
 
-    // åœ¨è“å›¾æˆ–C++é‡Œå¯è°ƒç”¨ï¼šåŠ è½½å¤–éƒ¨ JSON è½¨è¿¹å¹¶è½¬æ¢åˆ° UE5 åæ ‡ç³»
+    // ÔÚÀ¶Í¼»òC++Àï¿Éµ÷ÓÃ£º¼ÓÔØÍâ²¿ JSON ¹ì¼£²¢×ª»»µ½ UE5 ×ø±êÏµ
     UFUNCTION(BlueprintCallable, Category = "Trajectory")
     bool LoadTrajectoryFromJSON(const FString& FilePath);
 
-    // åœ¨è“å›¾æˆ–C++é‡Œå¯è°ƒç”¨ï¼šä½¿ç”¨å·²åŠ è½½çš„è½¨è¿¹æ•°æ®ï¼Œç”Ÿæˆè½¨é“ç½‘æ ¼
+    // ÔÚÀ¶Í¼»òC++Àï¿Éµ÷ÓÃ£ºÊ¹ÓÃÒÑ¼ÓÔØµÄ¹ì¼£Êı¾İ£¬Éú³É¹ìµÀÍø¸ñ
     UFUNCTION(BlueprintCallable, Category = "Trajectory")
     void GenerateTrackWithMesh(UStaticMesh* TrackMesh, float MeshScale = 1.0f);
 
 protected:
-    // æ¸¸æˆå¼€å§‹æ—¶æ‰§è¡Œ
+    // ÓÎÏ·¿ªÊ¼Ê±Ö´ĞĞ
     virtual void BeginPlay() override;
 
     /*------------------------------------------
-       è½¨é“å¯è°ƒå‚æ•° (åœ¨ UE ç¼–è¾‘å™¨ä¸­å¯é…ç½®)
+       ¹ìµÀ¿Éµ÷²ÎÊı (ÔÚ UE ±à¼­Æ÷ÖĞ¿ÉÅäÖÃ)
     -------------------------------------------*/
 
-    // è½¨åº•å¡(åº¦)ï¼Œåœ¨ç”Ÿæˆè½¨é“ç½‘æ ¼æ—¶å¯åŠ åˆ°è¶…é«˜æ»šè½¬ä¸­
+    // ¹ìµ×ÆÂ(¶È)£¬ÔÚÉú³É¹ìµÀÍø¸ñÊ±¿É¼Óµ½³¬¸ß¹ö×ªÖĞ
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Params")
     float RailBaseCantDeg;
 
-    // è½¨è·åŠå¾„é¢å¤–å¾®è°ƒ(å•ä½ cm)ï¼Œå¦‚éœ€æŠŠè½¨è·ä»150 cmæ”¹ä¸º 143.5 ç­‰
+    // ¹ì¾à°ë¾¶¶îÍâÎ¢µ÷(µ¥Î» cm)£¬ÈçĞè°Ñ¹ì¾à´Ó150 cm¸ÄÎª 143.5 µÈ
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Params")
     float DeltaHalfGaugeCm;
 
-    // æ˜¯å¦æ¸²æŸ“ä¸­å¿ƒçº¿
+    // ÊÇ·ñäÖÈ¾ÖĞĞÄÏß
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Params")
     bool bRenderCenterLine;
 
-    // æ˜¯å¦åœ¨ Spline çš„ Tangent ä¸­ç»“åˆ slope å€¼è®¡ç®—ä¿¯ä»°
+    // ÊÇ·ñÔÚ Spline µÄ Tangent ÖĞ½áºÏ slope Öµ¼ÆËã¸©Ñö
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Params")
     bool bUseSlopeForSplineTangent;
 
     /*------------------------------------------
-       æ ·æ¡ç»„ä»¶
+       ÑùÌõ×é¼ş
     -------------------------------------------*/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    USplineComponent* TrajectorySpline;  // ä¸­å¿ƒçº¿
+    USplineComponent* TrajectorySpline;  // ÖĞĞÄÏß
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    USplineComponent* LeftRailSpline;    // å·¦è½¨çº¿
+    USplineComponent* LeftRailSpline;    // ×ó¹ìÏß
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    USplineComponent* RightRailSpline;   // å³è½¨çº¿
+    USplineComponent* RightRailSpline;   // ÓÒ¹ìÏß
 
     /*------------------------------------------
-       è½¨è¿¹æ•°æ®ï¼ˆä»¥ UE5 ä¸–ç•Œåæ ‡/å§¿æ€å­˜å‚¨ï¼‰
+       ¹ì¼£Êı¾İ£¨ÒÔ UE5 ÊÀ½ç×ø±ê/×ËÌ¬´æ´¢£©
     -------------------------------------------*/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> SValues;   // é‡Œç¨‹ (cm)ï¼Œä»…ä¾›å‚è€ƒï¼Œå¯ä¸åšç¿»è½¬
+    TArray<float> SValues;   // Àï³Ì (cm)£¬½ö¹©²Î¿¼£¬¿É²»×ö·­×ª
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> XValues;   // xåæ ‡(å˜ç±³) [UEä¸–ç•Œ]
+    TArray<float> XValues;   // x×ø±ê(ÀåÃ×) [UEÊÀ½ç]
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> YValues;   // yåæ ‡(å˜ç±³) [UEä¸–ç•Œ]
+    TArray<float> YValues;   // y×ø±ê(ÀåÃ×) [UEÊÀ½ç]
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> ZValues;   // zåæ ‡(å˜ç±³) [UEä¸–ç•Œ]
+    TArray<float> ZValues;   // z×ø±ê(ÀåÃ×) [UEÊÀ½ç]
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> PsiValues; // èˆªå‘è§’ yaw (rad) [UEåæ ‡ç³»ä¸‹]
+    TArray<float> PsiValues; // º½Ïò½Ç yaw (rad) [UE×ø±êÏµÏÂ]
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> PhiValues; // æ¨ªæ»šè§’ roll (rad) [UEåæ ‡ç³»ä¸‹]
+    TArray<float> PhiValues; // ºá¹ö½Ç roll (rad) [UE×ø±êÏµÏÂ]
 
-    // ç«–å‘å¡åº¦ p(s)=dz/dsï¼Œå¯åœ¨ç”ŸæˆSpline Tangentæ—¶åšä¿¯ä»°
+    // ÊúÏòÆÂ¶È p(s)=dz/ds£¬¿ÉÔÚÉú³ÉSpline TangentÊ±×ö¸©Ñö
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> SlopeValues; // slope (æ— é‡çº², rad=? å…¶å®æ˜¯ dz/ds )
+    TArray<float> SlopeValues; // slope (ÎŞÁ¿¸Ù, rad=? ÆäÊµÊÇ dz/ds )
 
     /*------------------------------------------
-       ç”±ä¸­å¿ƒçº¿æ¨ç®—çš„å·¦å³è½¨åæ ‡
+       ÓÉÖĞĞÄÏßÍÆËãµÄ×óÓÒ¹ì×ø±ê
     -------------------------------------------*/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
     TArray<FVector> LeftRailPoints;
@@ -105,7 +105,7 @@ protected:
     TArray<FVector> RightRailPoints;
 
     /*------------------------------------------
-       å­˜å‚¨ç”¨äºå¯è§†åŒ–çš„ SplineMesh Component
+       ´æ´¢ÓÃÓÚ¿ÉÊÓ»¯µÄ SplineMesh Component
     -------------------------------------------*/
     UPROPERTY()
     TArray<USplineMeshComponent*> CenterTrackMeshes;
@@ -117,7 +117,7 @@ protected:
     TArray<USplineMeshComponent*> RightTrackMeshes;
 
     /*------------------------------------------
-       å½“å‰ä½¿ç”¨çš„è½¨é“ç½‘æ ¼èµ„æº & ç¼©æ”¾
+       µ±Ç°Ê¹ÓÃµÄ¹ìµÀÍø¸ñ×ÊÔ´ & Ëõ·Å
     -------------------------------------------*/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Track")
     UStaticMesh* CurrentTrackMesh;
@@ -126,16 +126,16 @@ protected:
     float MeshScaleFactor;
 
     /*------------------------------------------
-       å†…éƒ¨è¾…åŠ©å‡½æ•°
+       ÄÚ²¿¸¨Öúº¯Êı
     -------------------------------------------*/
 
-    // ä»ä¸­å¿ƒçº¿ (x,y,z,psi,phi) è®¡ç®—å·¦å³è½¨é¡¶é¢åæ ‡
+    // ´ÓÖĞĞÄÏß (x,y,z,psi,phi) ¼ÆËã×óÓÒ¹ì¶¥Ãæ×ø±ê
     void ComputeRailCoordsFromCenterLine();
 
-    // æ ¹æ® LeftRailPoints / RightRailPoints æ„å»ºå¯¹åº” Spline
+    // ¸ù¾İ LeftRailPoints / RightRailPoints ¹¹½¨¶ÔÓ¦ Spline
     void CreateRailSplines();
 
-    // ä¸ºæŒ‡å®šçš„ Spline é€æ®µç”Ÿæˆ SplineMesh
+    // ÎªÖ¸¶¨µÄ Spline Öğ¶ÎÉú³É SplineMesh
     void GenerateMeshesForSpline(
         USplineComponent* InSpline,
         TArray<USplineMeshComponent*>& OutMeshArray,
@@ -143,6 +143,6 @@ protected:
         bool bIsCenterLine
     );
 
-    // æ ¹æ®å½“å‰è½¨è¿¹ + Meshï¼Œæ›´æ–°æ‰€æœ‰è½¨é“ç½‘æ ¼
+    // ¸ù¾İµ±Ç°¹ì¼£ + Mesh£¬¸üĞÂËùÓĞ¹ìµÀÍø¸ñ
     void UpdateTrackMeshes();
 };

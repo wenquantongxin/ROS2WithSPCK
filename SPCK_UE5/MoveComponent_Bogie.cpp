@@ -3,7 +3,7 @@
 #include "MoveComponent_Bogie.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "UDPReceiver.h"  // è°ƒç”¨GetLatestTrainData
+#include "UDPReceiver.h"  // µ÷ÓÃGetLatestTrainData
 #include "TrainData.h"    // FTrainData
 
 static const float DistanceScale = 100.f;
@@ -12,25 +12,25 @@ UMoveComponent_Bogie::UMoveComponent_Bogie()
 {
     PrimaryComponentTick.bCanEverTick = true;
 
-    // é»˜è®¤ä¸ºå‰éƒ¨è½¬å‘æ¶
+    // Ä¬ÈÏÎªÇ°²¿×ªÏò¼Ü
     BogieIndex = 0;
 
-    // é»˜è®¤ç›´æ¥ä½¿ç”¨ä¸–ç•Œåæ ‡
+    // Ä¬ÈÏÖ±½ÓÊ¹ÓÃÊÀ½ç×ø±ê
     bUseWorldTransform = true;
 
-    // é»˜è®¤æ’å€¼é€Ÿåº¦
+    // Ä¬ÈÏ²åÖµËÙ¶È
     InterpSpeed = 5.0f;
 
     bInitialized = false;
 
-    // å…ˆå°†æ’å€¼ä½ç½®åˆå§‹åŒ–ä¸ºé›¶ï¼ˆBeginPlayä¸­ä¼šå†æ¬¡é‡ç½®ï¼‰
+    // ÏÈ½«²åÖµÎ»ÖÃ³õÊ¼»¯ÎªÁã£¨BeginPlayÖĞ»áÔÙ´ÎÖØÖÃ£©
     CurrentLocation = FVector::ZeroVector;
     CurrentRotation = FRotator::ZeroRotator;
 
-    // åŒæ—¶è®¾ç½®é»˜è®¤ä½ç½®å’Œæ—‹è½¬
+    // Í¬Ê±ÉèÖÃÄ¬ÈÏÎ»ÖÃºÍĞı×ª
     SetupDefaultTransform();
 
-    //UE_LOG(LogTemp, Log, TEXT("Bogie%d æ„é€ ï¼šé»˜è®¤ä½ç½® X=%.2f Y=%.2f Z=%.2f"),
+    //UE_LOG(LogTemp, Log, TEXT("Bogie%d ¹¹Ôì£ºÄ¬ÈÏÎ»ÖÃ X=%.2f Y=%.2f Z=%.2f"),
      //   BogieIndex, DefaultLocation.X, DefaultLocation.Y, DefaultLocation.Z);
 }
 
@@ -38,17 +38,17 @@ void UMoveComponent_Bogie::BeginPlay()
 {
     Super::BeginPlay();
 
-    // é‡æ–°è®¾ç½®é»˜è®¤å˜æ¢ï¼Œç¡®ä¿ç”¨æ­£ç¡®çš„ BogieIndex
+    // ÖØĞÂÉèÖÃÄ¬ÈÏ±ä»»£¬È·±£ÓÃÕıÈ·µÄ BogieIndex
     SetupDefaultTransform();
 
-    // å°†å½“å‰ä½ç½®é‡ç½®ä¸ºé»˜è®¤ä½ç½®ï¼Œä»¥ç¡®ä¿åˆå§‹æ˜¾ç¤ºæ­£ç¡®
+    // ½«µ±Ç°Î»ÖÃÖØÖÃÎªÄ¬ÈÏÎ»ÖÃ£¬ÒÔÈ·±£³õÊ¼ÏÔÊ¾ÕıÈ·
     CurrentLocation = DefaultLocation;
     CurrentRotation = DefaultRotation;
 
-    //UE_LOG(LogTemp, Log, TEXT("Bogie%d BeginPlayï¼šé»˜è®¤ä½ç½® X=%.2f Y=%.2f Z=%.2f"),
+    //UE_LOG(LogTemp, Log, TEXT("Bogie%d BeginPlay£ºÄ¬ÈÏÎ»ÖÃ X=%.2f Y=%.2f Z=%.2f"),
         //BogieIndex, DefaultLocation.X, DefaultLocation.Y, DefaultLocation.Z);
 
-    // ç­‰å¾…ç¬¬ä¸€æ¬¡æˆåŠŸè·å–æ•°æ®åï¼Œå†å°† bInitialized ç½®ä¸ºtrue
+    // µÈ´ıµÚÒ»´Î³É¹¦»ñÈ¡Êı¾İºó£¬ÔÙ½« bInitialized ÖÃÎªtrue
     bInitialized = false;
 }
 
@@ -56,20 +56,20 @@ void UMoveComponent_Bogie::SetBogieIndex(int32 NewIndex)
 {
     if (BogieIndex != NewIndex)
     {
-        //UE_LOG(LogTemp, Log, TEXT("Bogieç´¢å¼•ä» %d æ›´æ”¹ä¸º %d"), BogieIndex, NewIndex);
+        //UE_LOG(LogTemp, Log, TEXT("BogieË÷Òı´Ó %d ¸ü¸ÄÎª %d"), BogieIndex, NewIndex);
         BogieIndex = NewIndex;
 
-        // é‡æ–°è®¾ç½®é»˜è®¤å˜æ¢
+        // ÖØĞÂÉèÖÃÄ¬ÈÏ±ä»»
         SetupDefaultTransform();
 
-        // å¦‚æœå·²ç»åˆå§‹åŒ–ï¼Œå¯èƒ½éœ€è¦é‡ç½®ä½ç½®
+        // Èç¹ûÒÑ¾­³õÊ¼»¯£¬¿ÉÄÜĞèÒªÖØÖÃÎ»ÖÃ
         if (bInitialized)
         {
             CurrentLocation = DefaultLocation;
             CurrentRotation = DefaultRotation;
         }
 
-        //UE_LOG(LogTemp, Log, TEXT("Bogie%d ç´¢å¼•æ›´æ–°åï¼šé»˜è®¤ä½ç½® X=%.2f Y=%.2f Z=%.2f"),
+        //UE_LOG(LogTemp, Log, TEXT("Bogie%d Ë÷Òı¸üĞÂºó£ºÄ¬ÈÏÎ»ÖÃ X=%.2f Y=%.2f Z=%.2f"),
             //BogieIndex, DefaultLocation.X, DefaultLocation.Y, DefaultLocation.Z);
     }
 }
@@ -78,86 +78,86 @@ void UMoveComponent_Bogie::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    // 1) ç¡®ä¿æœ‰UDPReceiverå¯ç”¨
+    // 1) È·±£ÓĞUDPReceiver¿ÉÓÃ
     if (!UDPReceiverRef)
     {
-        // å¦‚æœæ²¡æœ‰UDPReceiverï¼Œç›´æ¥ä½¿ç”¨é»˜è®¤å€¼ï¼ˆå¯ä¿æŒé™æ­¢æˆ–æ ¹æ®éœ€æ±‚å¤„ç†ï¼‰
+        // Èç¹ûÃ»ÓĞUDPReceiver£¬Ö±½ÓÊ¹ÓÃÄ¬ÈÏÖµ£¨¿É±£³Ö¾²Ö¹»ò¸ù¾İĞèÇó´¦Àí£©
         if (!bInitialized)
         {
-            // æœªåˆå§‹åŒ–å‰ç›´æ¥è·³åˆ°é»˜è®¤
+            // Î´³õÊ¼»¯Ç°Ö±½ÓÌøµ½Ä¬ÈÏ
             CurrentLocation = DefaultLocation;
             CurrentRotation = DefaultRotation;
             bInitialized = true;
 
-            //UE_LOG(LogTemp, Verbose, TEXT("Bogie%d åˆå§‹åŒ–ï¼šæ— UDPæ¥æ”¶å™¨ï¼Œä½¿ç”¨é»˜è®¤ä½ç½® X=%.2f Y=%.2f Z=%.2f"),
+            //UE_LOG(LogTemp, Verbose, TEXT("Bogie%d ³õÊ¼»¯£ºÎŞUDP½ÓÊÕÆ÷£¬Ê¹ÓÃÄ¬ÈÏÎ»ÖÃ X=%.2f Y=%.2f Z=%.2f"),
                 //BogieIndex, DefaultLocation.X, DefaultLocation.Y, DefaultLocation.Z);
         }
         else
         {
-            // å·²åˆå§‹åŒ–åè¿›è¡Œæ’å€¼
+            // ÒÑ³õÊ¼»¯ºó½øĞĞ²åÖµ
             CurrentLocation = FMath::VInterpTo(CurrentLocation, DefaultLocation, DeltaTime, InterpSpeed);
             CurrentRotation = FMath::RInterpTo(CurrentRotation, DefaultRotation, DeltaTime, InterpSpeed);
         }
     }
     else
     {
-        // 2) è·å–æœ€æ–°TrainData
+        // 2) »ñÈ¡×îĞÂTrainData
         FTrainData TrainData;
         bool bHasData = UDPReceiverRef->GetLatestTrainData(TrainData);
 
-        // å®šä¹‰ç›®æ ‡ä½ç½®ä¸æ—‹è½¬ï¼Œé»˜è®¤å…ˆä½¿ç”¨Defaultå€¼
+        // ¶¨ÒåÄ¿±êÎ»ÖÃÓëĞı×ª£¬Ä¬ÈÏÏÈÊ¹ÓÃDefaultÖµ
         FVector TargetLocation = DefaultLocation;
         FRotator TargetRotation = DefaultRotation;
 
-        // 3) å¦‚æœæœ‰æ•°æ®ï¼Œæ›´æ–°ç›®æ ‡ä½ç½®ä¸æ—‹è½¬
+        // 3) Èç¹ûÓĞÊı¾İ£¬¸üĞÂÄ¿±êÎ»ÖÃÓëĞı×ª
         if (bHasData)
         {
             if (BogieIndex == 0)
             {
-                // å‰éƒ¨è½¬å‘æ¶æ•°æ®
+                // Ç°²¿×ªÏò¼ÜÊı¾İ
                 TargetLocation = TrainData.Bogie01Location;
                 TargetRotation = TrainData.Bogie01Rotation;
             }
             else
             {
-                // åéƒ¨è½¬å‘æ¶æ•°æ®
+                // ºó²¿×ªÏò¼ÜÊı¾İ
                 TargetLocation = TrainData.Bogie02Location;
                 TargetRotation = TrainData.Bogie02Rotation;
             }
 
-            // é¦–æ¬¡æ”¶åˆ°UDPæ•°æ®æ—¶è®°å½•æ—¥å¿—
+            // Ê×´ÎÊÕµ½UDPÊı¾İÊ±¼ÇÂ¼ÈÕÖ¾
             if (!bInitialized)
             {
-                //UE_LOG(LogTemp, Log, TEXT("Bogie%d é¦–æ¬¡UDPæ•°æ®ï¼šä½ç½® X=%.2f Y=%.2f Z=%.2f"),
+                //UE_LOG(LogTemp, Log, TEXT("Bogie%d Ê×´ÎUDPÊı¾İ£ºÎ»ÖÃ X=%.2f Y=%.2f Z=%.2f"),
                     //BogieIndex, TargetLocation.X, TargetLocation.Y, TargetLocation.Z);
             }
         }
         else if (!bInitialized)
         {
-            // æœ‰UDPæ¥æ”¶å™¨ä½†è¿˜æ²¡æœ‰æ•°æ®æ—¶è®°å½•æ—¥å¿—
-            //UE_LOG(LogTemp, Verbose, TEXT("Bogie%dï¼šUDPæ¥æ”¶å™¨å°±ç»ªä½†æ— æ•°æ®ï¼Œä½¿ç”¨é»˜è®¤ä½ç½® X=%.2f Y=%.2f Z=%.2f"),
+            // ÓĞUDP½ÓÊÕÆ÷µ«»¹Ã»ÓĞÊı¾İÊ±¼ÇÂ¼ÈÕÖ¾
+            //UE_LOG(LogTemp, Verbose, TEXT("Bogie%d£ºUDP½ÓÊÕÆ÷¾ÍĞ÷µ«ÎŞÊı¾İ£¬Ê¹ÓÃÄ¬ÈÏÎ»ÖÃ X=%.2f Y=%.2f Z=%.2f"),
                 //BogieIndex, DefaultLocation.X, DefaultLocation.Y, DefaultLocation.Z);
         }
 
-        // 4) åšå¹³æ»‘æ’å€¼ï¼Œå‡å°‘è·³åŠ¨
+        // 4) ×öÆ½»¬²åÖµ£¬¼õÉÙÌø¶¯
         if (!bInitialized)
         {
-            // ç¬¬ä¸€æ¬¡ï¼šç›´æ¥è·³åˆ°ç›®æ ‡ä½ç½®ï¼Œé¿å…åˆå§‹ç¬ç§»
+            // µÚÒ»´Î£ºÖ±½ÓÌøµ½Ä¿±êÎ»ÖÃ£¬±ÜÃâ³õÊ¼Ë²ÒÆ
             CurrentLocation = TargetLocation;
             CurrentRotation = TargetRotation;
             bInitialized = true;
         }
         else
         {
-            // ä½ç½®æ’å€¼
+            // Î»ÖÃ²åÖµ
             CurrentLocation = FMath::VInterpTo(
-                CurrentLocation,    // ä¸Šä¸€å¸§æ’å€¼ä½ç½®
-                TargetLocation,     // æœ¬å¸§ç›®æ ‡ä½ç½®
-                DeltaTime,          // å¸§DeltaTime
-                InterpSpeed         // æ’å€¼é€Ÿåº¦
+                CurrentLocation,    // ÉÏÒ»Ö¡²åÖµÎ»ÖÃ
+                TargetLocation,     // ±¾Ö¡Ä¿±êÎ»ÖÃ
+                DeltaTime,          // Ö¡DeltaTime
+                InterpSpeed         // ²åÖµËÙ¶È
             );
 
-            // æ—‹è½¬æ’å€¼
+            // Ğı×ª²åÖµ
             CurrentRotation = FMath::RInterpTo(
                 CurrentRotation,
                 TargetRotation,
@@ -167,7 +167,7 @@ void UMoveComponent_Bogie::TickComponent(float DeltaTime, ELevelTick TickType, F
         }
     }
 
-    // 5) å°†æ’å€¼ç»“æœåº”ç”¨
+    // 5) ½«²åÖµ½á¹ûÓ¦ÓÃ
     AActor* OwnerActor = GetOwner();
     if (!OwnerActor)
     {
@@ -176,30 +176,30 @@ void UMoveComponent_Bogie::TickComponent(float DeltaTime, ELevelTick TickType, F
 
     if (bUseWorldTransform)
     {
-        // ç›´æ¥Setä¸–ç•Œåæ ‡
+        // Ö±½ÓSetÊÀ½ç×ø±ê
         OwnerActor->SetActorLocationAndRotation(CurrentLocation, CurrentRotation);
     }
     else
     {
-        // ä½¿ç”¨ç›¸å¯¹åæ ‡
+        // Ê¹ÓÃÏà¶Ô×ø±ê
         SetRelativeLocationAndRotation(CurrentLocation, CurrentRotation);
     }
 }
 
 void UMoveComponent_Bogie::SetupDefaultTransform()
 {
-    // æ ¹æ®BogieIndexè®¾ç½®ä¸åŒé»˜è®¤ä½ç½®
+    // ¸ù¾İBogieIndexÉèÖÃ²»Í¬Ä¬ÈÏÎ»ÖÃ
     if (BogieIndex == 0)
     {
-        // å‰éƒ¨è½¬å‘æ¶é»˜è®¤ä½ç½®
+        // Ç°²¿×ªÏò¼ÜÄ¬ÈÏÎ»ÖÃ
         DefaultLocation = FVector(DistanceScale * (8.75f), DistanceScale * 0.0f, DistanceScale * (0.43f));
     }
     else
     {
-        // åéƒ¨è½¬å‘æ¶é»˜è®¤ä½ç½®
+        // ºó²¿×ªÏò¼ÜÄ¬ÈÏÎ»ÖÃ
         DefaultLocation = FVector(DistanceScale * (-8.75f), DistanceScale * 0.0f, DistanceScale * (0.43f));
     }
 
-    // å…¶ä½™è‡ªç”±åº¦ä¸º0
+    // ÆäÓà×ÔÓÉ¶ÈÎª0
     DefaultRotation = FRotator::ZeroRotator;
 } 
