@@ -31,7 +31,7 @@
 static const double DEFAULT_DT = 0.002;
 
 // 默认仿真总时长 = 50s
-static const double DEFAULT_SIM_DURATION = 50.0;
+static const double DEFAULT_SIM_DURATION = 500.0;
 
 // 方便后续计时
 using namespace std::chrono_literals;

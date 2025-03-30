@@ -9,10 +9,13 @@
 #include "TrajectorySpline.generated.h"
 
 /**
- * ATrajectorySpline:
- *  从 JSON 仅读取中心线 {s, x, y, z, psi, phi}，
- *  在 C++ 端计算左右轨坐标（考虑超高 & 轨距微调 & 轨底坡），
- *  最后用SplineMesh可视化三条轨道(或仅两条)。
+ * ATrajectorySpline
+ *
+ * 功能：
+ *  1. 从外部 JSON 文件读取轨迹（中心线：s, x, y, z, psi, phi, slope 等）。
+ *  2. 完成坐标系转换（SIMPACK -> UE5）与单位转换（m -> cm）。
+ *  3. 在 UE 中构建三条 Spline（中心线、左轨、右轨），并可生成 SplineMesh 网格进行可视化。
+ *  4. 可选地将 slope 值转化为俯仰角 Pitch，与 psi (yaw) 和 phi (roll) 一起映射到 Spline 的切线。
  */
 UCLASS()
 class VEHICLE4WDB_API ATrajectorySpline : public AActor
@@ -20,101 +23,126 @@ class VEHICLE4WDB_API ATrajectorySpline : public AActor
     GENERATED_BODY()
 
 public:
+    // 构造函数
     ATrajectorySpline();
 
-    // 从JSON文件加载轨迹数据（忽略 left_rail / right_rail）
+    // 在蓝图或C++里可调用：加载外部 JSON 轨迹并转换到 UE5 坐标系
     UFUNCTION(BlueprintCallable, Category = "Trajectory")
     bool LoadTrajectoryFromJSON(const FString& FilePath);
 
-    // 创建左轨、右轨样条
-    UFUNCTION(BlueprintCallable, Category = "Trajectory")
-    void CreateRailSplines();
-
-    // 使用静态网格生成(中心+左右)轨道
+    // 在蓝图或C++里可调用：使用已加载的轨迹数据，生成轨道网格
     UFUNCTION(BlueprintCallable, Category = "Trajectory")
     void GenerateTrackWithMesh(UStaticMesh* TrackMesh, float MeshScale = 1.0f);
 
-    // 更新/重生成 所有轨道网格
-    UFUNCTION(BlueprintCallable, Category = "Trajectory")
-    void UpdateTrackMeshes();
-
-    // 获取中心线Spline
-    UFUNCTION(BlueprintCallable, Category = "Trajectory")
-    USplineComponent* GetSplineComponent() const { return TrajectorySpline; }
-
 protected:
+    // 游戏开始时执行
     virtual void BeginPlay() override;
 
-    /** 轨底坡(度)，如1:40约=1.432度; 在UE编辑器中可调 */
+    /*------------------------------------------
+       轨道可调参数 (在 UE 编辑器中可配置)
+    -------------------------------------------*/
+
+    // 轨底坡(度)，在生成轨道网格时可加到超高滚转中
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Params")
     float RailBaseCantDeg;
 
-    /** 半轨距微调量(单位 cm); 默认0 => b_ref=150 cm */
+    // 轨距半径额外微调(单位 cm)，如需把轨距从150 cm改为 143.5 等
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Params")
     float DeltaHalfGaugeCm;
 
-    /**
-     * 是否显示中心线网格（现实中并没有中心钢轨，但在开发调试中有时想看）
-     * 如果为false，则仅显示左/右轨。
-     */
+    // 是否渲染中心线
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Params")
     bool bRenderCenterLine;
 
-    // ============ 轨迹样条组件 =============
+    // 是否在 Spline 的 Tangent 中结合 slope 值计算俯仰
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Params")
+    bool bUseSlopeForSplineTangent;
+
+    /*------------------------------------------
+       样条组件
+    -------------------------------------------*/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    USplineComponent* TrajectorySpline;
+    USplineComponent* TrajectorySpline;  // 中心线
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    USplineComponent* LeftRailSpline;
+    USplineComponent* LeftRailSpline;    // 左轨线
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    USplineComponent* RightRailSpline;
+    USplineComponent* RightRailSpline;   // 右轨线
 
-    // ============ 中心线轨迹数据 =============
+    /*------------------------------------------
+       轨迹数据（以 UE5 世界坐标/姿态存储）
+    -------------------------------------------*/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> SValues;   // cm (可能暂时用不到)
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> XValues;   // cm
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> YValues;   // cm
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> ZValues;   // cm
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> PsiValues; // rad
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
-    TArray<float> PhiValues; // rad
+    TArray<float> SValues;   // 里程 (cm)，仅供参考，可不做翻转
 
-    // =========== C++中计算的左右轨顶面坐标 =============
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
+    TArray<float> XValues;   // x坐标(厘米) [UE世界]
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
+    TArray<float> YValues;   // y坐标(厘米) [UE世界]
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
+    TArray<float> ZValues;   // z坐标(厘米) [UE世界]
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
+    TArray<float> PsiValues; // 航向角 yaw (rad) [UE坐标系下]
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
+    TArray<float> PhiValues; // 横滚角 roll (rad) [UE坐标系下]
+
+    // 竖向坡度 p(s)=dz/ds，可在生成Spline Tangent时做俯仰
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
+    TArray<float> SlopeValues; // slope (无量纲, rad=? 其实是 dz/ds )
+
+    /*------------------------------------------
+       由中心线推算的左右轨坐标
+    -------------------------------------------*/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
     TArray<FVector> LeftRailPoints;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trajectory Data")
     TArray<FVector> RightRailPoints;
 
-    // ============ 存储SplineMesh组件数组 =============
+    /*------------------------------------------
+       存储用于可视化的 SplineMesh Component
+    -------------------------------------------*/
     UPROPERTY()
     TArray<USplineMeshComponent*> CenterTrackMeshes;
+
     UPROPERTY()
     TArray<USplineMeshComponent*> LeftTrackMeshes;
+
     UPROPERTY()
     TArray<USplineMeshComponent*> RightTrackMeshes;
 
-    // 当前选用的网格 & 缩放
+    /*------------------------------------------
+       当前使用的轨道网格资源 & 缩放
+    -------------------------------------------*/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Track")
     UStaticMesh* CurrentTrackMesh;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Track")
     float MeshScaleFactor;
 
-    // ============ 内部辅助函数 =============
-    /** 基于中心线重新计算左右轨, 考虑超高/轨距微调 */
+    /*------------------------------------------
+       内部辅助函数
+    -------------------------------------------*/
+
+    // 从中心线 (x,y,z,psi,phi) 计算左右轨顶面坐标
     void ComputeRailCoordsFromCenterLine();
 
-    /** 生成某条Spline上的SplineMeshComponents */
+    // 根据 LeftRailPoints / RightRailPoints 构建对应 Spline
+    void CreateRailSplines();
+
+    // 为指定的 Spline 逐段生成 SplineMesh
     void GenerateMeshesForSpline(
         USplineComponent* InSpline,
         TArray<USplineMeshComponent*>& OutMeshArray,
         bool bIsLeftRail,
         bool bIsCenterLine
     );
+
+    // 根据当前轨迹 + Mesh，更新所有轨道网格
+    void UpdateTrackMeshes();
 };
