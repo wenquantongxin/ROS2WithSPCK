@@ -127,6 +127,7 @@ private:
     yvals_    = jdata["y"].get<std::vector<double>>();
     zvals_    = jdata["z"].get<std::vector<double>>();
     psi_vals_ = jdata["psi"].get<std::vector<double>>();
+    slope_vals_ = jdata["slope"].get<std::vector<double>>(); // 如果json可能没有 slope 字段，则做一个contains("slope") 判断。
     
     // phi_vals 可能没有，也可能有
     if(jdata.contains("phi")) {
@@ -262,8 +263,15 @@ private:
     double X_T = xvals_[idx];
     double Y_T = yvals_[idx];
     double Z_T = zvals_[idx];
+
     double yaw_T   = psi_vals_[idx];
-    double pitch_T = 0.0;    // 视具体轨道而定
+    
+    // double pitch_T = 0.0;  // 删除
+    // 改为:
+    double slopeVal = slope_vals_[idx];
+    // pitch_T 可用小角度近似 pitch_T = atan(slopeVal)
+    double pitch_T = -std::atan(slopeVal); // 需要做 pitch_T = -std::atan(slopeVal)
+
     double roll_T  = phi_vals_[idx];
 
     // 2) 轨道系->全局系
@@ -519,6 +527,7 @@ private:
   std::vector<double> zvals_;
   std::vector<double> psi_vals_;
   std::vector<double> phi_vals_; // 如果没有则默认0
+  std::vector<double> slope_vals_; // 添加此行声明坡度数据向量
 
   rclcpp::Subscription<simpack_interfaces::msg::SimpackY>::SharedPtr subscription_;
 };
