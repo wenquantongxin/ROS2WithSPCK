@@ -730,7 +730,7 @@ def read_track_segments(file_path, sheet_name="自定义线路"):
 
                 if v_type == 'CSL':
                     # 只需要 (length=Zp1, slope=Zp2)
-                    # 如果您在表格中是 "Z_Par1 = 段长, Z_Par2 = 斜率" 的形式
+                    # 表格中是 "Z_Par1 = 段长, Z_Par2 = 斜率" 的形式
                     L_  = float(Zp1)
                     p_  = -float(Zp2)   # 改为取负 p_  = float(Zp2)
                     v_segments.append((v_type, L_, p_))
@@ -807,7 +807,7 @@ def read_track_Zs_data(filename):
     0.330502,0,0.998328,-0,0.330502,6.0392e-178,0.998328,0,0.330502,-6.0392e-178,0.998328,-0
     ...
     
-    其中我们只关心12列中的这几列：
+    只关心12列中的这几列：
       col0 => spline(center)_x 作为 center_s
       col1 => spline(center)_y 作为 center_z
       col4 => spline(right)_x  作为 right_s
@@ -860,7 +860,7 @@ def read_track_Zs_data(filename):
             # 行内列数不够，跳过
             continue
 
-        # 试着解析我们关心的那几列：
+        # 解析关心的那几列：
         try:
             # 0,1 => center s,z
             s_c  = float(parts[0]) if parts[0].strip() else 0.0

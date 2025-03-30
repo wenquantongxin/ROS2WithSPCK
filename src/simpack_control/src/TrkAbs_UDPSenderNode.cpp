@@ -1,10 +1,13 @@
 /*
-   文件名: TrkAbs_UDPSenderNode.cpp
+    文件名: TrkAbs_UDPSenderNode.cpp
 
-   功能: 与 TrkRel_UDPSenderNode.cpp 类似，不过在发送前先将车辆的
+    功能: 与 TrkRel_UDPSenderNode.cpp 类似，不过在发送前先将车辆的
          (y_cb, y_f0x, y_ws0x 等) 轨道相对坐标变换到全局绝对坐标。
          最终发送出去的数据已是“绝对坐标系”下的 (X, Y, Z, roll, yaw, pitch)，
          并进一步从 SIMPACK Rail 的 z向下系转换到惯用的 z 向上系。
+
+    坐标系：
+        Z 向上 + 右手系 + 单位 m + (roll,yaw,pitch)按右手坐标系旋转方向
 */
 
 #include <memory>

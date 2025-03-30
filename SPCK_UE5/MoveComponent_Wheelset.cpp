@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Kismet/KismetMathLibrary.h"
 
-// UDP接收 & 数据
+// UDP接收器 & 数据
 #include "UDPReceiver.h"
 #include "TrainData.h"
 #include "Components/StaticMeshComponent.h"
@@ -18,6 +18,7 @@ UMoveComponent_Wheelset::UMoveComponent_Wheelset()
     WheelsetIndex = 0;
     bUseWorldTransform = true;
     InterpSpeed = 5.0f;
+
     WheelRotationSmoothFactor = 20.0f;
     DataTimeoutThreshold = 0.5f; // 默认0.5秒无数据视为停止
 

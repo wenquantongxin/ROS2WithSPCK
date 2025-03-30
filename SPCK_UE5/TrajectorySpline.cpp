@@ -253,7 +253,7 @@ void ATrajectorySpline::ComputeRailCoordsFromCenterLine()
         else
         {
             // 其它点，用前一点差分
-            // 当然，你也可以对中点 i-1/i+1 做双边插值，但一般这么写就够用了
+            // 当然，也可以对中点 i-1/i+1 做双边插值，但一般这么写就够用了
             dx = XValues[i] - XValues[i - 1];
             dy = YValues[i] - YValues[i - 1];
         }
@@ -272,7 +272,7 @@ void ATrajectorySpline::ComputeRailCoordsFromCenterLine()
         // 右法线就是 -(nx, ny)，也可依场景反转
 
         // ============【2】超高滚转带来的Z抬升============ 
-        // 你之前在 code 里使用 phiUE = PhiValues[i] -> zShift = halfGauge * sin(phiUE)
+        // phiUE = PhiValues[i] -> zShift = halfGauge * sin(phiUE)
         // 这里可以继续用:
         float phiUE = (i < PhiValues.Num()) ? PhiValues[i] : 0.f;
         float zShift = halfGauge * FMath::Sin(phiUE);

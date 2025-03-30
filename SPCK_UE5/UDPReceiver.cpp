@@ -10,7 +10,15 @@
 #include "Misc/ScopeLock.h"
 #include "HAL/UnrealMemory.h"
 #include "Math/UnrealMathUtility.h"
-#include "TrainData.h"        // 需要包含 FTrainData 结构
+#include "TrainData.h"        //  FTrainData 结构
+
+/*
+
+ S1 UDPReceiver 中乘以 100（米→厘米）
+ S2 对姿态角乘以 -AngleScale（即先弧度转度，再取负号），
+ S3 映射到“Z 向上 + 左手系 + 单位 cm + (Yaw、Pitch、Roll) - UE 的惯例
+
+*/
 
 // ---------------------- 转换常量部分 ----------------------
 // 如果外部位置是以 "米" 为单位 -> UE 中默认为 "厘米"：     1m = 100cm
@@ -63,7 +71,7 @@ bool AUDPReceiver::InitializeUDPReceiver()
         return false;
     }
 
-    // 绑定地址(0.0.0.0:10099)
+    // 绑定地址 0.0.0.0:10099
     FIPv4Address Addr = FIPv4Address::Any;
     const uint16 Port = 10099; // 与 ROS2 节点发送端口匹配
     FIPv4Endpoint Endpoint(Addr, Port);
