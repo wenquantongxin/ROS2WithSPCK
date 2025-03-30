@@ -6,7 +6,7 @@
 
 #include "simpack_control/PiecewiseTrajectory.hpp" 
 
-#include "PIDController.hpp"  // PID类
+#include "PIDController.hpp"  // PID 类
 
 class ControllerNode : public rclcpp::Node
 {
