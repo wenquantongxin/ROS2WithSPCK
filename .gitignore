@@ -22,7 +22,6 @@ guangdong-latest-free.shp/
 shaanxi-latest-free.shp/
 shanghai-latest-free.shp/
 sichuan-latest-free.shp/
-
 # 数据文件
 *.mat
 *.npy
@@ -39,14 +38,13 @@ sichuan-latest-free.shp/
 # 几何模型文件
 *.STL
 *.SLDPRT
+*.fbx
 
 # 文档和表格
 *.csv
 *.pdf
 *.html
 *.png
-*.doc
-*.docx
 *.txt
 
 # 配置和临时文件
@@ -90,17 +88,21 @@ sichuan-latest-free.shp/
 .DS_Store
 Thumbs.db
 
-# Office 临时文件
-.~Y_output.xlsx
-.~mpackTracks.docx
+# 临时文件
+*.tmp
+*.temp 
 
-~$*           # Word、Excel、PowerPoint 等的临时文件
-*.tmp         # 临时文件
-*.temp        # 临时文件
-~*.doc        # Word 备份文件
-~*.docx       # Word 备份文件
-~*.xls        # Excel 备份文件
-~*.xlsx       # Excel 备份文件
-~*.ppt        # PowerPoint 备份文件
-~*.pptx       # PowerPoint 备份文件
-.~lock.*      # LibreOffice 锁定文件
+# Office 临时文件
+# Excel 备份文件
+.~*.xlsx
+~*.xlsx
+~*.xls        
+# Word 备份文件
+.~*.docx
+~$*.doc
+~$*.docx
+~*.doc  
+# PowerPoint 备份文件       
+~*.ppt        
+~*.pptx
+.~lock.* 

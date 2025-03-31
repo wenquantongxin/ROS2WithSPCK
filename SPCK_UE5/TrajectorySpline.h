@@ -54,6 +54,14 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Params")
     bool bRenderCenterLine;
 
+    // 是否渲染左侧轨道
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Rendering")
+    bool bRenderLeftRail;
+
+    // 是否渲染右侧轨道
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Rendering")
+    bool bRenderRightRail;
+
     // 是否在 Spline 的 Tangent 中结合 slope 值计算俯仰
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Params")
     bool bUseSlopeForSplineTangent;

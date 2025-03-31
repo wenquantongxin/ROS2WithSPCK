@@ -1,5 +1,17 @@
 // TrajectorySpline.cpp
 
+/*
+    蓝图类参考命名：BP_TrajectorySpline
+    参考UE5的放置位置 BP_TrajectorySpline(自我) 变换 -> 位置 -> -0.08m
+
+    - 根组件(RootComponent) - 无位置变换
+        -- Trajectory Spline (TrajectorySpline) 定义曲线走向，默认不渲染
+        -- Left Rail Spline (LeftRailSpline)
+        -- Right Rail Spline (RightRailspline)
+
+*/
+
+
 #include "TrajectorySpline.h"
 #include "Misc/FileHelper.h"
 #include "Dom/JsonObject.h"
@@ -31,10 +43,17 @@ ATrajectorySpline::ATrajectorySpline()
 
     // 默认参数
     CurrentTrackMesh = nullptr;
+
+    // 几何放缩、轨底坡、轨距微调
     MeshScaleFactor = 1.0f;
     RailBaseCantDeg = 1.432f; // 大约 1:40 轨底坡
     DeltaHalfGaugeCm = 0.f;    // 轨距微调
-    bRenderCenterLine = true;
+
+    // 是否绘制中心线、左轨道、右轨道的开关
+    // 默认只生成中心线样条
+    bRenderCenterLine = false;
+    bRenderLeftRail   = false;  // 默认不渲染左轨 - 复用于样条生成
+    bRenderRightRail  = false;  // 默认不渲染右轨 - 复用于样条生成
     bUseSlopeForSplineTangent = false;
 }
 
@@ -366,12 +385,18 @@ void ATrajectorySpline::UpdateTrackMeshes()
     }
 
     // 左轨
-    GenerateMeshesForSpline(LeftRailSpline, LeftTrackMeshes,
-        /*bIsLeftRail=*/true, /*bIsCenterLine=*/false);
+    if (bRenderLeftRail)
+    {
+        GenerateMeshesForSpline(LeftRailSpline, LeftTrackMeshes,
+            /*bIsLeftRail=*/true, /*bIsCenterLine=*/false);
+    }
 
     // 右轨
-    GenerateMeshesForSpline(RightRailSpline, RightTrackMeshes,
-        /*bIsLeftRail=*/false, /*bIsCenterLine=*/false);
+    if (bRenderRightRail)
+    {
+        GenerateMeshesForSpline(RightRailSpline, RightTrackMeshes,
+            /*bIsLeftRail=*/false, /*bIsCenterLine=*/false);
+    }
 }
 
 void ATrajectorySpline::GenerateMeshesForSpline(
