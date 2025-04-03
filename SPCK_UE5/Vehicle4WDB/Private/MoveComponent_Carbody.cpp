@@ -1,3 +1,4 @@
+// @encoding=GB2312
 // MoveComponent_Carbody.cpp
 
 #include "MoveComponent_Carbody.h"

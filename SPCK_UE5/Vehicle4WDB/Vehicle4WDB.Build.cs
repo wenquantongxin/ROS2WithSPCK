@@ -1,4 +1,4 @@
-// Vehicle4WDB.Build.cs
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
 
@@ -16,7 +16,11 @@ public class Vehicle4WDB : ModuleRules
             "InputCore",
             "EnhancedInput",
             "Networking",
-            "Sockets"
+            "Sockets",
+            "UMG",        // 使用 UUserWidget
+            "SlateCore",  // 如果需要
+            "Json",
+            "JsonUtilities"  // 添加以支持JSON处理
         });
     }
 }
