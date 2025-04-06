@@ -3,7 +3,8 @@
 # 当前仿真时间戳(秒)
 float64 sim_time
 
-# 76 个DoFs 字段 (原28个)
+# 82 个 Msg 传感器数据字段 (原 76 个)
+
 float64 y_spcktime
 
 float64 y_cb_vx
@@ -94,5 +95,19 @@ float64 y_ws02_vyaw
 float64 y_ws03_vyaw
 float64 y_ws04_vyaw
 
+float64 y_comfort_accy
+float64 y_comfort_accz
 
+float64 y_w01_contact_fy
+float64 y_w01_contact_fz
+float64 y_w02_contact_fy
+float64 y_w02_contact_fz
 
+float64 y_w01_torque
+float64 y_w02_torque
+float64 y_w03_torque
+float64 y_w04_torque
+float64 y_w05_torque
+float64 y_w06_torque
+float64 y_w07_torque
+float64 y_w08_torque

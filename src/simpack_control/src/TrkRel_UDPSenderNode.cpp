@@ -25,8 +25,8 @@ public:
   : Node("trkrel_udpsender_node", options), send_count_(0)
   {
     // 1) 设置目标IP、端口（Windows侧）
-    target_ip_   = "192.168.1.115";   // 115 是 Ubuntu 本机的IP, 但 Windows 与 MacOS 主机都可以“听得到”
-    // 无法保证更换网络环境同样适用，此处网络环境可能是端口流量做了“泛洪”式发送
+    target_ip_   = "192.168.1.115";   // 115 是 Ubuntu 本机的IP
+    // 无法保证更换网络环境同样适用，应考虑端口流量可能做了“泛洪”式发送
     // 此处为了实现 Ubuntu 本机的同时收发与渲染显示，采用了本机单播本机的设置，并非最佳实践，仅供测试
     target_port_ = 10088;             // Windows 端接收端口
 
@@ -71,9 +71,9 @@ public:
 private:
   void topic_callback(const simpack_interfaces::msg::SimpackY::SharedPtr msg)
   {
-    // 1) 将 77 个 double 连续地填入一个容器
+    // 1) 将 91 个 double 连续地填入一个容器
     std::vector<double> payload;
-    payload.reserve(77);
+    payload.reserve(91);
 
     // 依照一定顺序放入数据; 注意需与 Python 解析端保持一致
     payload.push_back(msg->sim_time);      // (1)
@@ -166,6 +166,26 @@ private:
     payload.push_back(msg->y_ws02_vyaw);   // (75)
     payload.push_back(msg->y_ws03_vyaw);   // (76)
     payload.push_back(msg->y_ws04_vyaw);   // (77)
+
+    // (77..78) 舒适性测点加速度
+    payload.push_back(msg->y_comfort_accy);
+    payload.push_back(msg->y_comfort_accz);
+  
+    // (79..82) 一位端轮对左右车轮的轮轨力
+    payload.push_back(msg->y_w01_contact_fy);
+    payload.push_back(msg->y_w01_contact_fz);
+    payload.push_back(msg->y_w02_contact_fy);
+    payload.push_back(msg->y_w02_contact_fz);
+
+    // (83..90) 8个车轮的输入力矩
+    payload.push_back(msg->y_w01_torque);
+    payload.push_back(msg->y_w02_torque);
+    payload.push_back(msg->y_w03_torque);
+    payload.push_back(msg->y_w04_torque);
+    payload.push_back(msg->y_w05_torque);
+    payload.push_back(msg->y_w06_torque);
+    payload.push_back(msg->y_w07_torque);
+    payload.push_back(msg->y_w08_torque);
 
     // 2) 转为字节指针
     const char* raw_ptr = reinterpret_cast<const char*>(payload.data());

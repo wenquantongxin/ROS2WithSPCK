@@ -24,14 +24,14 @@
 #include "rclcpp/rclcpp.hpp"
 #include "simpack_interfaces/msg/simpack_y.hpp" // 自定义话题
 
-// 下面示例使用 nlohmann/json 来解析 trajectory_data.json
+// 使用 nlohmann/json 解析 trajectory_data.json
 #include <nlohmann/json.hpp>
 using nlohmann::json;
 
 using std::placeholders::_1;
 
 //===================================================================
-//  小工具函数：将 SIMPACK Rail (z向下) 坐标姿态 => z向上右手坐标系
+//  工具函数：将 SIMPACK Rail (z向下) 坐标姿态 => z向上右手坐标系
 //===================================================================
 /**
  * @brief 将 SIMPACK Rail 坐标系下的 (x, y, z, roll, yaw, pitch)
@@ -376,19 +376,20 @@ private:
     convert_ws(ws04_zup);
 
     // =====================================================================
-    // STEP 3: 将需要发送的 77 个量打包 (已是 z向上系, 且 roll,yaw,pitch 对应顺序)
+    // STEP 3: 将需要发送的 91 = 1(时间) + 77(原DoFs数据) + 14(转矩/平稳性/安全性指标) 个量打包 (已是 z轴 向上, 且 roll,yaw,pitch 对应顺序)
+    // 下列 payload.push_back 注释是从 0 开始计数的，并且正好对应于从1计数的 SIMPACK_Y 索引
     // =====================================================================
     std::vector<double> payload;
-    payload.reserve(77);
+    payload.reserve(91);
 
-    // (1) sim_time
+    // (0, payload从0计数) sim_time
     payload.push_back(sim_time);
-    // (2) y_spcktime
+    // (1) y_spcktime
     payload.push_back(y_spcktime);
-    // (3) y_cb_vx
+    // (2) y_cb_vx 车辆纵向速度
     payload.push_back(y_cb_vx);
 
-    // (4..9) 车体 (x, y, z, roll, yaw, pitch)
+    // (3..8) 车体 (x, y, z, roll, yaw, pitch)
     payload.push_back(cbX_abs);
     payload.push_back(cbY_abs);
     payload.push_back(cbZ_abs);
@@ -396,7 +397,7 @@ private:
     payload.push_back(cbYaw_abs);
     payload.push_back(cbPitch_abs);
 
-    // (10..17) 8 个车轮旋转速度 rotw
+    // (9..16) 8个车轮旋转速度 rotw
     payload.push_back(msg->y_w01_rotw);
     payload.push_back(msg->y_w02_rotw);
     payload.push_back(msg->y_w03_rotw);
@@ -406,7 +407,7 @@ private:
     payload.push_back(msg->y_w07_rotw);
     payload.push_back(msg->y_w08_rotw);
 
-    // (18..23) 前转向架 (x, y, z, roll, yaw, pitch)
+    // (17..22) 前转向架 (x, y, z, roll, yaw, pitch)
     payload.push_back(f01X_abs);
     payload.push_back(f01Y_abs);
     payload.push_back(f01Z_abs);
@@ -414,7 +415,7 @@ private:
     payload.push_back(f01Yaw_abs);
     payload.push_back(f01Pitch_abs);
 
-    // (24..29) 后转向架 (x, y, z, roll, yaw, pitch)
+    // (23..28) 后转向架 (x, y, z, roll, yaw, pitch)
     payload.push_back(f02X_abs);
     payload.push_back(f02Y_abs);
     payload.push_back(f02Z_abs);
@@ -422,29 +423,29 @@ private:
     payload.push_back(f02Yaw_abs);
     payload.push_back(f02Pitch_abs);
 
-    // (30..53) 4个轮对 (同理: x,y,z, roll,yaw,pitch)
-    // ws01 (30..35)
+    // (29..52) 4个轮对 (同理: x,y,z, roll,yaw,pitch)
+    // ws01 (29..34)
     payload.push_back(ws01_zup[0]);
     payload.push_back(ws01_zup[1]);
     payload.push_back(ws01_zup[2]);
     payload.push_back(ws01_zup[3]);
     payload.push_back(ws01_zup[4]);
     payload.push_back(ws01_zup[5]);
-    // ws02 (36..41)
+    // ws02 (35..40)
     payload.push_back(ws02_zup[0]);
     payload.push_back(ws02_zup[1]);
     payload.push_back(ws02_zup[2]);
     payload.push_back(ws02_zup[3]);
     payload.push_back(ws02_zup[4]);
     payload.push_back(ws02_zup[5]);
-    // ws03 (42..47)
+    // ws03 (41..46)
     payload.push_back(ws03_zup[0]);
     payload.push_back(ws03_zup[1]);
     payload.push_back(ws03_zup[2]);
     payload.push_back(ws03_zup[3]);
     payload.push_back(ws03_zup[4]);
     payload.push_back(ws03_zup[5]);
-    // ws04 (48..53)
+    // ws04 (47..52)
     payload.push_back(ws04_zup[0]);
     payload.push_back(ws04_zup[1]);
     payload.push_back(ws04_zup[2]);
@@ -452,7 +453,7 @@ private:
     payload.push_back(ws04_zup[4]);
     payload.push_back(ws04_zup[5]);
 
-    // (54..61) 8 车轮转角 rota
+    // (53..60) 8车轮转角 rota
     payload.push_back(msg->y_w01_rota);
     payload.push_back(msg->y_w02_rota);
     payload.push_back(msg->y_w03_rota);
@@ -462,7 +463,7 @@ private:
     payload.push_back(msg->y_w07_rota);
     payload.push_back(msg->y_w08_rota);
 
-    // (62..69) 8 根连杆 pitch
+    // (61..68) 8根连杆 pitch
     payload.push_back(msg->y_bar01_pitch);
     payload.push_back(msg->y_bar02_pitch);
     payload.push_back(msg->y_bar03_pitch);
@@ -472,17 +473,37 @@ private:
     payload.push_back(msg->y_bar07_pitch);
     payload.push_back(msg->y_bar08_pitch);
 
-    // (70..73) 4 个轮对 vy
+    // (69..72) 4个轮对 vy
     payload.push_back(msg->y_ws01_vy);
     payload.push_back(msg->y_ws02_vy);
     payload.push_back(msg->y_ws03_vy);
     payload.push_back(msg->y_ws04_vy);
 
-    // (74..77) 4 个轮对 vyaw
+    // (73..76) 4个轮对 vyaw
     payload.push_back(msg->y_ws01_vyaw);
     payload.push_back(msg->y_ws02_vyaw);
     payload.push_back(msg->y_ws03_vyaw);
     payload.push_back(msg->y_ws04_vyaw);
+
+    // (77..78) 舒适性测点加速度
+    payload.push_back(msg->y_comfort_accy);
+    payload.push_back(msg->y_comfort_accz);
+ 
+    // (79..82) 一位端轮对左右车轮的轮轨力
+    payload.push_back(msg->y_w01_contact_fy);
+    payload.push_back(msg->y_w01_contact_fz);
+    payload.push_back(msg->y_w02_contact_fy);
+    payload.push_back(msg->y_w02_contact_fz);
+
+    // (83..90) 8个车轮的输入力矩
+    payload.push_back(msg->y_w01_torque);
+    payload.push_back(msg->y_w02_torque);
+    payload.push_back(msg->y_w03_torque);
+    payload.push_back(msg->y_w04_torque);
+    payload.push_back(msg->y_w05_torque);
+    payload.push_back(msg->y_w06_torque);
+    payload.push_back(msg->y_w07_torque);
+    payload.push_back(msg->y_w08_torque);
 
     // ============= 转为字节指针，UDP发送 =============
     const char* raw_ptr    = reinterpret_cast<const char*>(payload.data());

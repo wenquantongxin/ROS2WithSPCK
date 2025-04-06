@@ -31,13 +31,14 @@
 static const double DEFAULT_DT = 0.002;
 
 // 默认仿真总时长 = 50s
-static const double DEFAULT_SIM_DURATION = 500.0;
+static const double DEFAULT_SIM_DURATION = 600.0;
 
 // 方便后续计时
 using namespace std::chrono_literals;
 
 // 注意：需要保证与 SIMPACK 模型 y-vector 顺序、ROS 2 msg 顺序匹配
-// 显式列出索引，便于后续赋值
+// 显式列出索引，此处索引为从SIMPACK RT 直接拿到的联合仿真数组的索引，后续记为 y_
+// 注意与 ROS 2 MSG 索引区分 (差1)
 
 static const int INDEX_SPCKTIME = 0;
 static const int INDEX_CB_Vx = 1;
@@ -118,22 +119,42 @@ static const int INDEX_Bar06_Pit = 65;
 static const int INDEX_Bar07_Pit = 66;
 static const int INDEX_Bar08_Pit = 67;
 
-static const int INDEX_WS01_Vy = 68;
+static const int INDEX_WS01_Vy = 68;      // 各轮对横向位移速度
 static const int INDEX_WS02_Vy = 69;
 static const int INDEX_WS03_Vy = 70;
 static const int INDEX_WS04_Vy = 71;
 
-static const int INDEX_WS01_Vyaw = 72;
+static const int INDEX_WS01_Vyaw = 72;    // 各轮对摇头角速度
 static const int INDEX_WS02_Vyaw = 73;
 static const int INDEX_WS03_Vyaw = 74;
 static const int INDEX_WS04_Vyaw = 75;
 
+static const int INDEX_COMFORT_AccY = 76; // 平稳性指标测点的加速度
+static const int INDEX_COMFORT_AccZ = 77;
+
+static const int INDEX_W01_ContactY = 78; // 一位端轮对左右车轮的轮轨力
+static const int INDEX_W01_ContactZ = 79;
+static const int INDEX_W02_ContactY = 80;
+static const int INDEX_W02_ContactZ = 81;
+
+// 控制器信号反射会导致 SIMPACK 预警(可忽略)：
+// WARNING: - $y_XXX_torque depends on $S_YYY_Simat
+static const int INDEX_W01_TorqueY = 82;  // 输入各个车轮的力矩 (控制器信号反射)
+static const int INDEX_W02_TorqueY = 83;
+static const int INDEX_W03_TorqueY = 84;
+static const int INDEX_W04_TorqueY = 85;
+static const int INDEX_W05_TorqueY = 86;
+static const int INDEX_W06_TorqueY = 87;
+static const int INDEX_W07_TorqueY = 88;
+static const int INDEX_W08_TorqueY = 89;
+
 // 日志记录 - Y 
-// 定义数组记录列名。注意: 数组大小必须是 76+1=77, 第一个是 "Time"，后面是 76(原28)个 y-output。
-static const char* Y_columnNames[77] = {
+// 定义数组记录列名。注意: 数组大小必须是 90+1=91, 第一个是 "Time"，后面是 90(原76)个 y-output。
+static const char* Y_columnNames[91] = {
 "\"Time\"", 
 "\"y_spcktime\"", 
-"\"y_cb_vx\"", "\"y_cb_x\"", "\"y_cb_y\"", "\"y_cb_z\"", "\"y_cb_roll\"", "\"y_cb_yaw\"", "\"y_cb_pitch\"", 
+"\"y_cb_vx\"", 
+"\"y_cb_x\"", "\"y_cb_y\"", "\"y_cb_z\"", "\"y_cb_roll\"", "\"y_cb_yaw\"", "\"y_cb_pitch\"", 
 "\"y_w01_rotw\"", "\"y_w02_rotw\"", "\"y_w03_rotw\"", "\"y_w04_rotw\"", "\"y_w05_rotw\"", "\"y_w06_rotw\"", "\"y_w07_rotw\"", "\"y_w08_rotw\"", 
 "\"y_f01_x\"", "\"y_f01_y\"", "\"y_f01_z\"", "\"y_f01_roll\"", "\"y_f01_yaw\"", "\"y_f01_pitch\"", 
 "\"y_f02_x\"", "\"y_f02_y\"", "\"y_f02_z\"", "\"y_f02_roll\"", "\"y_f02_yaw\"", "\"y_f02_pitch\"", 
@@ -146,7 +167,10 @@ static const char* Y_columnNames[77] = {
 "\"y_bar01_pitch\"", "\"y_bar02_pitch\"", "\"y_bar03_pitch\"", "\"y_bar04_pitch\"", 
 "\"y_bar05_pitch\"", "\"y_bar06_pitch\"", "\"y_bar07_pitch\"", "\"y_bar08_pitch\"", 
 "\"y_ws01_vy\"", "\"y_ws02_vy\"", "\"y_ws03_vy\"", "\"y_ws04_vy\"", 
-"\"y_ws01_vyaw\"", "\"y_ws02_vyaw\"", "\"y_ws03_vyaw\"", "\"y_ws04_vyaw\""
+"\"y_ws01_vyaw\"", "\"y_ws02_vyaw\"", "\"y_ws03_vyaw\"", "\"y_ws04_vyaw\"", 
+"\"y_comfort_accy\"", "\"y_comfort_accz\"", 
+"\"y_w01_contact_fy\"", "\"y_w01_contact_fz\"", "\"y_w02_contact_fy\"", "\"y_w02_contact_fz\"", 
+"\"y_w01_torque\"", "\"y_w02_torque\"", "\"y_w03_torque\"", "\"y_w04_torque\"", "\"y_w05_torque\"", "\"y_w06_torque\"", "\"y_w07_torque\"", "\"y_w08_torque\""
 };
 
 // 日志记录 - U 
@@ -206,11 +230,11 @@ SimpackNode::SimpackNode(const rclcpp::NodeOptions & options)
     return; // 或其他适当的错误处理，如抛出异常
   }
   
-  // 先写一个标题行，包含 Time 以及 76(原28) 个 y-output
+  // 先写一个标题行，包含 Time 以及 90(原76) 个 y-output
   // 不再使用 # time(s) y0 y1 ... y27, 而是改为以双引号+Tab 分隔
-  for (int i = 0; i < 77; ++i) {
+  for (int i = 0; i < 91; ++i) {
     logFile_Y << Y_columnNames[i];
-    if (i < 76) {
+    if (i < 90) {
       logFile_Y << "\t";  // 列间用TAB分隔
     }
     else {
@@ -383,12 +407,12 @@ void SimpackNode::timerCallback()
   // 1) 读取 y[]
   SpckRtGetY(y_);
 
-  // 2) 发布 y: 76个量
+  // 2) 发布 y: 90 个量
   simpack_interfaces::msg::SimpackY sensor_msg;
   sensor_msg.sim_time = simTime_; // 当前仿真时刻
 
-  // 建议: 如果要确保一次性完整赋值全部 76 个量，检查条件最好改为 (ny_ >= 76)
-  if (ny_ >= 76) 
+  // 建议: 如果要确保一次性完整赋值全部 90 个量，检查条件最好改为 (ny_ >= 90)
+  if (ny_ >= 90) 
   {
     // 0. SIMPACK 内部时间
     sensor_msg.y_spcktime   = y_[INDEX_SPCKTIME];
@@ -486,13 +510,34 @@ void SimpackNode::timerCallback()
     sensor_msg.y_ws02_vyaw = y_[INDEX_WS02_Vyaw];
     sensor_msg.y_ws03_vyaw = y_[INDEX_WS03_Vyaw];
     sensor_msg.y_ws04_vyaw = y_[INDEX_WS04_Vyaw];
+
+    // 8. 平稳性指标
+    sensor_msg.y_comfort_accy   = y_[INDEX_COMFORT_AccY];
+    sensor_msg.y_comfort_accz   = y_[INDEX_COMFORT_AccZ];
+
+    // 9. 纵向与横向轮轨力
+    sensor_msg.y_w01_contact_fy   = y_[INDEX_W01_ContactY];
+    sensor_msg.y_w01_contact_fz   = y_[INDEX_W01_ContactZ];
+    sensor_msg.y_w02_contact_fy   = y_[INDEX_W02_ContactY];
+    sensor_msg.y_w02_contact_fz   = y_[INDEX_W02_ContactZ];
+
+    // 10. 输入各车轮的转矩
+    sensor_msg.y_w01_torque = y_[INDEX_W01_TorqueY];
+    sensor_msg.y_w02_torque = y_[INDEX_W02_TorqueY];
+    sensor_msg.y_w03_torque = y_[INDEX_W03_TorqueY];
+    sensor_msg.y_w04_torque = y_[INDEX_W04_TorqueY];
+    sensor_msg.y_w05_torque = y_[INDEX_W05_TorqueY];
+    sensor_msg.y_w06_torque = y_[INDEX_W06_TorqueY];
+    sensor_msg.y_w07_torque = y_[INDEX_W07_TorqueY];
+    sensor_msg.y_w08_torque = y_[INDEX_W08_TorqueY];    
+
   }
   
   else {
-    // 如果 ny_ 不足 76，做相应提示或只赋值一部分
+    // 如果 ny_ 不足 90，做相应提示或只赋值一部分
     RCLCPP_WARN_ONCE(
       this->get_logger(),
-      "ny_=%d < 76, 并非所有的 y[] 都被赋值, 请检查赋值维度",
+      "ny_=%d < 90, 并非所有的 y[] 都被赋值, 请检查赋值维度",
       ny_);
   }
   
