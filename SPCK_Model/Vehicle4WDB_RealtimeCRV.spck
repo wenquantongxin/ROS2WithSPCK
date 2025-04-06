@@ -78,13 +78,13 @@ substr.attr.2d.height (             $S_IRWBogie_Rear              ) = 4.00000000
 ! Views
 !**********************************************************************
 view.type (                         $V_WorkingView                ) = 0                       ! Projection type
-view.pos (                1 ,       $V_WorkingView                ) = -1.28571989335324055E+01 ! Position
-view.pos (                2 ,       $V_WorkingView                ) = -1.59230232629349651E+01 ! Position
-view.pos (                3 ,       $V_WorkingView                ) = -1.87325541282250896E+01 ! Position
-view.orient (             1 ,       $V_WorkingView                ) = 2.24450503279892244E-01 ! Orientation
-view.orient (             2 ,       $V_WorkingView                ) = 9.01395636829817715E-01 ! Orientation
-view.orient (             3 ,       $V_WorkingView                ) = -3.54572750224314170E-01 ! Orientation
-view.orient (             4 ,       $V_WorkingView                ) = -1.06705399488201069E-01 ! Orientation
+view.pos (                1 ,       $V_WorkingView                ) = -1.28571989336775836E+01 ! Position
+view.pos (                2 ,       $V_WorkingView                ) = -1.59230232630157360E+01 ! Position
+view.pos (                3 ,       $V_WorkingView                ) = -1.87325541282335983E+01 ! Position
+view.orient (             1 ,       $V_WorkingView                ) = 2.24450503279625124E-01 ! Orientation
+view.orient (             2 ,       $V_WorkingView                ) = 9.01395636829809610E-01 ! Orientation
+view.orient (             3 ,       $V_WorkingView                ) = -3.54572750224480926E-01 ! Orientation
+view.orient (             4 ,       $V_WorkingView                ) = -1.06705399488277342E-01 ! Orientation
 view.angle (                        $V_WorkingView                ) = 7.85398185253143311E-01 ! Lens angle
 view.fclip.auto (                   $V_WorkingView                ) = 1                       ! Front clipping plane auto
 view.bclip.auto (                   $V_WorkingView                ) = 1                       ! Back clipping plane auto
@@ -101,13 +101,13 @@ view.motion.z (                     $V_WorkingView                ) = 1         
 view.motion.al (                    $V_WorkingView                ) = 1                       ! Moved camera direction alpha
 view.motion.be (                    $V_WorkingView                ) = 1                       ! Moved camera direction beta
 view.motion.ga (                    $V_WorkingView                ) = 1                       ! Moved camera direction gamma
-view.motion.pos (         1 ,       $V_WorkingView                ) = -2.16071989335324055E+01 ! Relative position
-view.motion.pos (         2 ,       $V_WorkingView                ) = -1.49230232629349651E+01 ! Relative position
-view.motion.pos (         3 ,       $V_WorkingView                ) = -1.75325541282250903E+01 ! Relative position
-view.motion.orient (      1 ,       $V_WorkingView                ) = 2.24450503279892244E-01 ! Relative orientation
-view.motion.orient (      2 ,       $V_WorkingView                ) = 9.01395636829817715E-01 ! Relative orientation
-view.motion.orient (      3 ,       $V_WorkingView                ) = -3.54572750224314170E-01 ! Relative orientation
-view.motion.orient (      4 ,       $V_WorkingView                ) = -1.06705399488201069E-01 ! Relative orientation
+view.motion.pos (         1 ,       $V_WorkingView                ) = -2.16071989336775836E+01 ! Relative position
+view.motion.pos (         2 ,       $V_WorkingView                ) = -1.49230232630157360E+01 ! Relative position
+view.motion.pos (         3 ,       $V_WorkingView                ) = -1.75325541282335990E+01 ! Relative position
+view.motion.orient (      1 ,       $V_WorkingView                ) = 2.24450503279625124E-01 ! Relative orientation
+view.motion.orient (      2 ,       $V_WorkingView                ) = 9.01395636829809610E-01 ! Relative orientation
+view.motion.orient (      3 ,       $V_WorkingView                ) = -3.54572750224480926E-01 ! Relative orientation
+view.motion.orient (      4 ,       $V_WorkingView                ) = -1.06705399488277342E-01 ! Relative orientation
 
 view.type (                         $V_Perspective_Moved          ) = 0                       ! Projection type
 view.pos (                1 ,       $V_Perspective_Moved          ) = -1.14629710518056527E+00 ! Position
@@ -3475,6 +3475,10 @@ yout.par (                2 ,       $y_w07_torque                 ) = 2.00000000
 yout.type (                         $y_w08_torque                 ) = 11                      ! Type
 yout.par (                1 ,       $y_w08_torque                 ) = $S_IRWBogie_Rear.$F_Motor_D_Simat ! [-] Force Element
 yout.par (                2 ,       $y_w08_torque                 ) = 2.00000000000000000E+00 ! [-] Direction/magnitude
+
+yout.type (                         $y_tracks                     ) = 13                      ! Type
+yout.par (                1 ,       $y_tracks                     ) = $J_Carbody              ! [-] Connection/Joint
+yout.par (                2 ,       $y_tracks                     ) = 1.00000000000000000E+00 ! [-] State
 
 !**********************************************************************
 ! Sensors

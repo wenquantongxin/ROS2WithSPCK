@@ -31,7 +31,7 @@
 static const double DEFAULT_DT = 0.002;
 
 // 默认仿真总时长 = 50s
-static const double DEFAULT_SIM_DURATION = 600.0;
+static const double DEFAULT_SIM_DURATION = 550.0;
 
 // 方便后续计时
 using namespace std::chrono_literals;
@@ -148,9 +148,12 @@ static const int INDEX_W06_TorqueY = 87;
 static const int INDEX_W07_TorqueY = 88;
 static const int INDEX_W08_TorqueY = 89;
 
+// 运行里程
+static const int INDEX_TrackS = 90;
+
 // 日志记录 - Y 
-// 定义数组记录列名。注意: 数组大小必须是 90+1=91, 第一个是 "Time"，后面是 90(原76)个 y-output。
-static const char* Y_columnNames[91] = {
+// 定义数组记录列名。注意: 数组大小必须是 91+1=92, 第一个是 "Time"，后面是 91(原76)个 y-output。
+static const char* Y_columnNames[92] = {
 "\"Time\"", 
 "\"y_spcktime\"", 
 "\"y_cb_vx\"", 
@@ -170,7 +173,8 @@ static const char* Y_columnNames[91] = {
 "\"y_ws01_vyaw\"", "\"y_ws02_vyaw\"", "\"y_ws03_vyaw\"", "\"y_ws04_vyaw\"", 
 "\"y_comfort_accy\"", "\"y_comfort_accz\"", 
 "\"y_w01_contact_fy\"", "\"y_w01_contact_fz\"", "\"y_w02_contact_fy\"", "\"y_w02_contact_fz\"", 
-"\"y_w01_torque\"", "\"y_w02_torque\"", "\"y_w03_torque\"", "\"y_w04_torque\"", "\"y_w05_torque\"", "\"y_w06_torque\"", "\"y_w07_torque\"", "\"y_w08_torque\""
+"\"y_w01_torque\"", "\"y_w02_torque\"", "\"y_w03_torque\"", "\"y_w04_torque\"", "\"y_w05_torque\"", "\"y_w06_torque\"", "\"y_w07_torque\"", "\"y_w08_torque\"", 
+"\"y_trackS\""
 };
 
 // 日志记录 - U 
@@ -230,11 +234,11 @@ SimpackNode::SimpackNode(const rclcpp::NodeOptions & options)
     return; // 或其他适当的错误处理，如抛出异常
   }
   
-  // 先写一个标题行，包含 Time 以及 90(原76) 个 y-output
+  // 先写一个标题行，包含 Time 以及 91(原76) 个 y-output
   // 不再使用 # time(s) y0 y1 ... y27, 而是改为以双引号+Tab 分隔
-  for (int i = 0; i < 91; ++i) {
+  for (int i = 0; i < 92; ++i) {
     logFile_Y << Y_columnNames[i];
-    if (i < 90) {
+    if (i < 91) {
       logFile_Y << "\t";  // 列间用TAB分隔
     }
     else {
@@ -407,12 +411,12 @@ void SimpackNode::timerCallback()
   // 1) 读取 y[]
   SpckRtGetY(y_);
 
-  // 2) 发布 y: 90 个量
+  // 2) 发布 y: 91 个量
   simpack_interfaces::msg::SimpackY sensor_msg;
   sensor_msg.sim_time = simTime_; // 当前仿真时刻
 
   // 建议: 如果要确保一次性完整赋值全部 90 个量，检查条件最好改为 (ny_ >= 90)
-  if (ny_ >= 90) 
+  if (ny_ >= 91) 
   {
     // 0. SIMPACK 内部时间
     sensor_msg.y_spcktime   = y_[INDEX_SPCKTIME];
@@ -531,13 +535,16 @@ void SimpackNode::timerCallback()
     sensor_msg.y_w07_torque = y_[INDEX_W07_TorqueY];
     sensor_msg.y_w08_torque = y_[INDEX_W08_TorqueY];    
 
+    // 11. 运行里程
+    sensor_msg.y_tracks = y_[INDEX_TrackS];  
+
   }
   
   else {
-    // 如果 ny_ 不足 90，做相应提示或只赋值一部分
+    // 如果 ny_ 不足 91，做相应提示或只赋值一部分
     RCLCPP_WARN_ONCE(
       this->get_logger(),
-      "ny_=%d < 90, 并非所有的 y[] 都被赋值, 请检查赋值维度",
+      "ny_=%d < 91, 并非所有的 y[] 都被赋值, 请检查赋值维度",
       ny_);
   }
   

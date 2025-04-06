@@ -71,9 +71,9 @@ public:
 private:
   void topic_callback(const simpack_interfaces::msg::SimpackY::SharedPtr msg)
   {
-    // 1) 将 91 个 double 连续地填入一个容器
+    // 1) 将 92 个 double 连续地填入一个容器
     std::vector<double> payload;
-    payload.reserve(91);
+    payload.reserve(92);
 
     // 依照一定顺序放入数据; 注意需与 Python 解析端保持一致
     payload.push_back(msg->sim_time);      // (1)
@@ -186,6 +186,9 @@ private:
     payload.push_back(msg->y_w06_torque);
     payload.push_back(msg->y_w07_torque);
     payload.push_back(msg->y_w08_torque);
+
+    // (91) 车辆运行里程
+    payload.push_back(msg->y_tracks);
 
     // 2) 转为字节指针
     const char* raw_ptr = reinterpret_cast<const char*>(payload.data());

@@ -376,11 +376,11 @@ private:
     convert_ws(ws04_zup);
 
     // =====================================================================
-    // STEP 3: 将需要发送的 91 = 1(时间) + 77(原DoFs数据) + 14(转矩/平稳性/安全性指标) 个量打包 (已是 z轴 向上, 且 roll,yaw,pitch 对应顺序)
+    // STEP 3: 将需要发送的 92 = 1(时间) + 76(原DoFs数据) + 14(转矩/平稳性/安全性指标) + 1(里程) 量打包 (已是 z轴 向上, 且 roll,yaw,pitch 对应顺序)
     // 下列 payload.push_back 注释是从 0 开始计数的，并且正好对应于从1计数的 SIMPACK_Y 索引
     // =====================================================================
     std::vector<double> payload;
-    payload.reserve(91);
+    payload.reserve(92);
 
     // (0, payload从0计数) sim_time
     payload.push_back(sim_time);
@@ -504,6 +504,9 @@ private:
     payload.push_back(msg->y_w06_torque);
     payload.push_back(msg->y_w07_torque);
     payload.push_back(msg->y_w08_torque);
+
+    // (91) 车辆运行里程
+    payload.push_back(msg->y_tracks);
 
     // ============= 转为字节指针，UDP发送 =============
     const char* raw_ptr    = reinterpret_cast<const char*>(payload.data());
