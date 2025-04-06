@@ -45,8 +45,8 @@ AUDPReceiver::AUDPReceiver()
     ListenSocket = nullptr;
     UDPReceiver = nullptr;
 
-    // 77 个 double，每个 double 8 字节 -> 616 字节
-    ExpectedDataSize = 77 * sizeof(double);
+    // 92 (原77) 个 double，每个 double 8 字节 -> 616 字节
+    ExpectedDataSize = 92 * sizeof(double);
 
     // 刚开始还未收到任何有效数据
     bHasValidData = false;
@@ -171,15 +171,14 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
         return;
     }
 
-    // 2) 解析 77 个 double
+    // 2) 解析 91(原77) 个 double
     const double* rawPtr = reinterpret_cast<const double*>(ArrayReaderPtr->GetData());
     FTrainData newData; // 临时存储
 
+    // (1) ROS 2 的内部时间戳, (2) y_spcktime, (3) y_cb_vx
     int idx = 0;
-
-    // (1) sim_time, (2) y_spcktime, (3) y_cb_vx
     newData.SimTime = rawPtr[idx++];
-    newData.SPCKTime = rawPtr[idx++];
+    newData.SPCKTime =  rawPtr[idx++];
     newData.CarBodyVx = rawPtr[idx++];
 
     // (4~9) 车体(X, Y, Z, roll, yaw, pitch)
@@ -301,6 +300,23 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
     {
         newData.WheelsetVYaw[i] = rawPtr[idx++];
     }
+
+    // (78~79) 平稳性指标, (80~83) 轮轨力, (84~91) 反射数据-控制转矩
+    for (int i = 0; i < 2; i++)
+    {
+        newData.CarbodyComfort[i] = rawPtr[idx++];
+    }
+    for (int i = 0; i < 4; i++)
+    {
+        newData.WheelRailContactForce[i] = rawPtr[idx++];
+    }    
+    for (int i = 0; i < 8; i++)
+    {
+        newData.InputTorque[i] = rawPtr[idx++];
+    }
+
+    // (92) 运行里程
+    newData.TrackS = rawPtr[idx++];
 
     // 如果要检查 NaN / 无穷大等，可使用 IsValidData
     if (!IsValidData(cbX, cbY, cbZ, cbRoll, cbYaw, cbPitch))

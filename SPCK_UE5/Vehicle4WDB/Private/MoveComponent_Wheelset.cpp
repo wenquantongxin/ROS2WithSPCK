@@ -275,7 +275,7 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
         FVector TargetLocation = DefaultLocation;
         FRotator TargetRotation = DefaultRotation;
 
-        // 4) 如果有数据，则更新位置和旋转(不考虑SimTime是否变化)
+        // 4) 如果有数据，则更新位置和旋转(不考虑 SPCKTime 是否变化)
         if (bHasData &&
             WheelsetIndex < TrainData.WheelsetLocations.Num() &&
             WheelsetIndex < TrainData.WheelsetRotations.Num())
@@ -290,13 +290,13 @@ void UMoveComponent_Wheelset::TickComponent(float DeltaTime, ELevelTick TickType
                 // 首次收到数据
                 bDataActuallyUpdated = true;
                 bFirstDataReceived = true;
-                LastSimTime = TrainData.SimTime;
+                LastSimTime = TrainData.SPCKTime;
             }
-            else if (FMath::Abs(TrainData.SimTime - LastSimTime) > 1e-6)
+            else if (FMath::Abs(TrainData.SPCKTime - LastSimTime) > 1e-6)
             {
                 // SimTime有变化，说明有新数据
                 bDataActuallyUpdated = true;
-                LastSimTime = TrainData.SimTime;
+                LastSimTime = TrainData.SPCKTime;
             }
 
             // 只有数据真正更新时才更新车轮旋转速度

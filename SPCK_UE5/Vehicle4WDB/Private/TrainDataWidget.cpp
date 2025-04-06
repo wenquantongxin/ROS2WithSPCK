@@ -1,4 +1,4 @@
-// File: TrainDataWidget.cpp
+// TrainDataWidget.cpp
 
 /*
 
@@ -32,6 +32,21 @@ void UTrainDataWidget::NativeConstruct()
     }
 }
 
+// 依次定义文本更新方式
+// 更新 HUD 时间显示
+void UTrainDataWidget::UpdateSPCKTime(float SPCK_time)
+{
+    // 1) 使用三位小数格式化字符串
+    FString TimeString = FString::Printf(TEXT("%.3f"), SPCK_time);
+
+    // 2) 如果存在 SPCKTime_TextBlock，就设置文本
+    if (SPCKTime_TextBlock)
+    {
+        SPCKTime_TextBlock->SetText(FText::FromString(TimeString));
+    }
+}
+
+// 更新 HUD 速度显示
 void UTrainDataWidget::UpdateSpeed(float SpeedCmS)
 {
     // 1) 将速度转成要显示的单位（此时 DisplaySpeed 已是 km/h 或 m/s ）
@@ -47,12 +62,11 @@ void UTrainDataWidget::UpdateSpeed(float SpeedCmS)
     }
 }
 
-// （新增的更新里程函数）
+// 更新 HUD 里程显示
 void UTrainDataWidget::UpdateTrackS(float InTrackS)
 {
-    // 假设该值单位是米，可直接显示或再格式化
-    // 此处修改单位为 km
-    FString TrackSString = FString::Printf( TEXT("%.3f"), InTrackS / 1000 );
+    // 传入的是 SPCK 的标准单位制(m)
+    FString TrackSString = FString::Printf( TEXT("%.3f"), InTrackS / 1000 );  // 格式化单位为 km
 
     if (TrackS_TextBlock)
     {
@@ -60,12 +74,22 @@ void UTrainDataWidget::UpdateTrackS(float InTrackS)
     }
 }
 
+
+// 以上均为 HUD Widget 函数更新
+// 速度的特殊处理：显示单位的选择
 float UTrainDataWidget::ConvertSpeed(float SpeedCmS) const
 {
     float AbsVal = FMath::Abs(SpeedCmS);
     float DistanceScale = 100.f;
     // cm/s -> km/h: 0.036
-    return bUseMPS ? ( AbsVal * DistanceScale ) : (AbsVal * DistanceScale * 0.036f);
+    //return bUseMPS ? ( AbsVal * DistanceScale ) : (AbsVal * DistanceScale * 0.036f);
+    if (bUseMPS)
+    {
+        // 从 UE5 的 cm/s 恢复为 m/s
+        return AbsVal * DistanceScale;
+    }
+    else
+    {
+        return AbsVal * DistanceScale * 0.036f;
+    }
 }
-
-

@@ -7,9 +7,10 @@
 #include "TrainData.generated.h"
 
 /**
- * Ê¾Àý½á¹¹Ìå£¬´æ´¢´ÓUDP½ÓÊÕµ½µÄÕû³µÐÅÏ¢¡£
- * ÕâÀïÑÝÊ¾ÁË 77 ¸ö double µÄ²ð·Ö·½Ê½¡£
+ * ï¿½á¹¹ï¿½ï¿½æ´¢ï¿½ï¿½ UDP ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½
+ * UDP ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ 92(Ô­77) ï¿½ï¿½ double ï¿½Ä²ï¿½Ö·ï¿½Ê½ï¿½ï¿½
  */
+
 USTRUCT(BlueprintType)
 struct FTrainData
 {
@@ -26,60 +27,77 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     double CarBodyVx;
 
-    // 4~9) ³µÌå6×ÔÓÉ¶È (X,Y,Z, roll,yaw,pitch)
+    // 4~9) ï¿½ï¿½ï¿½ï¿½6ï¿½ï¿½ï¿½É¶ï¿½ (X,Y,Z, roll,yaw,pitch)
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     FVector CarBodyLocation;   // (X, Y, Z)
 
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
-    FRotator CarBodyRotation;  // (Pitch, Yaw, Roll) ¡ª¡ª ×¢Òâ½âÎöÊ±ÒªÖØÅÅ
+    FRotator CarBodyRotation;  // (Pitch, Yaw, Roll) ï¿½ï¿½ï¿½ï¿½ ×¢ï¿½ï¿½ï¿½ï¿½ï¿½Ê±Òªï¿½ï¿½ï¿½ï¿½
 
-    // 10~17) 8¸öÂÖµÄÐý×ªËÙ¶È rotw
+    // 10~17) 8ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½×ªï¿½Ù¶ï¿½ rotw
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> WheelsRotSpeed; // size=8
 
-    // 18~23) ×ªÏò¼Ü #1£¨X,Y,Z, roll,yaw,pitch£©
+    // 18~23) ×ªï¿½ï¿½ï¿½ #1ï¿½ï¿½X,Y,Z, roll,yaw,pitchï¿½ï¿½
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     FVector Bogie01Location;
 
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     FRotator Bogie01Rotation;
 
-    // 24~29) ×ªÏò¼Ü #2
+    // 24~29) ×ªï¿½ï¿½ï¿½ #2
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     FVector Bogie02Location;
 
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     FRotator Bogie02Rotation;
 
-    // 30~53) 4¸öÂÖ¶Ô(Ã¿¸ö 6 DOF)
+    // 30~53) 4ï¿½ï¿½ï¿½Ö¶ï¿½(Ã¿ï¿½ï¿½ 6 DOF)
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<FVector> WheelsetLocations; // size=4
 
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<FRotator> WheelsetRotations; // size=4
 
-    // 54~61) 8¸ö³µÂÖ×ª½Ç rota
+    // 54~61) 8ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ rota
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> WheelsRotation; // size=8
 
-    // 62~69) 8¸ö¸Ü¸Ë pitch
+    // 62~69) 8ï¿½ï¿½ï¿½Ü¸ï¿½ pitch
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> BarsPitch; // size=8
 
-    // 70~73) 4¸öÂÖ¶Ô vy
+    // 70~73) 4ï¿½ï¿½ï¿½Ö¶ï¿½ vy
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> WheelsetVY; // size=4
 
-    // 74~77) 4¸öÂÖ¶Ô vyaw
+    // 74~77) 4ï¿½ï¿½ï¿½Ö¶ï¿½ vyaw
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> WheelsetVYaw; // size=4
 
-    // ¹¹Ôìº¯Êý£¬³õÊ¼»¯Êý×é³ß´ç
+    // 78~79) ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½
+    UPROPERTY(BlueprintReadWrite, Category = "TrainData")
+    TArray<double> CarbodyComfort; // size=2
+
+    // 80~83) ï¿½Ö¹ï¿½ï¿½ï¿½
+    UPROPERTY(BlueprintReadWrite, Category = "TrainData")
+    TArray<double> WheelRailContactForce; // size=4
+
+    // 84~91) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    UPROPERTY(BlueprintReadWrite, Category = "TrainData")
+    TArray<double> InputTorque; // size=8
+
+    // 92) TrackS ï¿½Ð³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ä»»
+    UPROPERTY(BlueprintReadWrite, Category = "TrainData")
+    double TrackS;
+
+    // ï¿½ï¿½ï¿½ìº¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß´ï¿½
     FTrainData()
     {
         SimTime = 0.0;
         SPCKTime = 0.0;
         CarBodyVx = 0.0;
+        TrackS = 0.0;
 
         CarBodyLocation = FVector::ZeroVector;
         CarBodyRotation = FRotator::ZeroRotator;
@@ -99,5 +117,10 @@ public:
 
         WheelsetVY.SetNum(4);
         WheelsetVYaw.SetNum(4);
+
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 14 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        CarbodyComfort.SetNum(2);
+        WheelRailContactForce.SetNum(4);
+        InputTorque.SetNum(8);
     }
 };

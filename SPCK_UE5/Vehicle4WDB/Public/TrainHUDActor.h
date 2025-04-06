@@ -1,9 +1,9 @@
-// File: TrainHUDActor.h
+// TrainHUDActor.h
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "TrainData.h"    // 您已有的FTrainData结构
+#include "TrainData.h"   
 #include "TrainHUDActor.generated.h"
 
 class UTrainDataWidget;

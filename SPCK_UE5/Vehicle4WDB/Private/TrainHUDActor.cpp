@@ -1,15 +1,17 @@
-// File: TrainHUDActor.cpp
+// TrainHUDActor.cpp
+// 发现 UDP Actor 并显示 HUD，并获取 UDP 数据 —— UDPReceiverPtr->GetLatestTrainData(LatestData)
+// 无其他数据处理逻辑
 
 #include "TrainHUDActor.h"
 #include "TrainDataWidget.h"
-#include "UDPReceiver.h"        // 您已有的AUDPReceiver
+#include "UDPReceiver.h"  
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 
 ATrainHUDActor::ATrainHUDActor()
 {
-    PrimaryActorTick.bCanEverTick = true; // 我们要在Tick里更新UI
-    bAutoFindUDPReceiver = false; // 是否自动寻找 BP_UDP 
+    PrimaryActorTick.bCanEverTick = true;   // 在Tick里更新UI
+    bAutoFindUDPReceiver = false;           // 是否自动寻找 BP_UDP 
     ManualUDPReceiverRef = nullptr;
 
     TrainDataWidgetInstance = nullptr;
@@ -28,7 +30,7 @@ void ATrainHUDActor::BeginPlay()
         UGameplayStatics::GetAllActorsOfClass(GetWorld(), AUDPReceiver::StaticClass(), FoundReceivers);
         if (FoundReceivers.Num() > 0)
         {
-            // 只拿第一个，也可做更复杂的筛选
+            // 只拿第一个 AUDPReceiver，也可做更复杂的筛选
             UDPReceiverPtr = Cast<AUDPReceiver>(FoundReceivers[0]);
         }
     }
@@ -58,8 +60,12 @@ void ATrainHUDActor::Tick(float DeltaTime)
         FTrainData LatestData;
         if (UDPReceiverPtr->GetLatestTrainData(LatestData))
         {
+            float SPCK_time = LatestData.SPCKTime;
             float Speed_mps = LatestData.CarBodyVx;
-            float LongitudinalThroughTrack_m = LatestData.CarBodyLocation.X / 100;
+            float LongitudinalThroughTrack_m = LatestData.TrackS;
+
+            // 0) 更新内部仿真时间
+            TrainDataWidgetInstance->UpdateSPCKTime(SPCK_time);
 
             // 1) 更新速度
             TrainDataWidgetInstance->UpdateSpeed(Speed_mps);

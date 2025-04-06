@@ -57,7 +57,7 @@ private:
     // 存放最新的列车/车体数据
     FTrainData LatestTrainData;
 
-    // 期望一次UDP包的字节数
+    // 期望一次UDP包的字节数，需要根据 ROS 2 实际发送的 MSG 长度修改
     int32 ExpectedDataSize;
 
     /**
