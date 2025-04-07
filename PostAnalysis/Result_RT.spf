@@ -569,7 +569,7 @@
             <ResFileRef element="timeInt.time" file="resf1"/>
           </XValues>
           <YValues>
-            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Front__S_IRW_Front__J_DumAxle.st_002" file="resf1"/>
+            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/jointPos/S_IRWBogie_Front__S_IRW_Front__J_DumAxle/st_002" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.jointPos.S_IRWBogie_Front__S_IRW_Front__J_DumAxle.st_002" file="resf1"/>
           </YValues>
           <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
           <LineColor index="0"/>
@@ -587,7 +587,7 @@
             <ResFileRef element="timeInt.time" file="resf1"/>
           </XValues>
           <YValues>
-            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Front__S_IRW_Rear__J_DumAxle.st_002" file="resf1"/>
+            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/jointPos/S_IRWBogie_Front__S_IRW_Rear__J_DumAxle/st_002" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.jointPos.S_IRWBogie_Front__S_IRW_Rear__J_DumAxle.st_002" file="resf1"/>
           </YValues>
           <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
           <LineColor index="2"/>
@@ -605,7 +605,7 @@
             <ResFileRef element="timeInt.time" file="resf1"/>
           </XValues>
           <YValues>
-            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Front__J_DumAxle.st_002" file="resf1"/>
+            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/jointPos/S_IRWBogie_Rear__S_IRW_Front__J_DumAxle/st_002" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Front__J_DumAxle.st_002" file="resf1"/>
           </YValues>
           <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
           <LineColor index="21"/>
@@ -623,7 +623,7 @@
             <ResFileRef element="timeInt.time" file="resf1"/>
           </XValues>
           <YValues>
-            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Rear__J_DumAxle.st_002" file="resf1"/>
+            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/jointPos/S_IRWBogie_Rear__S_IRW_Rear__J_DumAxle/st_002" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Rear__J_DumAxle.st_002" file="resf1"/>
           </YValues>
           <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
           <LineColor index="31"/>
@@ -704,7 +704,7 @@
             <ResFileRef element="timeInt.time" file="resf1"/>
           </XValues>
           <YValues>
-            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Front__S_IRW_Front__J_DumAxle.st_005" file="resf1"/>
+            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/jointPos/S_IRWBogie_Front__S_IRW_Front__J_DumAxle/st_005" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.jointPos.S_IRWBogie_Front__S_IRW_Front__J_DumAxle.st_005" file="resf1"/>
           </YValues>
           <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
           <LineColor index="0"/>
@@ -722,7 +722,7 @@
             <ResFileRef element="timeInt.time" file="resf1"/>
           </XValues>
           <YValues>
-            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Front__S_IRW_Rear__J_DumAxle.st_005" file="resf1"/>
+            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/jointPos/S_IRWBogie_Front__S_IRW_Rear__J_DumAxle/st_005" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.jointPos.S_IRWBogie_Front__S_IRW_Rear__J_DumAxle.st_005" file="resf1"/>
           </YValues>
           <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
           <LineColor index="2"/>
@@ -740,7 +740,7 @@
             <ResFileRef element="timeInt.time" file="resf1"/>
           </XValues>
           <YValues>
-            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Front__J_DumAxle.st_005" file="resf1"/>
+            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/jointPos/S_IRWBogie_Rear__S_IRW_Front__J_DumAxle/st_005" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Front__J_DumAxle.st_005" file="resf1"/>
           </YValues>
           <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
           <LineColor index="21"/>
@@ -758,7 +758,7 @@
             <ResFileRef element="timeInt.time" file="resf1"/>
           </XValues>
           <YValues>
-            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Rear__J_DumAxle.st_005" file="resf1"/>
+            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/jointPos/S_IRWBogie_Rear__S_IRW_Rear__J_DumAxle/st_005" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.jointPos.S_IRWBogie_Rear__S_IRW_Rear__J_DumAxle.st_005" file="resf1"/>
           </YValues>
           <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
           <LineColor index="31"/>
@@ -882,8 +882,8 @@
         <SimInfoOverlay>Hide</SimInfoOverlay>
       </Diagram>
     </Page>
-    <Page id="page4" index="3" type="fixed">
-      <Title>Page 4</Title>
+    <Page id="page6" index="3" type="fixed">
+      <Title>COMFORT</Title>
       <Layout name="pagestandardlayout">
         <BackgroundColor index="47"/>
         <BorderColor index="0"/>
@@ -901,8 +901,23 @@
         <Table id="tabl1">
           <TableCell id="cell1">
             <BackgroundColor index="-1"/>
-            <Size height="1" width="1"/>
+            <Size height="0.5" width="0.5"/>
+            <Pos x="0" y="0.5"/>
+          </TableCell>
+          <TableCell id="cell2">
+            <BackgroundColor index="-1"/>
+            <Size height="0.5" width="0.5"/>
+            <Pos x="0.5" y="0.5"/>
+          </TableCell>
+          <TableCell id="cell3">
+            <BackgroundColor index="-1"/>
+            <Size height="0.5" width="0.5"/>
             <Pos x="0" y="0"/>
+          </TableCell>
+          <TableCell id="cell4">
+            <BackgroundColor index="-1"/>
+            <Size height="0.5" width="0.5"/>
+            <Pos x="0.5" y="0"/>
           </TableCell>
         </Table>
         <Footer id="foot1">
@@ -956,7 +971,7 @@
           </XAxis>
           <YAxis id="yaxi1" type="lin">
             <Position>left</Position>
-            <Title>y [Nm]</Title>
+            <Title>y [m/s^2]</Title>
             <Color index="0"/>
             <Font family="Arial" size="10" weight="normal"/>
             <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
@@ -971,12 +986,12 @@
           </YAxis>
         </Axes>
         <Curve id="curv1" index="0" type="curve2d">
-          <Title>force torque.$S_IRWBogie_Front.$F_Motor_A.y</Title>
+          <Title>sensor acc.$S_accF.y</Title>
           <XValues>
             <ResFileRef element="timeInt.time" file="resf1"/>
           </XValues>
           <YValues>
-            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/forceTorque/S_IRWBogie_Front__F_Motor_A/y" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.forceTorque.S_IRWBogie_Front__F_Motor_A.y" file="resf1"/>
+            <ResFileRef element="timeInt.sensorAccTrans.S_accF.y" file="resf1"/>
           </YValues>
           <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
           <LineColor index="0"/>
@@ -987,92 +1002,24 @@
             <Color index="-1"/>
             <Size>5x5</Size>
           </Markers>
-        </Curve>
-        <Curve id="curv2" index="1" type="curve2d">
-          <Title>force torque.$S_IRWBogie_Front.$F_Motor_B.y</Title>
-          <XValues>
-            <ResFileRef element="timeInt.time" file="resf1"/>
-          </XValues>
-          <YValues>
-            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/forceTorque/S_IRWBogie_Front__F_Motor_B/y" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.forceTorque.S_IRWBogie_Front__F_Motor_B.y" file="resf1"/>
-          </YValues>
-          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
-          <LineColor index="2"/>
-          <LineStyle>dash</LineStyle>
-          <LineWidth>2.25</LineWidth>
-          <Markers visible="false">
-            <Period>1</Period>
-            <Color index="-1"/>
-            <Size>5x5</Size>
-          </Markers>
-        </Curve>
-        <Curve id="curv3" index="2" type="curve2d">
-          <Title>force torque.$S_IRWBogie_Front.$F_Motor_C.y</Title>
-          <XValues>
-            <ResFileRef element="timeInt.time" file="resf1"/>
-          </XValues>
-          <YValues>
-            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/forceTorque/S_IRWBogie_Front__F_Motor_C/y" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.forceTorque.S_IRWBogie_Front__F_Motor_C.y" file="resf1"/>
-          </YValues>
-          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
-          <LineColor index="21"/>
-          <LineStyle>dot</LineStyle>
-          <LineWidth>2.25</LineWidth>
-          <Markers visible="false">
-            <Period>1</Period>
-            <Color index="-1"/>
-            <Size>5x5</Size>
-          </Markers>
-        </Curve>
-        <Curve id="curv4" index="3" type="curve2d">
-          <Title>force torque.$S_IRWBogie_Front.$F_Motor_D.y</Title>
-          <XValues>
-            <ResFileRef element="timeInt.time" file="resf1"/>
-          </XValues>
-          <YValues>
-            <Detached description="Vehicle4WDB_RealtimeCRV.sbr/timeInt/forceTorque/S_IRWBogie_Front__F_Motor_D/y" element="Vehicle4WDB_RealtimeCRV\.sbr.timeInt.forceTorque.S_IRWBogie_Front__F_Motor_D.y" file="resf1"/>
-          </YValues>
-          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
-          <LineColor index="31"/>
-          <LineStyle>dash_dot</LineStyle>
-          <LineWidth>2.25</LineWidth>
-          <Markers visible="false">
-            <Period>1</Period>
-            <Color index="-1"/>
-            <Size>5x5</Size>
-          </Markers>
+          <Filter id="filt2" type="48">
+            <!--Title: 48: Window on x-Values-->
+            <Par arg="1" val="0"/>
+            <Par arg="2" val="50"/>
+            <Par arg="3" val="0"/>
+          </Filter>
+          <Filter id="filt3" type="105">
+            <!--Title: 105: Comfort-->
+            <Par arg="1" val="0"/>
+            <Par arg="2" val="6"/>
+            <Par arg="3" val="1"/>
+            <Par arg="4" val="0"/>
+            <Par arg="5" val="0"/>
+          </Filter>
         </Curve>
         <SimInfoOverlay>Hide</SimInfoOverlay>
       </Diagram>
-    </Page>
-    <Page id="page5" index="4" type="fixed">
-      <Title>Page 5</Title>
-      <Layout name="pagestandardlayout">
-        <BackgroundColor index="47"/>
-        <BorderColor index="0"/>
-        <PaperSize format="A4" orientation="landscape"/>
-        <Margins bottom="5" left="5" right="5" top="5"/>
-        <TitleFrame id="titl1">
-          <Size height="0.045146"/>
-          <Font family="Arial" size="20" weight="normal"/>
-          <TextColor index="0"/>
-          <Alignment hor="center" vert="center"/>
-        </TitleFrame>
-        <Header id="head1">
-          <Size height="0.05"/>
-        </Header>
-        <Table id="tabl1">
-          <TableCell id="cell1">
-            <BackgroundColor index="-1"/>
-            <Size height="1" width="1"/>
-            <Pos x="0" y="0"/>
-          </TableCell>
-        </Table>
-        <Footer id="foot1">
-          <Size height="0.05"/>
-        </Footer>
-      </Layout>
-      <Diagram id="diag5" index="0" parent="cell1" type="2D">
+      <Diagram id="diag2" index="1" parent="cell2" type="2D">
         <Title>Diagram</Title>
         <Layout name="diagramstandardlayout">
           <FrameColor index="-1"/>
@@ -1119,7 +1066,7 @@
           </XAxis>
           <YAxis id="yaxi1" type="lin">
             <Position>left</Position>
-            <Title>s  : Longitudinal position [m]</Title>
+            <Title>z [m/s^2]</Title>
             <Color index="0"/>
             <Font family="Arial" size="10" weight="normal"/>
             <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
@@ -1133,13 +1080,13 @@
             <Bounds max="auto" min="auto"/>
           </YAxis>
         </Axes>
-        <Curve id="curv1" index="0" type="curve2d" visible="false">
-          <Title>joint pos.$J_Carbody.s  : Longitudinal position</Title>
+        <Curve id="curv1" index="0" type="curve2d">
+          <Title>sensor acc.$S_accF.z</Title>
           <XValues>
             <ResFileRef element="timeInt.time" file="resf1"/>
           </XValues>
           <YValues>
-            <ResFileRef element="timeInt.jointPos.J_Carbody.st_001" file="resf1"/>
+            <ResFileRef element="timeInt.sensorAccTrans.S_accF.z" file="resf1"/>
           </YValues>
           <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
           <LineColor index="0"/>
@@ -1150,27 +1097,193 @@
             <Color index="-1"/>
             <Size>5x5</Size>
           </Markers>
+          <Filter id="filt2" type="48">
+            <!--Title: 48: Window on x-Values-->
+            <Par arg="1" val="0"/>
+            <Par arg="2" val="50"/>
+            <Par arg="3" val="0"/>
+          </Filter>
+          <Filter id="filt1" type="105">
+            <!--Title: 105: Comfort-->
+            <Par arg="1" val="0"/>
+            <Par arg="2" val="6"/>
+            <Par arg="3" val="0"/>
+            <Par arg="4" val="0"/>
+            <Par arg="5" val="0"/>
+          </Filter>
         </Curve>
-        <Curve id="curv2" index="1" type="curve2d">
-          <Title>joint pos.$S_IRWBogie_Front.$J_Frame.s  : Longitudinal position</Title>
+        <SimInfoOverlay>Hide</SimInfoOverlay>
+      </Diagram>
+      <Diagram id="diag3" index="2" parent="cell3" type="2D">
+        <Title>Diagram</Title>
+        <Layout name="diagramstandardlayout">
+          <FrameColor index="-1"/>
+          <BackgroundColor index="47"/>
+          <BorderColor index="0"/>
+          <Margins bottom="2" distanceto="text" left="2" right="2" top="2"/>
+          <TitleFrame id="titl1">
+            <Font family="Arial" size="12" weight="normal"/>
+            <TextColor index="0"/>
+            <Alignment hor="center" vert="center"/>
+          </TitleFrame>
+          <TopArea id="topa1" visible="false">
+            <Size height="0.0833333"/>
+          </TopArea>
+          <LeftArea id="lefa1" visible="false">
+            <Size width="0.0833333"/>
+          </LeftArea>
+          <RightArea id="riga1" visible="false">
+            <Size width="0.0833333"/>
+          </RightArea>
+          <BottomArea id="bota1" visible="false">
+            <Size height="0.0833333"/>
+          </BottomArea>
+        </Layout>
+        <Legend position="top">
+          <Font family="Arial" size="10" weight="normal"/>
+          <TextColor index="0"/>
+        </Legend>
+        <Axes>
+          <XAxis id="xaxi1" type="lin">
+            <Position>bottom</Position>
+            <Title>time [s]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </XAxis>
+          <YAxis id="yaxi1" type="lin">
+            <Position>left</Position>
+            <Title>y [m/s^2]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </YAxis>
+        </Axes>
+        <Curve id="curv1" index="0" type="curve2d">
+          <Title>sensor acc.$S_accF.y</Title>
           <XValues>
             <ResFileRef element="timeInt.time" file="resf1"/>
           </XValues>
           <YValues>
-            <ResFileRef element="timeInt.jointPos.S_IRWBogie_Front__J_Frame.st_001" file="resf1"/>
+            <ResFileRef element="timeInt.sensorAccTrans.S_accF.y" file="resf1"/>
           </YValues>
           <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
-          <LineColor index="2"/>
-          <LineStyle>dash</LineStyle>
+          <LineColor index="0"/>
+          <LineStyle>solid</LineStyle>
           <LineWidth>2.25</LineWidth>
           <Markers visible="false">
             <Period>1</Period>
             <Color index="-1"/>
             <Size>5x5</Size>
           </Markers>
-          <Filter id="filt1" type="59">
-            <!--Title: 59: y(x) = y(x) - y2(x)-->
-            <Par arg="1" val="pset1.page5.diag5.curv1"/>
+          <Filter id="filt3" type="48">
+            <!--Title: 48: Window on x-Values-->
+            <Par arg="1" val="0"/>
+            <Par arg="2" val="50"/>
+            <Par arg="3" val="0"/>
+          </Filter>
+        </Curve>
+        <SimInfoOverlay>Hide</SimInfoOverlay>
+      </Diagram>
+      <Diagram id="diag4" index="3" parent="cell4" type="2D">
+        <Title>Diagram</Title>
+        <Layout name="diagramstandardlayout">
+          <FrameColor index="-1"/>
+          <BackgroundColor index="47"/>
+          <BorderColor index="0"/>
+          <Margins bottom="2" distanceto="text" left="2" right="2" top="2"/>
+          <TitleFrame id="titl1">
+            <Font family="Arial" size="12" weight="normal"/>
+            <TextColor index="0"/>
+            <Alignment hor="center" vert="center"/>
+          </TitleFrame>
+          <TopArea id="topa1" visible="false">
+            <Size height="0.0833333"/>
+          </TopArea>
+          <LeftArea id="lefa1" visible="false">
+            <Size width="0.0833333"/>
+          </LeftArea>
+          <RightArea id="riga1" visible="false">
+            <Size width="0.0833333"/>
+          </RightArea>
+          <BottomArea id="bota1" visible="false">
+            <Size height="0.0833333"/>
+          </BottomArea>
+        </Layout>
+        <Legend position="top">
+          <Font family="Arial" size="10" weight="normal"/>
+          <TextColor index="0"/>
+        </Legend>
+        <Axes>
+          <XAxis id="xaxi1" type="lin">
+            <Position>bottom</Position>
+            <Title>time [s]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </XAxis>
+          <YAxis id="yaxi1" type="lin">
+            <Position>left</Position>
+            <Title>z [m/s^2]</Title>
+            <Color index="0"/>
+            <Font family="Arial" size="10" weight="normal"/>
+            <MainTicks exponent="2" format="auto" num="auto" precision="3"/>
+            <SubTicks num="1"/>
+            <Grid>
+              <Color index="46"/>
+            </Grid>
+            <ZeroLine visible="true">
+              <Color index="0"/>
+            </ZeroLine>
+            <Bounds max="auto" min="auto"/>
+          </YAxis>
+        </Axes>
+        <Curve id="curv1" index="0" type="curve2d">
+          <Title>sensor acc.$S_accF.z</Title>
+          <XValues>
+            <ResFileRef element="timeInt.time" file="resf1"/>
+          </XValues>
+          <YValues>
+            <ResFileRef element="timeInt.sensorAccTrans.S_accF.z" file="resf1"/>
+          </YValues>
+          <Axes x="xaxi1" y="yaxi1" z="yaxi1"/>
+          <LineColor index="0"/>
+          <LineStyle>solid</LineStyle>
+          <LineWidth>2.25</LineWidth>
+          <Markers visible="false">
+            <Period>1</Period>
+            <Color index="-1"/>
+            <Size>5x5</Size>
+          </Markers>
+          <Filter id="filt2" type="48">
+            <!--Title: 48: Window on x-Values-->
+            <Par arg="1" val="0"/>
+            <Par arg="2" val="50"/>
+            <Par arg="3" val="0"/>
           </Filter>
         </Curve>
         <SimInfoOverlay>Hide</SimInfoOverlay>

@@ -9,6 +9,7 @@ find_package(builtin_interfaces REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/SimpackU.msg"
   "msg/SimpackY.msg"
+  "msg/SimpackW.msg"
   DEPENDENCIES builtin_interfaces
 )
 

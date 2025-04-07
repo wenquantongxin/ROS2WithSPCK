@@ -211,7 +211,7 @@ private:
 
     // 打印日志 (可选)
     send_count_++;
-    if (send_count_ % 2000 == 0) {
+    if (send_count_ % 4000 == 0) {
       RCLCPP_INFO(this->get_logger(), 
                   "Sent %ld bytes (count=%lu) to %s:%d", 
                   bytes_sent, send_count_,

@@ -105,6 +105,19 @@ target_link_libraries(trkabs_udpsender_node
 )
 
 ###############################################################################
+#       第 5 个可执行： online_evaluation_node （新增）
+###############################################################################
+add_executable(online_evaluation_node
+  src/main_onlinevaluation.cpp
+  src/OnlineEvaluationNode.cpp
+)
+
+ament_target_dependencies(online_evaluation_node
+  rclcpp
+  simpack_interfaces
+)
+
+###############################################################################
 #              安装所有可执行文件到同一目录
 ###############################################################################
 install(TARGETS 
@@ -112,6 +125,8 @@ install(TARGETS
   controller_node
   trkrel_udpsender_node 
   trkabs_udpsender_node
+  online_evaluation_node
+  
   DESTINATION lib/${PROJECT_NAME}
 )
 
