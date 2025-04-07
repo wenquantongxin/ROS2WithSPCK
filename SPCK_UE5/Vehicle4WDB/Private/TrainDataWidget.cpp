@@ -74,9 +74,77 @@ void UTrainDataWidget::UpdateTrackS(float InTrackS)
     }
 }
 
+// 更新 HUD 横向 Sperling 指标
+void UTrainDataWidget::UpdateSperlingY(float SperlingY)
+{
+    FString SperlingY_String = FString::Printf(TEXT("%.3f"), SperlingY);  // 显示3位小数
+
+    if (SperlingY_TextBlock)
+    {
+        SperlingY_TextBlock->SetText(FText::FromString(SperlingY_String));
+    }
+}
+
+// 更新 HUD 垂向 Sperling 指标
+void UTrainDataWidget::UpdateSperlingZ(float SperlingZ)
+{
+    FString SperlingZ_String = FString::Printf(TEXT("%.3f"), SperlingZ);  // 显示3位小数
+
+    if (SperlingZ_TextBlock)
+    {
+        SperlingZ_TextBlock->SetText(FText::FromString(SperlingZ_String));
+    }
+}
+
+// 更新 HUD 左前车轮脱轨系数
+void UTrainDataWidget::UpdateDerailment_w1(float Derailment_w1)
+{
+    FString Derailment_w1_String = FString::Printf(TEXT("%.3f"), Derailment_w1);  // 显示3位小数
+
+    if (Derailment_w1_TextBlock)
+    {
+        Derailment_w1_TextBlock->SetText(FText::FromString(Derailment_w1_String));
+    }
+}
+
+// 更新 HUD 右前车轮脱轨系数
+void UTrainDataWidget::UpdateDerailment_w2(float Derailment_w2)
+{
+    FString Derailment_w2_String = FString::Printf(TEXT("%.3f"), Derailment_w2);  // 显示2位小数
+
+    if (Derailment_w2_TextBlock)
+    {
+        Derailment_w2_TextBlock->SetText(FText::FromString(Derailment_w2_String));
+    }
+}
+
+/*
+// 更新 HUD 左前电机功率
+void UTrainDataWidget::UpdatePower_w1(float Power_w1)
+{
+    FString Power_w1_String = FString::Printf(TEXT("%.2f"), Power_w1/1000);  // 显示2位小数，单位为 kW
+
+    if (Power_w1_TextBlock)
+    {
+        Power_w1_TextBlock->SetText(FText::FromString(Power_w1_String));
+    }
+}
+
+// 更新 HUD 右前电机功率
+void UTrainDataWidget::UpdatePower_w2(float Power_w2)
+{
+    FString Power_w2_String = FString::Printf(TEXT("%.2f"), Power_w2 / 1000);  // 显示2位小数，单位为 kW
+
+    if (Power_w2_TextBlock)
+    {
+        Power_w2_TextBlock->SetText(FText::FromString(Power_w2_String));
+    }
+}
+
+*/
 
 // 以上均为 HUD Widget 函数更新
-// 速度的特殊处理：显示单位的选择
+// 以下为速度的特殊处理：显示单位的选择
 float UTrainDataWidget::ConvertSpeed(float SpeedCmS) const
 {
     float AbsVal = FMath::Abs(SpeedCmS);

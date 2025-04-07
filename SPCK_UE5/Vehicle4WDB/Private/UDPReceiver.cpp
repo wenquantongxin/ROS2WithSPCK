@@ -45,8 +45,8 @@ AUDPReceiver::AUDPReceiver()
     ListenSocket = nullptr;
     UDPReceiver = nullptr;
 
-    // 92 (原77) 个 double，每个 double 8 字节 -> 616 字节
-    ExpectedDataSize = 92 * sizeof(double);
+    // 96 (原77) 个 double，每个 double 8 字节 -> 616 字节
+    ExpectedDataSize = 96 * sizeof(double);
 
     // 刚开始还未收到任何有效数据
     bHasValidData = false;
@@ -317,6 +317,16 @@ void AUDPReceiver::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoi
 
     // (92) 运行里程
     newData.TrackS = rawPtr[idx++];
+
+    // (93~94) Sperling指标, (95~96) 脱轨系数
+    for (int i = 0; i < 2; i++)
+    {
+        newData.SperlingYZ[i] = rawPtr[idx++];
+    }
+    for (int i = 0; i < 2; i++)
+    {
+        newData.DerailmentIndex[i] = rawPtr[idx++];
+    }
 
     // 如果要检查 NaN / 无穷大等，可使用 IsValidData
     if (!IsValidData(cbX, cbY, cbZ, cbRoll, cbYaw, cbPitch))

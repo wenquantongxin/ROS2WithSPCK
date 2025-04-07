@@ -7,8 +7,8 @@
 #include "TrainData.generated.h"
 
 /**
- * ï¿½á¹¹ï¿½ï¿½æ´¢ï¿½ï¿½ UDP ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½
- * UDP ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ 92(Ô­77) ï¿½ï¿½ double ï¿½Ä²ï¿½Ö·ï¿½Ê½ï¿½ï¿½
+ * ½á¹¹Ìå´æ´¢´Ó UDP ½ÓÊÕµ½µÄÕû³µÐÅÏ¢¡£
+ * UDP ½ÓÊÕµ½µÄ 91(Ô­77) ¸ö double µÄ²ð·Ö·½Ê½¡£
  */
 
 USTRUCT(BlueprintType)
@@ -27,71 +27,79 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     double CarBodyVx;
 
-    // 4~9) ï¿½ï¿½ï¿½ï¿½6ï¿½ï¿½ï¿½É¶ï¿½ (X,Y,Z, roll,yaw,pitch)
+    // 4~9) ³µÌå6×ÔÓÉ¶È (X,Y,Z, roll,yaw,pitch)
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     FVector CarBodyLocation;   // (X, Y, Z)
 
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
-    FRotator CarBodyRotation;  // (Pitch, Yaw, Roll) ï¿½ï¿½ï¿½ï¿½ ×¢ï¿½ï¿½ï¿½ï¿½ï¿½Ê±Òªï¿½ï¿½ï¿½ï¿½
+    FRotator CarBodyRotation;  // (Pitch, Yaw, Roll) ¡ª¡ª ×¢Òâ½âÎöÊ±ÒªÖØÅÅ
 
-    // 10~17) 8ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½×ªï¿½Ù¶ï¿½ rotw
+    // 10~17) 8¸öÂÖµÄÐý×ªËÙ¶È rotw
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> WheelsRotSpeed; // size=8
 
-    // 18~23) ×ªï¿½ï¿½ï¿½ #1ï¿½ï¿½X,Y,Z, roll,yaw,pitchï¿½ï¿½
+    // 18~23) ×ªÏò¼Ü #1£¨X,Y,Z, roll,yaw,pitch£©
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     FVector Bogie01Location;
 
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     FRotator Bogie01Rotation;
 
-    // 24~29) ×ªï¿½ï¿½ï¿½ #2
+    // 24~29) ×ªÏò¼Ü #2
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     FVector Bogie02Location;
 
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     FRotator Bogie02Rotation;
 
-    // 30~53) 4ï¿½ï¿½ï¿½Ö¶ï¿½(Ã¿ï¿½ï¿½ 6 DOF)
+    // 30~53) 4¸öÂÖ¶Ô(Ã¿¸ö 6 DOF)
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<FVector> WheelsetLocations; // size=4
 
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<FRotator> WheelsetRotations; // size=4
 
-    // 54~61) 8ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ rota
+    // 54~61) 8¸ö³µÂÖ×ª½Ç rota
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> WheelsRotation; // size=8
 
-    // 62~69) 8ï¿½ï¿½ï¿½Ü¸ï¿½ pitch
+    // 62~69) 8¸ö¸Ü¸Ë pitch
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> BarsPitch; // size=8
 
-    // 70~73) 4ï¿½ï¿½ï¿½Ö¶ï¿½ vy
+    // 70~73) 4¸öÂÖ¶Ô vy
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> WheelsetVY; // size=4
 
-    // 74~77) 4ï¿½ï¿½ï¿½Ö¶ï¿½ vyaw
+    // 74~77) 4¸öÂÖ¶Ô vyaw
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> WheelsetVYaw; // size=4
 
-    // 78~79) ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½
+    // 78~79) ³µÁ¾Æ½ÎÈÐÔ
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> CarbodyComfort; // size=2
 
-    // 80~83) ï¿½Ö¹ï¿½ï¿½ï¿½
+    // 80~83) ÂÖ¹ìÁ¦
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> WheelRailContactForce; // size=4
 
-    // 84~91) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // 84~91) ·´ÉäµÄÂÖ²àÊäÈëÁ¦¾Ø
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     TArray<double> InputTorque; // size=8
 
-    // 92) TrackS ï¿½Ð³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ä»»
+    // 92) TrackS ÁÐ³µÔËÐÐÀï³Ì£¬²»²ÎÓë×ø±ê±ä»»
     UPROPERTY(BlueprintReadWrite, Category = "TrainData")
     double TrackS;
 
-    // ï¿½ï¿½ï¿½ìº¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß´ï¿½
+    // 93~94) SperlingÖ¸±ê
+    UPROPERTY(BlueprintReadWrite, Category = "TrainData")
+    TArray<double> SperlingYZ; // size=2
+
+    // 95~96) ÍÑ¹ìÏµÊý
+    UPROPERTY(BlueprintReadWrite, Category = "TrainData")
+    TArray<double> DerailmentIndex; // size=2
+
+    // ¹¹Ôìº¯Êý£¬³õÊ¼»¯Êý×é³ß´ç
     FTrainData()
     {
         SimTime = 0.0;
@@ -118,9 +126,12 @@ public:
         WheelsetVY.SetNum(4);
         WheelsetVYaw.SetNum(4);
 
-        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 14 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        // ÐÂÔöµÄ 14 + 4 ×éÊý¾Ý
         CarbodyComfort.SetNum(2);
         WheelRailContactForce.SetNum(4);
         InputTorque.SetNum(8);
+
+        SperlingYZ.SetNum(2);
+        DerailmentIndex.SetNum(2);
     }
 };
