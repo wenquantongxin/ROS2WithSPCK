@@ -30,8 +30,9 @@ private:
   rclcpp::Publisher<simpack_interfaces::msg::SimpackW>::SharedPtr pub_w_;
 
   // -------- Sperling 算法相关 --------
-  double fs_;          ///< 重采样频率(Hz), 默认 50
-  double win_length_;  ///< 窗口长度(s), 默认 5
+  double fs_;                  
+  double sperling_win_length_; 
+  double derailment_win_length_;
 
   // 保存5s内的数据
   std::deque<double> time_buffer_;
