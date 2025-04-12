@@ -99,7 +99,7 @@ void UTrainDataWidget::UpdateSperlingZ(float SperlingZ)
 // 更新 HUD 左前车轮脱轨系数
 void UTrainDataWidget::UpdateDerailment_w1(float Derailment_w1)
 {
-    FString Derailment_w1_String = FString::Printf(TEXT("%.3f"), Derailment_w1);  // 显示3位小数
+    FString Derailment_w1_String = FString::Printf(TEXT("%.3f"), abs(Derailment_w1));  // 显示3位小数
 
     if (Derailment_w1_TextBlock)
     {
@@ -110,7 +110,7 @@ void UTrainDataWidget::UpdateDerailment_w1(float Derailment_w1)
 // 更新 HUD 右前车轮脱轨系数
 void UTrainDataWidget::UpdateDerailment_w2(float Derailment_w2)
 {
-    FString Derailment_w2_String = FString::Printf(TEXT("%.3f"), Derailment_w2);  // 显示2位小数
+    FString Derailment_w2_String = FString::Printf(TEXT("%.3f"), abs(Derailment_w2));  // 显示2位小数
 
     if (Derailment_w2_TextBlock)
     {
