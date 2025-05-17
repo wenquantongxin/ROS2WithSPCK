@@ -19,8 +19,8 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont
 
 # 常量定义
-DEFAULT_LOG_PATH = "/home/yaoyao/Documents/myProjects/ROS2WithSPCK/PostAnalysis/Result_UDPall.log"
-DEFAULT_TARGET_IP = "192.168.1.131"
+DEFAULT_LOG_PATH = "E:/ResearchDocuments/ROS2WithSPCK/PostAnalysis/Result_UDPall.log"
+DEFAULT_TARGET_IP = "192.168.1.118"
 DEFAULT_TARGET_PORT = 10099
 
 # 仅保留 0.2x、0.5x、1x、2x
@@ -485,10 +485,17 @@ if __name__ == "__main__":
 
 '''
 
- 运行：
+    运行：
 
-    conda activate pyqt 
-    cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK/SPCK_UE5 
-    python log_udp_player.py
+    Ubuntu:
+        conda activate pyqt 
+        cd /home/yaoyao/Documents/myProjects/ROS2WithSPCK/SPCK_UE5 
+        python log_udp_player.py
+
+    Windows:
+        conda activate pyqt 
+        E:
+        cd "E:\ResearchDocuments\ROS2WithSPCK\SPCK_UE5\"
+        python log_udp_player.py
 
 '''

@@ -4,9 +4,9 @@ using UnrealBuildTool;
 
 public class Vehicle4WDB : ModuleRules
 {
-	public Vehicle4WDB(ReadOnlyTargetRules Target) : base(Target)
-	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+    public Vehicle4WDB(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         //PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
         PublicDependencyModuleNames.AddRange(new string[] {
@@ -17,10 +17,10 @@ public class Vehicle4WDB : ModuleRules
             "EnhancedInput",
             "Networking",
             "Sockets",
-            "UMG",        // Ê¹ÓÃ UUserWidget
-            "SlateCore",  // Èç¹ûÐèÒª
+            "UMG",        // Ê¹ï¿½ï¿½ UUserWidget
+            "SlateCore",  // ï¿½ï¿½ï¿½ï¿½ï¿½Òª
             "Json",
-            "JsonUtilities"  // Ìí¼ÓÒÔÖ§³ÖJSON´¦Àí
+            "JsonUtilities"  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ï¿½JSONï¿½ï¿½ï¿½ï¿½
         });
     }
 }
