@@ -30,7 +30,7 @@
 // 默认仿真步长 = 2ms (500Hz)
 static const double DEFAULT_DT = 0.002;
 
-// 默认仿真总时长 = 50s
+// 默认仿真总时长 50s(短测试) / 550s(完整仿真)
 static const double DEFAULT_SIM_DURATION = 550.0;
 
 // 方便后续计时

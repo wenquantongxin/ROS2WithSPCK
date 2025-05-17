@@ -109,7 +109,4 @@ ROS2与SIMPACK仿真软件的控制系统交互，进行车辆动力学**实时�
     ros2 run plotjuggler plotjuggler                          # plotjuggler 实时播放与回放 (安装: sudo apt install ros-humble-plotjuggler-ros)
 
 
-## 跨机通信
-### 通过 pyopengl 实时渲染车辆动态
-    python OnlineVis_RTTrain.py # Ubuntu 实时仿真通过 UDP 10088 传输的数据
 

@@ -44,7 +44,9 @@ class DataLoader(QThread):
     def run(self):
         try:
             # 首先统计文件行数以计算进度
-            total_lines = sum(1 for _ in open(self.filepath, 'r'))
+            # 使用 "with" 语句保证文件在读取后被正确关闭
+            with open(self.filepath, 'r') as f:
+                total_lines = sum(1 for _ in f)
             
             data = []
             times = []
